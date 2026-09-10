@@ -1669,3 +1669,374 @@ a {
   }
 
 }
+
+/* ==================================================
+   WO DETAIL ACTION GROUP
+   ================================================== */
+
+.wo-detail-action-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+
+/* ==================================================
+   HISTORY BUTTON
+   ================================================== */
+
+.wo-detail-history-button {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wo-detail-history-button:hover {
+  background: #f3f4f6;
+}
+
+
+/* ==================================================
+   SUPPLY HISTORY MODAL
+   ================================================== */
+
+.supply-history-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+}
+
+.supply-history-modal.show {
+  display: block;
+}
+
+.supply-history-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+
+/* ==================================================
+   MODAL CONTENT
+   ================================================== */
+
+.supply-history-content {
+  position: relative;
+
+  width: min(
+    700px,
+    calc(100% - 32px)
+  );
+
+  max-height:
+    calc(100vh - 100px);
+
+  margin: 50px auto 0;
+
+  background: #ffffff;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.18);
+
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* ==================================================
+   HEADER
+   ================================================== */
+
+.supply-history-header {
+  display: flex;
+
+  align-items: flex-start;
+
+  justify-content: space-between;
+
+  padding: 20px 22px;
+
+  border-bottom:
+    1px solid #e5e7eb;
+}
+
+.supply-history-header h3 {
+  margin: 0;
+
+  color: #0b1f3a;
+
+  font-size: 19px;
+
+  font-weight: 800;
+}
+
+.supply-history-header p {
+  margin: 5px 0 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.supply-history-close {
+  width: 32px;
+  height: 32px;
+
+  border: none;
+
+  background: #f3f4f6;
+
+  color: #374151;
+
+  border-radius: 7px;
+
+  font-size: 22px;
+
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.supply-history-close:hover {
+  background: #e5e7eb;
+}
+
+
+/* ==================================================
+   BODY
+   ================================================== */
+
+.supply-history-body {
+  padding: 22px;
+
+  overflow-y: auto;
+}
+
+
+/* ==================================================
+   SUMMARY
+   ================================================== */
+
+.supply-history-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 18px;
+}
+
+.supply-history-summary > div {
+  padding: 14px;
+
+  background: #f8fafc;
+
+  border:
+    1px solid #e5e7eb;
+
+  border-radius: 8px;
+}
+
+.supply-history-summary span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #6b7280;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+.supply-history-summary strong {
+  color: #0b1f3a;
+
+  font-size: 20px;
+
+  font-weight: 800;
+}
+
+
+/* ==================================================
+   TABLE
+   ================================================== */
+
+.supply-history-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.supply-history-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  min-width: 500px;
+}
+
+.supply-history-table th {
+  padding: 12px 14px;
+
+  background: #f5f7fa;
+
+  color: #374151;
+
+  text-align: left;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  border-bottom:
+    1px solid #e3e7ee;
+}
+
+.supply-history-table td {
+  padding: 13px 14px;
+
+  color: #374151;
+
+  font-size: 13px;
+
+  border-bottom:
+    1px solid #edf0f4;
+}
+
+.supply-history-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+
+/* ==================================================
+   EMPTY
+   ================================================== */
+
+.supply-history-empty {
+  padding: 40px 20px;
+
+  text-align: center;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+
+/* ==================================================
+   LOADING
+   ================================================== */
+
+.supply-history-loading {
+  padding: 35px 20px;
+
+  text-align: center;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+
+/* ==================================================
+   ERROR
+   ================================================== */
+
+.supply-history-error {
+  display: none;
+
+  padding: 12px 14px;
+
+  margin-bottom: 16px;
+
+  border:
+    1px solid #fecdd3;
+
+  border-radius: 8px;
+
+  background: #fff1f2;
+
+  color: #be123c;
+
+  font-size: 13px;
+}
+
+
+/* ==================================================
+   FOOTER
+   ================================================== */
+
+.supply-history-footer {
+  display: flex;
+
+  justify-content: flex-end;
+
+  padding: 15px 22px;
+
+  border-top:
+    1px solid #e5e7eb;
+
+  background: #fafafa;
+}
+
+.supply-history-close-button {
+  border:
+    1px solid #d1d5db;
+
+  background: #ffffff;
+
+  color: #374151;
+
+  border-radius: 8px;
+
+  padding: 9px 17px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.supply-history-close-button:hover {
+  background: #f3f4f6;
+}
+
+
+/* ==================================================
+   RESPONSIVE
+   ================================================== */
+
+@media (
+  max-width: 600px
+) {
+
+  .supply-history-content {
+    margin-top: 25px;
+
+    max-height:
+      calc(100vh - 50px);
+  }
+
+
+  .supply-history-summary {
+    grid-template-columns: 1fr;
+  }
+
+}

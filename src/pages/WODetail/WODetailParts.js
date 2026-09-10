@@ -5,7 +5,8 @@ import {
 
 import {
   escapeHTML,
-  formatDate
+  formatDate,
+  formatTimestamp
 } from './WODetailUtils.js'
 
 
@@ -227,28 +228,51 @@ export function renderWODetailParts(
 
                       <td>
 
-                        <button
-                          type="button"
-                          class="wo-detail-supply-button"
-                          data-part-id="${escapeHTML(
-                            part.id || ''
-                          )}"
-                          data-pno="${escapeHTML(
-                            part.pno || ''
-                          )}"
-                          data-nama-part="${escapeHTML(
-                            part.namaPart || ''
-                          )}"
-                          data-qty-order="${qtyOrder}"
-                          data-total-supply="${totalSupply}"
-                          data-sisa="${sisa}"
-                          ${supplyDisabled
-                            ? 'disabled'
-                            : ''
-                          }
+                        <div
+                          class="wo-detail-action-group"
                         >
-                          + Supply
-                        </button>
+
+                          <button
+                            type="button"
+                            class="wo-detail-supply-button"
+                            data-part-id="${escapeHTML(
+                              part.id || ''
+                            )}"
+                            data-pno="${escapeHTML(
+                              part.pno || ''
+                            )}"
+                            data-nama-part="${escapeHTML(
+                              part.namaPart || ''
+                            )}"
+                            data-qty-order="${qtyOrder}"
+                            data-total-supply="${totalSupply}"
+                            data-sisa="${sisa}"
+                            ${supplyDisabled
+                              ? 'disabled'
+                              : ''
+                            }
+                          >
+                            + Supply
+                          </button>
+
+
+                          <button
+                            type="button"
+                            class="wo-detail-history-button"
+                            data-part-id="${escapeHTML(
+                              part.id || ''
+                            )}"
+                            data-pno="${escapeHTML(
+                              part.pno || ''
+                            )}"
+                            data-nama-part="${escapeHTML(
+                              part.namaPart || ''
+                            )}"
+                          >
+                            History
+                          </button>
+
+                        </div>
 
                       </td>
 
@@ -412,9 +436,7 @@ export function renderWODetailParts(
               placeholder="Masukkan jumlah supply"
             >
 
-            <small
-              id="supply-qty-help"
-            >
+            <small>
               Maksimal sesuai jumlah sisa.
             </small>
 
@@ -474,6 +496,93 @@ export function renderWODetailParts(
 
     </div>
 
+
+    <!--
+      ==================================================
+      SUPPLY HISTORY MODAL
+      ==================================================
+    -->
+
+    <div
+      id="supply-history-modal"
+      class="supply-history-modal"
+    >
+
+      <div
+        id="supply-history-overlay"
+        class="supply-history-overlay"
+      ></div>
+
+
+      <div class="supply-history-content">
+
+        <div class="supply-history-header">
+
+          <div>
+
+            <h3>
+              Supply History
+            </h3>
+
+            <p
+              id="supply-history-subtitle"
+            >
+              Riwayat kedatangan part.
+            </p>
+
+          </div>
+
+
+          <button
+            type="button"
+            id="supply-history-close"
+            class="supply-history-close"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        <div class="supply-history-body">
+
+          <div
+            id="supply-history-loading"
+            class="supply-history-loading"
+          >
+            Memuat history...
+          </div>
+
+
+          <div
+            id="supply-history-error"
+            class="supply-history-error"
+          ></div>
+
+
+          <div
+            id="supply-history-table-container"
+          ></div>
+
+        </div>
+
+
+        <div class="supply-history-footer">
+
+          <button
+            type="button"
+            id="supply-history-close-button"
+            class="supply-history-close-button"
+          >
+            Tutup
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
   `
 
 }
@@ -504,13 +613,13 @@ export function initWODetailSupply(
     ==========================================
   */
 
-  const buttons =
+  const supplyButtons =
     document.querySelectorAll(
       '.wo-detail-supply-button'
     )
 
 
-  buttons.forEach(
+  supplyButtons.forEach(
     button => {
 
       button.addEventListener(
@@ -530,11 +639,20 @@ export function initWODetailSupply(
 
   /*
     ==========================================
-    MODAL BUTTON
+    SUPPLY MODAL
     ==========================================
   */
 
   initSupplyModalButtons()
+
+
+  /*
+    ==========================================
+    HISTORY
+    ==========================================
+  */
+
+  initSupplyHistoryButtons()
 
 }
 
@@ -561,12 +679,6 @@ function openSupplyModal(
 
   }
 
-
-  /*
-    ==========================================
-    AMBIL DATA PART
-    ==========================================
-  */
 
   const partId =
     button.dataset.partId || ''
@@ -600,7 +712,7 @@ function openSupplyModal(
 
   /*
     ==========================================
-    SIMPAN PART ID DI MODAL
+    SIMPAN PART ID
     ==========================================
   */
 
@@ -610,7 +722,7 @@ function openSupplyModal(
 
   /*
     ==========================================
-    ELEMENT MODAL
+    ISI INFORMASI
     ==========================================
   */
 
@@ -662,12 +774,6 @@ function openSupplyModal(
     )
 
 
-  /*
-    ==========================================
-    ISI INFORMASI PART
-    ==========================================
-  */
-
   if (pnoElement) {
 
     pnoElement.textContent =
@@ -710,7 +816,7 @@ function openSupplyModal(
 
   /*
     ==========================================
-    RESET QTY
+    RESET INPUT
     ==========================================
   */
 
@@ -725,12 +831,6 @@ function openSupplyModal(
   }
 
 
-  /*
-    ==========================================
-    DEFAULT ATA = HARI INI
-    ==========================================
-  */
-
   if (ataInput) {
 
     ataInput.value =
@@ -738,12 +838,6 @@ function openSupplyModal(
 
   }
 
-
-  /*
-    ==========================================
-    RESET ERROR
-    ==========================================
-  */
 
   if (errorElement) {
 
@@ -755,12 +849,6 @@ function openSupplyModal(
 
   }
 
-
-  /*
-    ==========================================
-    TAMPILKAN MODAL
-    ==========================================
-  */
 
   modal.classList.add(
     'show'
@@ -819,7 +907,7 @@ function closeSupplyModal() {
 
 /*
   ==================================================
-  INIT MODAL BUTTONS
+  INIT SUPPLY MODAL BUTTONS
   ==================================================
 */
 
@@ -923,12 +1011,6 @@ async function handleSupplySave() {
     )
 
 
-  /*
-    ==========================================
-    AMBIL DATA
-    ==========================================
-  */
-
   const partId =
     modal?.dataset.partId || ''
 
@@ -951,7 +1033,7 @@ async function handleSupplySave() {
 
   /*
     ==========================================
-    VALIDASI PART ID
+    VALIDASI PART
     ==========================================
   */
 
@@ -968,7 +1050,7 @@ async function handleSupplySave() {
 
   /*
     ==========================================
-    VALIDASI ORDER ID
+    VALIDASI ORDER
     ==========================================
   */
 
@@ -1005,7 +1087,7 @@ async function handleSupplySave() {
 
   /*
     ==========================================
-    VALIDASI MAKSIMAL
+    VALIDASI SISA
     ==========================================
   */
 
@@ -1054,7 +1136,7 @@ async function handleSupplySave() {
 
   /*
     ==========================================
-    BUTTON LOADING
+    LOADING
     ==========================================
   */
 
@@ -1073,7 +1155,7 @@ async function handleSupplySave() {
 
     /*
       ========================================
-      SIMPAN KE FIRESTORE
+      SIMPAN FIRESTORE
       ========================================
     */
 
@@ -1103,7 +1185,7 @@ async function handleSupplySave() {
 
     /*
       ========================================
-      REFRESH DATA
+      REFRESH WO DETAIL
       ========================================
     */
 
@@ -1176,6 +1258,530 @@ function showSupplyError(
 
   errorElement.textContent =
     message
+
+}
+
+
+/*
+  ==================================================
+  INIT HISTORY BUTTONS
+  ==================================================
+*/
+
+function initSupplyHistoryButtons() {
+
+  const buttons =
+    document.querySelectorAll(
+      '.wo-detail-history-button'
+    )
+
+
+  buttons.forEach(
+    button => {
+
+      button.addEventListener(
+        'click',
+        () => {
+
+          openSupplyHistory(
+            button
+          )
+
+        }
+      )
+
+    }
+  )
+
+
+  initHistoryModalButtons()
+
+}
+
+
+/*
+  ==================================================
+  OPEN SUPPLY HISTORY
+  ==================================================
+*/
+
+async function openSupplyHistory(
+  button
+) {
+
+  const modal =
+    document.getElementById(
+      'supply-history-modal'
+    )
+
+
+  if (!modal) {
+
+    return
+
+  }
+
+
+  const orderId =
+    currentOrderId
+
+
+  const partId =
+    button.dataset.partId || ''
+
+
+  const pno =
+    button.dataset.pno || ''
+
+
+  const namaPart =
+    button.dataset.namaPart || ''
+
+
+  if (
+    !orderId ||
+    !partId
+  ) {
+
+    showHistoryError(
+      'Data part tidak tersedia.'
+    )
+
+    return
+
+  }
+
+
+  /*
+    ==========================================
+    SUBTITLE
+    ==========================================
+  */
+
+  const subtitle =
+    document.getElementById(
+      'supply-history-subtitle'
+    )
+
+
+  if (subtitle) {
+
+    subtitle.textContent =
+      `${pno} - ${namaPart}`
+
+  }
+
+
+  /*
+    ==========================================
+    ELEMENT
+    ==========================================
+  */
+
+  const loading =
+    document.getElementById(
+      'supply-history-loading'
+    )
+
+
+  const error =
+    document.getElementById(
+      'supply-history-error'
+    )
+
+
+  const container =
+    document.getElementById(
+      'supply-history-table-container'
+    )
+
+
+  if (loading) {
+
+    loading.style.display =
+      'block'
+
+  }
+
+
+  if (error) {
+
+    error.style.display =
+      'none'
+
+    error.textContent =
+      ''
+
+  }
+
+
+  if (container) {
+
+    container.innerHTML =
+      ''
+
+  }
+
+
+  modal.classList.add(
+    'show'
+  )
+
+
+  try {
+
+    /*
+      ----------------------------------------
+      IMPORT DINAMIS
+      ----------------------------------------
+    */
+
+    const {
+      getSupplyHistory
+    } =
+      await import(
+        '../../services/orderService.js'
+      )
+
+
+    const history =
+      await getSupplyHistory(
+        orderId,
+        partId
+      )
+
+
+    renderSupplyHistoryTable(
+      history
+    )
+
+  }
+  catch (error) {
+
+    console.error(
+      'GAGAL MEMUAT SUPPLY HISTORY:',
+      error
+    )
+
+
+    showHistoryError(
+      error.message ||
+      'Gagal memuat supply history.'
+    )
+
+  }
+  finally {
+
+    if (loading) {
+
+      loading.style.display =
+        'none'
+
+    }
+
+  }
+
+}
+
+
+/*
+  ==================================================
+  RENDER HISTORY TABLE
+  ==================================================
+*/
+
+function renderSupplyHistoryTable(
+  history
+) {
+
+  const container =
+    document.getElementById(
+      'supply-history-table-container'
+    )
+
+
+  if (!container) {
+
+    return
+
+  }
+
+
+  if (
+    !Array.isArray(history) ||
+    history.length === 0
+  ) {
+
+    container.innerHTML = `
+
+      <div class="supply-history-empty">
+
+        Belum ada riwayat supply.
+
+      </div>
+
+    `
+
+    return
+
+  }
+
+
+  const totalSupply =
+    history.reduce(
+      (
+        total,
+        item
+      ) => {
+
+        return (
+          total +
+          Number(
+            item.qtySupply || 0
+          )
+        )
+
+      },
+      0
+    )
+
+
+  container.innerHTML = `
+
+    <div class="supply-history-summary">
+
+      <div>
+
+        <span>
+          Total Transaksi
+        </span>
+
+        <strong>
+          ${history.length}
+        </strong>
+
+      </div>
+
+
+      <div>
+
+        <span>
+          Total Supply
+        </span>
+
+        <strong>
+          ${totalSupply}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="supply-history-table-wrapper">
+
+      <table class="supply-history-table">
+
+        <thead>
+
+          <tr>
+
+            <th>No</th>
+
+            <th>ATA</th>
+
+            <th>Qty Supply</th>
+
+            <th>Dicatat</th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          ${history
+            .map(
+              (
+                item,
+                index
+              ) => `
+
+                <tr>
+
+                  <td>
+                    ${index + 1}
+                  </td>
+
+
+                  <td>
+                    ${formatDate(
+                      item.ata
+                    )}
+                  </td>
+
+
+                  <td>
+
+                    <strong>
+                      ${Number(
+                        item.qtySupply || 0
+                      )}
+                    </strong>
+
+                  </td>
+
+
+                  <td>
+                    ${formatTimestamp(
+                      item.createdAt
+                    )}
+                  </td>
+
+                </tr>
+
+              `
+            )
+            .join('')
+          }
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  `
+
+}
+
+
+/*
+  ==================================================
+  HISTORY MODAL BUTTONS
+  ==================================================
+*/
+
+function initHistoryModalButtons() {
+
+  const closeButton =
+    document.getElementById(
+      'supply-history-close'
+    )
+
+
+  const closeFooterButton =
+    document.getElementById(
+      'supply-history-close-button'
+    )
+
+
+  const overlay =
+    document.getElementById(
+      'supply-history-overlay'
+    )
+
+
+  if (closeButton) {
+
+    closeButton.addEventListener(
+      'click',
+      closeSupplyHistory
+    )
+
+  }
+
+
+  if (closeFooterButton) {
+
+    closeFooterButton.addEventListener(
+      'click',
+      closeSupplyHistory
+    )
+
+  }
+
+
+  if (overlay) {
+
+    overlay.addEventListener(
+      'click',
+      closeSupplyHistory
+    )
+
+  }
+
+}
+
+
+/*
+  ==================================================
+  CLOSE HISTORY
+  ==================================================
+*/
+
+function closeSupplyHistory() {
+
+  const modal =
+    document.getElementById(
+      'supply-history-modal'
+    )
+
+
+  if (!modal) {
+
+    return
+
+  }
+
+
+  modal.classList.remove(
+    'show'
+  )
+
+}
+
+
+/*
+  ==================================================
+  SHOW HISTORY ERROR
+  ==================================================
+*/
+
+function showHistoryError(
+  message
+) {
+
+  const loading =
+    document.getElementById(
+      'supply-history-loading'
+    )
+
+
+  const error =
+    document.getElementById(
+      'supply-history-error'
+    )
+
+
+  if (loading) {
+
+    loading.style.display =
+      'none'
+
+  }
+
+
+  if (error) {
+
+    error.style.display =
+      'block'
+
+    error.textContent =
+      message
+
+  }
 
 }
 

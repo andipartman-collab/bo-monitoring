@@ -1020,3 +1020,82 @@ export async function addSupply(
   }
 
 }
+
+
+/*
+  ==================================================
+  GET SUPPLY HISTORY
+  ==================================================
+
+  Mengambil seluruh history supply
+  dari satu part.
+
+  Struktur:
+
+  orders/{orderId}
+    parts/{partId}
+      supplies/*
+*/
+
+export async function getSupplyHistory(
+  orderId,
+  partId
+) {
+
+  if (!orderId) {
+
+    throw new Error(
+      'Order ID tidak tersedia.'
+    )
+
+  }
+
+
+  if (!partId) {
+
+    throw new Error(
+      'Part ID tidak tersedia.'
+    )
+
+  }
+
+
+  const suppliesRef =
+    collection(
+      db,
+      'orders',
+      orderId,
+      'parts',
+      partId,
+      'supplies'
+    )
+
+
+  const suppliesQuery =
+    query(
+      suppliesRef,
+      orderBy(
+        'createdAt',
+        'desc'
+      )
+    )
+
+
+  const snapshot =
+    await getDocs(
+      suppliesQuery
+    )
+
+
+  return snapshot.docs.map(
+    document => ({
+
+      id:
+        document.id,
+
+      ...document.data()
+
+    })
+  )
+
+}
