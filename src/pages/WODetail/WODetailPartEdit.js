@@ -1,6 +1,6 @@
 import {
-  escapeHTML
-} from './WODetailUtils.js'
+  updatePart
+} from '../../services/orderService.js'
 
 
 /*
@@ -64,67 +64,43 @@ export function renderWODetailPartEditModal() {
           <div class="wo-edit-grid">
 
             <div class="wo-edit-field">
-
-              <label for="part-edit-pno">
-                PNO
-              </label>
-
+              <label for="part-edit-pno">PNO</label>
               <input
                 type="text"
                 id="part-edit-pno"
                 required
               >
-
             </div>
 
             <div class="wo-edit-field">
-
-              <label for="part-edit-nama-part">
-                Nama Part
-              </label>
-
+              <label for="part-edit-nama-part">Nama Part</label>
               <input
                 type="text"
                 id="part-edit-nama-part"
                 required
               >
-
             </div>
 
             <div class="wo-edit-field">
-
-              <label for="part-edit-no-order">
-                No Order
-              </label>
-
+              <label for="part-edit-no-order">No Order</label>
               <input
                 type="text"
                 id="part-edit-no-order"
                 required
               >
-
             </div>
 
             <div class="wo-edit-field">
-
-              <label for="part-edit-tgl-order">
-                Tgl Order
-              </label>
-
+              <label for="part-edit-tgl-order">Tgl Order</label>
               <input
                 type="date"
                 id="part-edit-tgl-order"
                 required
               >
-
             </div>
 
             <div class="wo-edit-field">
-
-              <label for="part-edit-qty-order">
-                Qty Order
-              </label>
-
+              <label for="part-edit-qty-order">Qty Order</label>
               <input
                 type="number"
                 id="part-edit-qty-order"
@@ -132,28 +108,20 @@ export function renderWODetailPartEditModal() {
                 step="1"
                 required
               >
-
               <small id="part-edit-supply-info">
                 Supply saat ini: 0
               </small>
-
             </div>
 
             <div class="wo-edit-field">
-
-              <label for="part-edit-eta">
-                ETA
-              </label>
-
+              <label for="part-edit-eta">ETA</label>
               <input
                 type="date"
                 id="part-edit-eta"
               >
-
               <small>
                 Jika ETA berubah, sistem akan mencatat history ETA.
               </small>
-
             </div>
 
           </div>
@@ -200,6 +168,7 @@ export function renderWODetailPartEditModal() {
 
 export function initWODetailPartEdit(
   orderId,
+  parts,
   onSaved
 ) {
 
@@ -212,7 +181,7 @@ export function initWODetailPartEdit(
   const message =
     document.getElementById('part-edit-message')
 
-  if (!modal || !form) {
+  if (!modal || !form || !Array.isArray(parts)) {
     return
   }
 
@@ -257,7 +226,10 @@ export function initWODetailPartEdit(
   }
 
 
-  function showMessage(text, type) {
+  function showMessage(
+    text,
+    type
+  ) {
 
     if (!message) return
 
@@ -268,17 +240,16 @@ export function initWODetailPartEdit(
   }
 
 
-  function openModal(part) {
+  function fillForm(part) {
 
-    if (!part || !part.id) {
-      return
-    }
+    currentPartId =
+      part.id || null
 
-    currentPartId = part.id
-    currentOriginalETA = part.eta || ''
-    currentTotalSupply = Number(
-      part.totalSupply || 0
-    )
+    currentOriginalETA =
+      part.eta || ''
+
+    currentTotalSupply =
+      Number(part.totalSupply || 0)
 
     pnoInput.value =
       part.pno || ''
@@ -336,45 +307,68 @@ export function initWODetailPartEdit(
   }
 
 
-  document
-    .querySelectorAll('.wo-detail-part-edit-button')
-    .forEach(button => {
+  /*
+    ==========================================
+    BUAT TOMBOL EDIT DI SETIAP ROW
+    ==========================================
 
-      button.onclick = () => {
+    WODetailParts.js tetap tidak perlu diubah.
+    Tombol ditambahkan ke action area yang
+    sudah tersedia.
+  */
 
-        const part = {
-          id:
-            button.dataset.partId || '',
-          pno:
-            button.dataset.pno || '',
-          namaPart:
-            button.dataset.namaPart || '',
-          noOrder:
-            button.dataset.noOrder || '',
-          tglOrder:
-            button.dataset.tglOrder || '',
-          qtyOrder:
-            Number(button.dataset.qtyOrder || 0),
-          eta:
-            button.dataset.eta || '',
-          totalSupply:
-            Number(button.dataset.totalSupply || 0)
-        }
+  const actionGroups =
+    document.querySelectorAll(
+      '.wo-detail-action-buttons'
+    )
 
-        openModal(part)
+  actionGroups.forEach(
+    (group, index) => {
+
+      const part =
+        parts[index]
+
+      if (!part || !part.id) {
+        return
+      }
+
+      let editButton =
+        group.querySelector(
+          '.wo-detail-part-edit-button'
+        )
+
+      if (!editButton) {
+
+        editButton =
+          document.createElement('button')
+
+        editButton.type = 'button'
+        editButton.className =
+          'wo-detail-part-edit-button'
+        editButton.textContent = '✏ Edit'
+
+        group.insertBefore(
+          editButton,
+          group.firstChild
+        )
 
       }
 
-    })
+      editButton.onclick = () => {
+        fillForm(part)
+      }
+
+    }
+  )
 
 
   modal
     .querySelectorAll('[data-part-edit-close]')
-    .forEach(element => {
-
-      element.onclick = closeModal
-
-    })
+    .forEach(
+      element => {
+        element.onclick = closeModal
+      }
+    )
 
 
   form.onsubmit = async event => {
@@ -401,10 +395,7 @@ export function initWODetailPartEdit(
       etaInput.value || ''
 
     if (!currentPartId) {
-      showMessage(
-        'Part tidak ditemukan.',
-        'error'
-      )
+      showMessage('Part tidak ditemukan.', 'error')
       return
     }
 
@@ -432,7 +423,10 @@ export function initWODetailPartEdit(
       return
     }
 
-    if (!Number.isInteger(qtyOrder) || qtyOrder <= 0) {
+    if (
+      !Number.isInteger(qtyOrder) ||
+      qtyOrder <= 0
+    ) {
       showMessage(
         'Qty Order harus berupa angka bulat lebih dari 0.',
         'error'
@@ -455,22 +449,19 @@ export function initWODetailPartEdit(
 
     try {
 
-      await import('../../services/orderService.js').then(
-        ({ updatePart }) =>
-          updatePart(
-            orderId,
-            currentPartId,
-            {
-              pno,
-              namaPart,
-              noOrder,
-              tglOrder,
-              qtyOrder,
-              eta,
-              originalETA:
-                currentOriginalETA
-            }
-          )
+      await updatePart(
+        orderId,
+        currentPartId,
+        {
+          pno,
+          namaPart,
+          noOrder,
+          tglOrder,
+          qtyOrder,
+          eta,
+          originalETA:
+            currentOriginalETA
+        }
       )
 
       closeModal()
