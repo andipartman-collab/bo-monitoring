@@ -1,5 +1,6 @@
 import './styles/style.css'
 import './styles/wo-detail-edit.css'
+import './styles/wo-detail-ui.css'
 
 
 import { testFirestore }
@@ -232,7 +233,6 @@ function renderPage(
 
   pageContent.innerHTML =
     renderNewOrder()
-
 
   initNewOrder()
 
