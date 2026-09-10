@@ -5,33 +5,58 @@
   gap: 20px;
 }
 
-.wo-detail-edit-button {
+.wo-detail-edit-button,
+.wo-detail-part-edit-button {
   border: 1px solid #0b1f3a;
   background: #0b1f3a;
   color: #ffffff;
   border-radius: 7px;
-  padding: 9px 14px;
-  font-size: 13px;
+  padding: 8px 12px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
-.wo-detail-edit-button:hover {
+.wo-detail-edit-button {
+  padding: 9px 14px;
+  font-size: 13px;
+}
+
+.wo-detail-part-edit-button {
+  background: #ffffff;
+  color: #0b1f3a;
+}
+
+.wo-detail-edit-button:hover,
+.wo-detail-part-edit-button:hover {
   background: #16365f;
+  border-color: #16365f;
+  color: #ffffff;
 }
 
-.wo-detail-edit-button:active {
+.wo-detail-edit-button:active,
+.wo-detail-part-edit-button:active {
   transform: translateY(1px);
 }
 
 .wo-detail-edit-button:focus-visible,
+.wo-detail-part-edit-button:focus-visible,
 .wo-edit-close-button:focus-visible,
 .wo-edit-cancel-button:focus-visible,
 .wo-edit-save-button:focus-visible {
   outline: 2px solid #0b1f3a;
   outline-offset: 2px;
+}
+
+.wo-detail-action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 180px;
 }
 
 .wo-edit-modal {
@@ -47,8 +72,8 @@
 .wo-edit-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(15, 39, 71, 0.48);
-  backdrop-filter: blur(2px);
+  background: rgba(15, 39, 71, 0.52);
+  backdrop-filter: blur(3px);
 }
 
 .wo-edit-dialog {
@@ -58,9 +83,9 @@
   max-height: calc(100vh - 48px);
   overflow-y: auto;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(15, 39, 71, 0.2);
+  border: 1px solid #dfe4ea;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(15, 39, 71, 0.24);
 }
 
 .wo-edit-header {
@@ -70,12 +95,14 @@
   gap: 16px;
   padding: 20px 22px;
   border-bottom: 1px solid #e5e7eb;
+  background: #fbfcfe;
 }
 
 .wo-edit-header h2 {
   margin: 0;
   font-size: 19px;
-  color: #111827;
+  line-height: 1.3;
+  color: #0b1f3a;
 }
 
 .wo-edit-header p {
@@ -88,16 +115,18 @@
   width: 34px;
   height: 34px;
   border: 1px solid #d1d5db;
-  border-radius: 7px;
+  border-radius: 8px;
   background: #ffffff;
   color: #374151;
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .wo-edit-close-button:hover {
   background: #f3f4f6;
+  border-color: #c5cad1;
 }
 
 .wo-edit-form {
@@ -107,7 +136,7 @@
 .wo-edit-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 
 .wo-edit-field {
@@ -121,7 +150,7 @@
 }
 
 .wo-edit-field label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #374151;
 }
@@ -133,12 +162,12 @@
   box-sizing: border-box;
   padding: 10px 12px;
   border: 1px solid #d1d5db;
-  border-radius: 7px;
+  border-radius: 8px;
   background: #ffffff;
   color: #111827;
   font-size: 13px;
   font-family: inherit;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .wo-edit-field input:focus,
@@ -149,7 +178,9 @@
   box-shadow: 0 0 0 3px rgba(11, 31, 58, 0.08);
 }
 
-.wo-edit-field input:disabled {
+.wo-edit-field input:disabled,
+.wo-edit-field select:disabled,
+.wo-edit-field textarea:disabled {
   background: #f3f4f6;
   color: #6b7280;
   cursor: not-allowed;
@@ -162,18 +193,44 @@
 
 .wo-edit-field small {
   font-size: 11px;
-  line-height: 1.4;
+  line-height: 1.45;
   color: #6b7280;
+}
+
+#part-edit-supply-info {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 4px 8px;
+  border: 1px solid #dbe3ed;
+  border-radius: 999px;
+  background: #f6f8fb;
+  color: #475467;
+  font-weight: 600;
 }
 
 .wo-edit-message {
   min-height: 18px;
   margin-top: 16px;
+  padding: 0;
   font-size: 12px;
+  line-height: 1.45;
 }
 
 .wo-edit-message.error {
-  color: #b42318;
+  padding: 10px 12px;
+  border: 1px solid #f1b5b5;
+  border-radius: 8px;
+  background: #fff5f5;
+  color: #991b1b;
+}
+
+.wo-edit-message.success {
+  padding: 10px 12px;
+  border: 1px solid #b7dfc2;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #166534;
 }
 
 .wo-edit-actions {
@@ -188,20 +245,21 @@
 .wo-edit-cancel-button,
 .wo-edit-save-button {
   border: none;
-  border-radius: 7px;
+  border-radius: 8px;
   padding: 10px 16px;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
 }
 
 .wo-edit-cancel-button {
-  background: #e5e7eb;
+  background: #eef1f4;
   color: #374151;
 }
 
 .wo-edit-cancel-button:hover {
-  background: #d1d5db;
+  background: #e2e6eb;
 }
 
 .wo-edit-save-button {
@@ -218,6 +276,11 @@
   cursor: wait;
 }
 
+.wo-edit-cancel-button:active,
+.wo-edit-save-button:active {
+  transform: translateY(1px);
+}
+
 body.wo-edit-modal-open {
   overflow: hidden;
 }
@@ -230,6 +293,10 @@ body.wo-edit-modal-open {
 
   .wo-detail-edit-button {
     align-self: flex-start;
+  }
+
+  .wo-detail-action-buttons {
+    min-width: 0;
   }
 
   .wo-edit-modal {
