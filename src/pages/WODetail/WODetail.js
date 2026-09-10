@@ -10,6 +10,12 @@ import {
 
 
 import {
+  renderWODetailEditModal,
+  initWODetailEdit
+} from './WODetailEdit.js'
+
+
+import {
   renderWODetailParts,
   initWODetailSupply
 } from './WODetailParts.js'
@@ -57,6 +63,8 @@ export function renderWODetail() {
       <div
         id="wo-detail-content"
       ></div>
+
+      ${renderWODetailEditModal()}
 
     </div>
 
@@ -197,6 +205,49 @@ function renderDetail(
     )}
 
   `
+
+
+  /*
+    ==========================================
+    AKTIFKAN EDIT WO
+    ==========================================
+  */
+
+  initWODetailEdit(
+    orderId,
+    order,
+    async () => {
+
+      try {
+
+        const refreshedOrder =
+          await getOrderDetail(
+            orderId
+          )
+
+        const refreshedParts =
+          await getPartsWithSupply(
+            orderId
+          )
+
+        renderDetail(
+          refreshedOrder.order,
+          refreshedParts,
+          orderId
+        )
+
+      }
+      catch (error) {
+
+        console.error(
+          'GAGAL REFRESH WO:',
+          error
+        )
+
+      }
+
+    }
+  )
 
 
   /*
