@@ -31,6 +31,14 @@ export function renderWODetailInfo(
 
         </div>
 
+        <button
+          type="button"
+          id="wo-edit-button"
+          class="wo-detail-edit-button"
+        >
+          ✏ Edit WO
+        </button>
+
       </div>
 
 
