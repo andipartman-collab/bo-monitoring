@@ -30,13 +30,25 @@ export function renderWODetailInfo(
 
         </div>
 
-        <button
-          type="button"
-          id="wo-edit-button"
-          class="wo-detail-edit-button"
-        >
-          ✏ Edit WO
-        </button>
+        <div class="wo-detail-card-header-actions">
+
+          <button
+            type="button"
+            id="wo-edit-button"
+            class="wo-detail-edit-button"
+          >
+            ✏ Edit WO
+          </button>
+
+          <button
+            type="button"
+            id="wo-delete-button"
+            class="wo-detail-delete-button"
+          >
+            🗑 Hapus WO
+          </button>
+
+        </div>
 
       </div>
 
@@ -76,8 +88,8 @@ export function renderWODetailInfo(
           <strong>
             ${escapeHTML(
               order.customer || '-'
-            )
-          }</strong>
+            )}
+          </strong>
 
         </div>
 
