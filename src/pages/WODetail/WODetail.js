@@ -16,6 +16,12 @@ import {
 
 
 import {
+  renderWODetailPartEditModal,
+  initWODetailPartEdit
+} from './WODetailPartEdit.js'
+
+
+import {
   renderWODetailParts,
   initWODetailSupply
 } from './WODetailParts.js'
@@ -66,10 +72,11 @@ export function renderWODetail() {
 
       ${renderWODetailEditModal()}
 
+      ${renderWODetailPartEditModal()}
+
     </div>
 
   `
-
 }
 
 
@@ -85,49 +92,24 @@ export async function initWODetail(
 
   initBackButton()
 
-
   if (!orderId) {
-
     showError(
       'Order ID tidak tersedia.'
     )
-
     return
-
   }
 
-
   try {
-
-    /*
-      ==========================================
-      AMBIL DATA WO
-      ==========================================
-    */
 
     const orderResult =
       await getOrderDetail(
         orderId
       )
 
-
-    /*
-      ==========================================
-      AMBIL PART + SUPPLY
-      ==========================================
-    */
-
     const parts =
       await getPartsWithSupply(
         orderId
       )
-
-
-    /*
-      ==========================================
-      TAMPILKAN
-      ==========================================
-    */
 
     renderDetail(
       orderResult.order,
@@ -143,14 +125,12 @@ export async function initWODetail(
       error
     )
 
-
     showError(
       error.message ||
       'Gagal memuat detail Work Order.'
     )
 
   }
-
 }
 
 
@@ -171,34 +151,25 @@ function renderDetail(
       'wo-detail-loading'
     )
 
-
   const content =
     document.getElementById(
       'wo-detail-content'
     )
 
-
   if (loading) {
-
     loading.style.display =
       'none'
-
   }
-
 
   if (!content) {
-
     return
-
   }
-
 
   content.innerHTML = `
 
     ${renderWODetailInfo(
       order
     )}
-
 
     ${renderWODetailParts(
       parts
@@ -252,6 +223,49 @@ function renderDetail(
 
   /*
     ==========================================
+    AKTIFKAN EDIT PART
+    ==========================================
+  */
+
+  initWODetailPartEdit(
+    orderId,
+    parts,
+    async () => {
+
+      try {
+
+        const refreshedOrder =
+          await getOrderDetail(
+            orderId
+          )
+
+        const refreshedParts =
+          await getPartsWithSupply(
+            orderId
+          )
+
+        renderDetail(
+          refreshedOrder.order,
+          refreshedParts,
+          orderId
+        )
+
+      }
+      catch (error) {
+
+        console.error(
+          'GAGAL REFRESH PART:',
+          error
+        )
+
+      }
+
+    }
+  )
+
+
+  /*
+    ==========================================
     AKTIFKAN SUPPLY
     ==========================================
   */
@@ -266,7 +280,6 @@ function renderDetail(
           await getPartsWithSupply(
             orderId
           )
-
 
         renderDetail(
           order,
@@ -303,13 +316,9 @@ function initBackButton() {
       'wo-detail-back'
     )
 
-
   if (!button) {
-
     return
-
   }
-
 
   button.addEventListener(
     'click',
@@ -323,7 +332,6 @@ function initBackButton() {
 
     }
   )
-
 }
 
 
@@ -342,20 +350,15 @@ function showError(
       'wo-detail-loading'
     )
 
-
   const message =
     document.getElementById(
       'wo-detail-message'
     )
 
-
   if (loading) {
-
     loading.style.display =
       'none'
-
   }
-
 
   if (message) {
 
