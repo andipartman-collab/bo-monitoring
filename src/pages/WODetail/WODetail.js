@@ -56,7 +56,6 @@ export function renderWODetail() {
 
       </div>
 
-
       <div
         id="wo-detail-loading"
         class="wo-detail-loading"
@@ -64,12 +63,10 @@ export function renderWODetail() {
         Memuat detail Work Order...
       </div>
 
-
       <div
         id="wo-detail-message"
         class="wo-detail-message"
       ></div>
-
 
       <div id="wo-detail-content"></div>
 
@@ -175,7 +172,6 @@ function renderDetail(
 
   `
 
-
   initWODetailEdit(
     orderId,
     order,
@@ -183,7 +179,6 @@ function renderDetail(
       await refreshDetail(orderId)
     }
   )
-
 
   initWODetailPartEdit(
     orderId,
@@ -193,19 +188,17 @@ function renderDetail(
     }
   )
 
-
   initWODetailDelete(
     orderId,
     order,
     () => {
       document.dispatchEvent(
         new CustomEvent(
-          'work-order-deleted'
+          'back-to-all-order'
         )
       )
     }
   )
-
 
   initWODetailSupply(
     orderId,
