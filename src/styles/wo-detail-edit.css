@@ -1,0 +1,264 @@
+.wo-detail-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.wo-detail-edit-button {
+  border: 1px solid #0b1f3a;
+  background: #0b1f3a;
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.wo-detail-edit-button:hover {
+  background: #16365f;
+}
+
+.wo-detail-edit-button:active {
+  transform: translateY(1px);
+}
+
+.wo-detail-edit-button:focus-visible,
+.wo-edit-close-button:focus-visible,
+.wo-edit-cancel-button:focus-visible,
+.wo-edit-save-button:focus-visible {
+  outline: 2px solid #0b1f3a;
+  outline-offset: 2px;
+}
+
+.wo-edit-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.wo-edit-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 39, 71, 0.48);
+  backdrop-filter: blur(2px);
+}
+
+.wo-edit-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(15, 39, 71, 0.2);
+}
+
+.wo-edit-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.wo-edit-header h2 {
+  margin: 0;
+  font-size: 19px;
+  color: #111827;
+}
+
+.wo-edit-header p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.wo-edit-close-button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wo-edit-close-button:hover {
+  background: #f3f4f6;
+}
+
+.wo-edit-form {
+  padding: 22px;
+}
+
+.wo-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.wo-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.wo-edit-field-full {
+  grid-column: 1 / -1;
+}
+
+.wo-edit-field label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.wo-edit-field input,
+.wo-edit-field select,
+.wo-edit-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wo-edit-field input:focus,
+.wo-edit-field select:focus,
+.wo-edit-field textarea:focus {
+  outline: none;
+  border-color: #0b1f3a;
+  box-shadow: 0 0 0 3px rgba(11, 31, 58, 0.08);
+}
+
+.wo-edit-field input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.wo-edit-field textarea {
+  resize: vertical;
+  min-height: 92px;
+}
+
+.wo-edit-field small {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.wo-edit-message {
+  min-height: 18px;
+  margin-top: 16px;
+  font-size: 12px;
+}
+
+.wo-edit-message.error {
+  color: #b42318;
+}
+
+.wo-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.wo-edit-cancel-button,
+.wo-edit-save-button {
+  border: none;
+  border-radius: 7px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wo-edit-cancel-button {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.wo-edit-cancel-button:hover {
+  background: #d1d5db;
+}
+
+.wo-edit-save-button {
+  background: #0b1f3a;
+  color: #ffffff;
+}
+
+.wo-edit-save-button:hover {
+  background: #16365f;
+}
+
+.wo-edit-save-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+body.wo-edit-modal-open {
+  overflow: hidden;
+}
+
+@media (max-width: 700px) {
+  .wo-detail-card-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .wo-detail-edit-button {
+    align-self: flex-start;
+  }
+
+  .wo-edit-modal {
+    padding: 14px;
+  }
+
+  .wo-edit-dialog {
+    max-height: calc(100vh - 28px);
+    border-radius: 10px;
+  }
+
+  .wo-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wo-edit-field-full {
+    grid-column: auto;
+  }
+
+  .wo-edit-form {
+    padding: 18px;
+  }
+
+  .wo-edit-actions {
+    flex-direction: column-reverse;
+  }
+
+  .wo-edit-cancel-button,
+  .wo-edit-save-button {
+    width: 100%;
+  }
+}
