@@ -1099,3 +1099,65 @@ export async function getSupplyHistory(
   )
 
 }
+
+export async function getETAHistory(
+  orderId,
+  partId
+) {
+
+  if (!orderId) {
+
+    throw new Error(
+      'Order ID tidak tersedia.'
+    )
+
+  }
+
+
+  if (!partId) {
+
+    throw new Error(
+      'Part ID tidak tersedia.'
+    )
+
+  }
+
+
+  const historyRef =
+    collection(
+      db,
+      'orders',
+      orderId,
+      'parts',
+      partId,
+      'etaHistory'
+    )
+
+
+  const historyQuery =
+    query(
+      historyRef,
+      orderBy(
+        'updatedAt',
+        'desc'
+      )
+    )
+
+
+  const snapshot =
+    await getDocs(
+      historyQuery
+    )
+
+
+  return snapshot.docs.map(
+    document => ({
+
+      id: document.id,
+
+      ...document.data()
+
+    })
+  )
+
+}

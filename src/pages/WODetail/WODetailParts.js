@@ -1,5 +1,6 @@
 import {
-  addSupply
+  addSupply,
+  getSupplyHistory
 } from '../../services/orderService.js'
 
 
@@ -10,81 +11,242 @@ import {
 } from './WODetailUtils.js'
 
 
-/*
-  ==================================================
-  STATE
-  ==================================================
-*/
+import {
+  renderETAHistoryModal,
+  initETAHistory
+} from './WODetailETAHistory.js'
+
+
 
 let currentOrderId = null
+
 
 let currentOnSaved = null
 
 
-/*
-  ==================================================
-  RENDER PART ORDER
-  ==================================================
-*/
 
 export function renderWODetailParts(
   parts
 ) {
 
-  if (
-    !Array.isArray(parts) ||
-    parts.length === 0
-  ) {
+  if (!parts || !parts.length) {
 
     return `
 
-      <section class="wo-detail-card">
+      <section class="wo-detail-section">
 
-        <div class="wo-detail-card-header">
+        <div class="wo-detail-section-header">
 
-          <div>
-
-            <h2>Part Order</h2>
-
-            <p>
-              Daftar part yang dipesan
-              beserta progress supply.
-            </p>
-
-          </div>
+          <h2>
+            Part Order
+          </h2>
 
         </div>
 
 
         <div class="wo-detail-empty">
-
-          Belum ada part pada Work Order ini.
-
+          Belum ada part order.
         </div>
 
       </section>
+
+
+      ${renderSupplyModal()}
+
+
+      ${renderSupplyHistoryModal()}
+
+
+      ${renderETAHistoryModal()}
 
     `
 
   }
 
 
+
+  const rows =
+    parts.map(
+      (part, index) => {
+
+        const qtyOrder =
+          Number(
+            part.qtyOrder || 0
+          )
+
+
+        const totalSupply =
+          Number(
+            part.totalSupply || 0
+          )
+
+
+        const sisa =
+          Math.max(
+            qtyOrder -
+            totalSupply,
+            0
+          )
+
+
+
+        const etaHTML =
+          part.eta
+            ? `
+
+              <button
+                type="button"
+                class="wo-detail-eta-history-button"
+                data-part-id="${escapeHTML(
+                  part.id || ''
+                )}"
+                data-pno="${escapeHTML(
+                  part.pno || ''
+                )}"
+                data-nama-part="${escapeHTML(
+                  part.namaPart || ''
+                )}"
+              >
+                ${escapeHTML(
+                  formatDate(part.eta)
+                )}
+              </button>
+
+            `
+            : '-'
+
+
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                part.pno || ''
+              )}
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                part.namaPart || ''
+              )}
+            </td>
+
+
+            <td>
+              ${escapeHTML(
+                part.noOrder || ''
+              )}
+            </td>
+
+
+            <td>
+              ${
+                part.tglOrder
+                  ? escapeHTML(
+                      formatDate(
+                        part.tglOrder
+                      )
+                    )
+                  : '-'
+              }
+            </td>
+
+
+            <td class="text-center">
+              ${qtyOrder}
+            </td>
+
+
+            <td class="text-center">
+              ${totalSupply}
+            </td>
+
+
+            <td class="text-center">
+              ${sisa}
+            </td>
+
+
+            <td>
+              ${etaHTML}
+            </td>
+
+
+            <td>
+
+              <div class="wo-detail-action-buttons">
+
+                <button
+                  type="button"
+                  class="wo-detail-supply-button"
+                  data-part-id="${escapeHTML(
+                    part.id || ''
+                  )}"
+                  data-pno="${escapeHTML(
+                    part.pno || ''
+                  )}"
+                  data-nama-part="${escapeHTML(
+                    part.namaPart || ''
+                  )}"
+                  data-qty-order="${qtyOrder}"
+                  data-total-supply="${totalSupply}"
+                  data-sisa="${sisa}"
+                >
+                  + Supply
+                </button>
+
+
+                <button
+                  type="button"
+                  class="wo-detail-history-button"
+                  data-part-id="${escapeHTML(
+                    part.id || ''
+                  )}"
+                  data-pno="${escapeHTML(
+                    part.pno || ''
+                  )}"
+                  data-nama-part="${escapeHTML(
+                    part.namaPart || ''
+                  )}"
+                >
+                  History
+                </button>
+
+              </div>
+
+            </td>
+
+          </tr>
+
+        `
+
+      }
+    ).join('')
+
+
+
   return `
 
-    <section class="wo-detail-card">
+    <section class="wo-detail-section">
 
-      <div class="wo-detail-card-header">
+      <div class="wo-detail-section-header">
 
-        <div>
+        <h2>
+          Part Order
+        </h2>
 
-          <h2>Part Order</h2>
-
-          <p>
-            Daftar part yang dipesan
-            beserta progress supply.
-          </p>
-
-        </div>
+        <span>
+          ${parts.length} Part
+        </span>
 
       </div>
 
@@ -97,25 +259,45 @@ export function renderWODetailParts(
 
             <tr>
 
-              <th>No</th>
+              <th>
+                No
+              </th>
 
-              <th>PNO</th>
+              <th>
+                PNO
+              </th>
 
-              <th>Nama Part</th>
+              <th>
+                Nama Part
+              </th>
 
-              <th>No Order</th>
+              <th>
+                No Order
+              </th>
 
-              <th>Tgl Order</th>
+              <th>
+                Tgl Order
+              </th>
 
-              <th>Qty Order</th>
+              <th>
+                Qty Order
+              </th>
 
-              <th>Supply</th>
+              <th>
+                Supply
+              </th>
 
-              <th>Sisa</th>
+              <th>
+                Sisa
+              </th>
 
-              <th>ETA</th>
+              <th>
+                ETA
+              </th>
 
-              <th>Aksi</th>
+              <th>
+                Aksi
+              </th>
 
             </tr>
 
@@ -124,166 +306,7 @@ export function renderWODetailParts(
 
           <tbody>
 
-            ${parts
-              .map(
-                (part, index) => {
-
-                  const qtyOrder =
-                    Number(
-                      part.qtyOrder || 0
-                    )
-
-
-                  const totalSupply =
-                    Number(
-                      part.totalSupply || 0
-                    )
-
-
-                  const sisa =
-                    Math.max(
-                      Number(
-                        part.sisa ??
-                        (
-                          qtyOrder -
-                          totalSupply
-                        )
-                      ),
-                      0
-                    )
-
-
-                  const supplyDisabled =
-                    sisa <= 0
-
-
-                  return `
-
-                    <tr>
-
-                      <td>
-                        ${index + 1}
-                      </td>
-
-
-                      <td>
-
-                        <strong>
-                          ${escapeHTML(
-                            part.pno || '-'
-                          )}
-                        </strong>
-
-                      </td>
-
-
-                      <td>
-                        ${escapeHTML(
-                          part.namaPart || '-'
-                        )}
-                      </td>
-
-
-                      <td>
-                        ${escapeHTML(
-                          part.noOrder || '-'
-                        )}
-                      </td>
-
-
-                      <td>
-                        ${formatDate(
-                          part.tglOrder
-                        )}
-                      </td>
-
-
-                      <td class="wo-detail-qty">
-
-                        ${qtyOrder}
-
-                      </td>
-
-
-                      <td class="wo-detail-supply">
-
-                        ${totalSupply}
-
-                      </td>
-
-
-                      <td class="wo-detail-sisa">
-
-                        ${sisa}
-
-                      </td>
-
-
-                      <td>
-                        ${formatDate(
-                          part.eta
-                        )}
-                      </td>
-
-
-                      <td>
-
-                        <div
-                          class="wo-detail-action-group"
-                        >
-
-                          <button
-                            type="button"
-                            class="wo-detail-supply-button"
-                            data-part-id="${escapeHTML(
-                              part.id || ''
-                            )}"
-                            data-pno="${escapeHTML(
-                              part.pno || ''
-                            )}"
-                            data-nama-part="${escapeHTML(
-                              part.namaPart || ''
-                            )}"
-                            data-qty-order="${qtyOrder}"
-                            data-total-supply="${totalSupply}"
-                            data-sisa="${sisa}"
-                            ${supplyDisabled
-                              ? 'disabled'
-                              : ''
-                            }
-                          >
-                            + Supply
-                          </button>
-
-
-                          <button
-                            type="button"
-                            class="wo-detail-history-button"
-                            data-part-id="${escapeHTML(
-                              part.id || ''
-                            )}"
-                            data-pno="${escapeHTML(
-                              part.pno || ''
-                            )}"
-                            data-nama-part="${escapeHTML(
-                              part.namaPart || ''
-                            )}"
-                          >
-                            History
-                          </button>
-
-                        </div>
-
-                      </td>
-
-                    </tr>
-
-                  `
-
-                }
-              )
-              .join('')
-            }
+            ${rows}
 
           </tbody>
 
@@ -294,11 +317,23 @@ export function renderWODetailParts(
     </section>
 
 
-    <!--
-      ==================================================
-      SUPPLY MODAL
-      ==================================================
-    -->
+    ${renderSupplyModal()}
+
+
+    ${renderSupplyHistoryModal()}
+
+
+    ${renderETAHistoryModal()}
+
+  `
+
+}
+
+
+
+function renderSupplyModal() {
+
+  return `
 
     <div
       id="supply-modal"
@@ -306,8 +341,8 @@ export function renderWODetailParts(
     >
 
       <div
-        id="supply-modal-overlay"
         class="supply-modal-overlay"
+        id="supply-modal-overlay"
       ></div>
 
 
@@ -318,11 +353,11 @@ export function renderWODetailParts(
           <div>
 
             <h3>
-              Tambah Supply
+              Input Supply
             </h3>
 
             <p>
-              Catat kedatangan part.
+              Catat penerimaan spare part
             </p>
 
           </div>
@@ -349,9 +384,7 @@ export function renderWODetailParts(
                 PNO
               </span>
 
-              <strong
-                id="supply-modal-pno"
-              >
+              <strong id="supply-pno">
                 -
               </strong>
 
@@ -364,9 +397,7 @@ export function renderWODetailParts(
                 Nama Part
               </span>
 
-              <strong
-                id="supply-modal-nama"
-              >
+              <strong id="supply-nama-part">
                 -
               </strong>
 
@@ -379,9 +410,7 @@ export function renderWODetailParts(
                 Qty Order
               </span>
 
-              <strong
-                id="supply-modal-qty-order"
-              >
+              <strong id="supply-qty-order">
                 0
               </strong>
 
@@ -394,9 +423,7 @@ export function renderWODetailParts(
                 Supply Saat Ini
               </span>
 
-              <strong
-                id="supply-modal-total-supply"
-              >
+              <strong id="supply-current">
                 0
               </strong>
 
@@ -409,9 +436,7 @@ export function renderWODetailParts(
                 Sisa
               </span>
 
-              <strong
-                id="supply-modal-sisa"
-              >
+              <strong id="supply-sisa">
                 0
               </strong>
 
@@ -422,9 +447,7 @@ export function renderWODetailParts(
 
           <div class="supply-form-group">
 
-            <label
-              for="supply-qty"
-            >
+            <label for="supply-qty">
               Qty Supply
             </label>
 
@@ -433,32 +456,22 @@ export function renderWODetailParts(
               id="supply-qty"
               min="1"
               step="1"
-              placeholder="Masukkan jumlah supply"
-            >
-
-            <small>
-              Maksimal sesuai jumlah sisa.
-            </small>
+              placeholder="Masukkan qty supply"
+            />
 
           </div>
 
 
           <div class="supply-form-group">
 
-            <label
-              for="supply-ata"
-            >
+            <label for="supply-ata">
               ATA
             </label>
 
             <input
               type="date"
               id="supply-ata"
-            >
-
-            <small>
-              Tanggal aktual part diterima.
-            </small>
+            />
 
           </div>
 
@@ -496,27 +509,30 @@ export function renderWODetailParts(
 
     </div>
 
+  `
 
-    <!--
-      ==================================================
-      SUPPLY HISTORY MODAL
-      ==================================================
-    -->
+}
+
+
+
+function renderSupplyHistoryModal() {
+
+  return `
 
     <div
       id="supply-history-modal"
-      class="supply-history-modal"
+      class="supply-modal"
     >
 
       <div
+        class="supply-modal-overlay"
         id="supply-history-overlay"
-        class="supply-history-overlay"
       ></div>
 
 
-      <div class="supply-history-content">
+      <div class="supply-modal-content">
 
-        <div class="supply-history-header">
+        <div class="supply-modal-header">
 
           <div>
 
@@ -524,10 +540,8 @@ export function renderWODetailParts(
               Supply History
             </h3>
 
-            <p
-              id="supply-history-subtitle"
-            >
-              Riwayat kedatangan part.
+            <p id="supply-history-part-title">
+              -
             </p>
 
           </div>
@@ -536,7 +550,7 @@ export function renderWODetailParts(
           <button
             type="button"
             id="supply-history-close"
-            class="supply-history-close"
+            class="supply-modal-close"
           >
             ×
           </button>
@@ -544,35 +558,18 @@ export function renderWODetailParts(
         </div>
 
 
-        <div class="supply-history-body">
-
-          <div
-            id="supply-history-loading"
-            class="supply-history-loading"
-          >
-            Memuat history...
-          </div>
+        <div
+          class="supply-modal-body"
+          id="supply-history-body"
+        ></div>
 
 
-          <div
-            id="supply-history-error"
-            class="supply-history-error"
-          ></div>
-
-
-          <div
-            id="supply-history-table-container"
-          ></div>
-
-        </div>
-
-
-        <div class="supply-history-footer">
+        <div class="supply-modal-footer">
 
           <button
             type="button"
-            id="supply-history-close-button"
-            class="supply-history-close-button"
+            id="supply-history-footer-close"
+            class="supply-cancel-button"
           >
             Tutup
           </button>
@@ -588,11 +585,6 @@ export function renderWODetailParts(
 }
 
 
-/*
-  ==================================================
-  INIT SUPPLY
-  ==================================================
-*/
 
 export function initWODetailSupply(
   orderId,
@@ -607,19 +599,36 @@ export function initWODetailSupply(
     onSaved
 
 
-  /*
-    ==========================================
-    SUPPLY BUTTON
-    ==========================================
-  */
 
-  const supplyButtons =
+  initSupplyButtons()
+
+
+  initSupplyModalButtons()
+
+
+  initSupplyHistoryButtons()
+
+
+  initHistoryModalButtons()
+
+
+  initETAHistory(
+    orderId
+  )
+
+}
+
+
+
+function initSupplyButtons() {
+
+  const buttons =
     document.querySelectorAll(
       '.wo-detail-supply-button'
     )
 
 
-  supplyButtons.forEach(
+  buttons.forEach(
     button => {
 
       button.addEventListener(
@@ -636,32 +645,9 @@ export function initWODetailSupply(
     }
   )
 
-
-  /*
-    ==========================================
-    SUPPLY MODAL
-    ==========================================
-  */
-
-  initSupplyModalButtons()
-
-
-  /*
-    ==========================================
-    HISTORY
-    ==========================================
-  */
-
-  initSupplyHistoryButtons()
-
 }
 
 
-/*
-  ==================================================
-  OPEN SUPPLY MODAL
-  ==================================================
-*/
 
 function openSupplyModal(
   button
@@ -678,6 +664,7 @@ function openSupplyModal(
     return
 
   }
+
 
 
   const partId =
@@ -710,49 +697,39 @@ function openSupplyModal(
     )
 
 
-  /*
-    ==========================================
-    SIMPAN PART ID
-    ==========================================
-  */
 
   modal.dataset.partId =
     partId
 
 
-  /*
-    ==========================================
-    ISI INFORMASI
-    ==========================================
-  */
 
   const pnoElement =
     document.getElementById(
-      'supply-modal-pno'
+      'supply-pno'
     )
 
 
   const namaElement =
     document.getElementById(
-      'supply-modal-nama'
+      'supply-nama-part'
     )
 
 
   const qtyOrderElement =
     document.getElementById(
-      'supply-modal-qty-order'
+      'supply-qty-order'
     )
 
 
-  const totalSupplyElement =
+  const currentElement =
     document.getElementById(
-      'supply-modal-total-supply'
+      'supply-current'
     )
 
 
   const sisaElement =
     document.getElementById(
-      'supply-modal-sisa'
+      'supply-sisa'
     )
 
 
@@ -772,6 +749,7 @@ function openSupplyModal(
     document.getElementById(
       'supply-form-error'
     )
+
 
 
   if (pnoElement) {
@@ -798,9 +776,9 @@ function openSupplyModal(
   }
 
 
-  if (totalSupplyElement) {
+  if (currentElement) {
 
-    totalSupplyElement.textContent =
+    currentElement.textContent =
       totalSupply
 
   }
@@ -814,19 +792,12 @@ function openSupplyModal(
   }
 
 
-  /*
-    ==========================================
-    RESET INPUT
-    ==========================================
-  */
-
   if (qtyInput) {
 
-    qtyInput.value =
-      ''
+    qtyInput.value = ''
 
     qtyInput.max =
-      String(sisa)
+      sisa
 
   }
 
@@ -844,72 +815,21 @@ function openSupplyModal(
     errorElement.textContent =
       ''
 
-    errorElement.className =
-      'supply-form-error'
+    errorElement.classList.remove(
+      'show'
+    )
 
   }
+
 
 
   modal.classList.add(
     'show'
   )
 
-
-  /*
-    ==========================================
-    FOCUS QTY
-    ==========================================
-  */
-
-  if (qtyInput) {
-
-    setTimeout(
-      () => {
-
-        qtyInput.focus()
-
-      },
-      50
-    )
-
-  }
-
 }
 
 
-/*
-  ==================================================
-  CLOSE SUPPLY MODAL
-  ==================================================
-*/
-
-function closeSupplyModal() {
-
-  const modal =
-    document.getElementById(
-      'supply-modal'
-    )
-
-
-  if (!modal) {
-
-    return
-
-  }
-
-
-  modal.classList.remove(
-    'show'
-  )
-
-}
-
-
-/*
-  ==================================================
-  INIT SUPPLY MODAL BUTTONS
-  ==================================================
-*/
 
 function initSupplyModalButtons() {
 
@@ -925,16 +845,17 @@ function initSupplyModalButtons() {
     )
 
 
+  const saveButton =
+    document.getElementById(
+      'supply-save'
+    )
+
+
   const overlay =
     document.getElementById(
       'supply-modal-overlay'
     )
 
-
-  const saveButton =
-    document.getElementById(
-      'supply-save'
-    )
 
 
   if (closeButton) {
@@ -979,11 +900,6 @@ function initSupplyModalButtons() {
 }
 
 
-/*
-  ==================================================
-  HANDLE SUPPLY SAVE
-  ==================================================
-*/
 
 async function handleSupplySave() {
 
@@ -1005,14 +921,30 @@ async function handleSupplySave() {
     )
 
 
+  const errorElement =
+    document.getElementById(
+      'supply-form-error'
+    )
+
+
   const saveButton =
     document.getElementById(
       'supply-save'
     )
 
 
+
+  if (!modal) {
+
+    return
+
+  }
+
+
+
   const partId =
-    modal?.dataset.partId || ''
+    modal.dataset.partId
+
 
 
   const qty =
@@ -1021,55 +953,10 @@ async function handleSupplySave() {
     )
 
 
-  const maxQty =
-    Number(
-      qtyInput?.max || 0
-    )
-
-
   const ata =
     ataInput?.value || ''
 
 
-  /*
-    ==========================================
-    VALIDASI PART
-    ==========================================
-  */
-
-  if (!partId) {
-
-    showSupplyError(
-      'Part ID tidak tersedia.'
-    )
-
-    return
-
-  }
-
-
-  /*
-    ==========================================
-    VALIDASI ORDER
-    ==========================================
-  */
-
-  if (!currentOrderId) {
-
-    showSupplyError(
-      'Order ID tidak tersedia.'
-    )
-
-    return
-
-  }
-
-
-  /*
-    ==========================================
-    VALIDASI QTY
-    ==========================================
-  */
 
   if (
     !Number.isInteger(qty) ||
@@ -1085,43 +972,6 @@ async function handleSupplySave() {
   }
 
 
-  /*
-    ==========================================
-    VALIDASI SISA
-    ==========================================
-  */
-
-  if (
-    maxQty <= 0
-  ) {
-
-    showSupplyError(
-      'Part ini sudah tidak memiliki sisa supply.'
-    )
-
-    return
-
-  }
-
-
-  if (
-    qty > maxQty
-  ) {
-
-    showSupplyError(
-      `Qty Supply tidak boleh lebih dari sisa ${maxQty}.`
-    )
-
-    return
-
-  }
-
-
-  /*
-    ==========================================
-    VALIDASI ATA
-    ==========================================
-  */
 
   if (!ata) {
 
@@ -1134,60 +984,33 @@ async function handleSupplySave() {
   }
 
 
-  /*
-    ==========================================
-    LOADING
-    ==========================================
-  */
-
-  if (saveButton) {
-
-    saveButton.disabled =
-      true
-
-    saveButton.textContent =
-      'Menyimpan...'
-
-  }
-
 
   try {
 
-    /*
-      ========================================
-      SIMPAN FIRESTORE
-      ========================================
-    */
+    if (saveButton) {
 
-    const result =
-      await addSupply(
-        currentOrderId,
-        partId,
-        qty,
-        ata
-      )
+      saveButton.disabled =
+        true
+
+      saveButton.textContent =
+        'Menyimpan...'
+
+    }
 
 
-    console.log(
-      'SUPPLY BERHASIL DISIMPAN:',
-      result
+
+    await addSupply(
+      currentOrderId,
+      partId,
+      qty,
+      ata
     )
 
 
-    /*
-      ========================================
-      TUTUP MODAL
-      ========================================
-    */
 
     closeSupplyModal()
 
 
-    /*
-      ========================================
-      REFRESH WO DETAIL
-      ========================================
-    */
 
     if (
       typeof currentOnSaved ===
@@ -1202,15 +1025,22 @@ async function handleSupplySave() {
   catch (error) {
 
     console.error(
-      'GAGAL MENYIMPAN SUPPLY:',
+      'GAGAL SIMPAN SUPPLY:',
       error
     )
 
 
-    showSupplyError(
-      error.message ||
-      'Gagal menyimpan supply.'
-    )
+    if (errorElement) {
+
+      errorElement.textContent =
+        error.message ||
+        'Gagal menyimpan supply.'
+
+      errorElement.classList.add(
+        'show'
+      )
+
+    }
 
   }
   finally {
@@ -1230,11 +1060,29 @@ async function handleSupplySave() {
 }
 
 
-/*
-  ==================================================
-  SHOW SUPPLY ERROR
-  ==================================================
-*/
+
+function closeSupplyModal() {
+
+  const modal =
+    document.getElementById(
+      'supply-modal'
+    )
+
+
+  if (!modal) {
+
+    return
+
+  }
+
+
+  modal.classList.remove(
+    'show'
+  )
+
+}
+
+
 
 function showSupplyError(
   message
@@ -1253,20 +1101,17 @@ function showSupplyError(
   }
 
 
-  errorElement.className =
-    'supply-form-error show'
-
   errorElement.textContent =
     message
+
+
+  errorElement.classList.add(
+    'show'
+  )
 
 }
 
 
-/*
-  ==================================================
-  INIT HISTORY BUTTONS
-  ==================================================
-*/
 
 function initSupplyHistoryButtons() {
 
@@ -1284,7 +1129,9 @@ function initSupplyHistoryButtons() {
         () => {
 
           openSupplyHistory(
-            button
+            button.dataset.partId,
+            button.dataset.pno,
+            button.dataset.namaPart
           )
 
         }
@@ -1293,20 +1140,14 @@ function initSupplyHistoryButtons() {
     }
   )
 
-
-  initHistoryModalButtons()
-
 }
 
 
-/*
-  ==================================================
-  OPEN SUPPLY HISTORY
-  ==================================================
-*/
 
 async function openSupplyHistory(
-  button
+  partId,
+  pno,
+  namaPart
 ) {
 
   const modal =
@@ -1315,112 +1156,34 @@ async function openSupplyHistory(
     )
 
 
-  if (!modal) {
+  const body =
+    document.getElementById(
+      'supply-history-body'
+    )
+
+
+  const title =
+    document.getElementById(
+      'supply-history-part-title'
+    )
+
+
+
+  if (!modal || !body) {
 
     return
 
   }
 
 
-  const orderId =
-    currentOrderId
 
+  if (title) {
 
-  const partId =
-    button.dataset.partId || ''
-
-
-  const pno =
-    button.dataset.pno || ''
-
-
-  const namaPart =
-    button.dataset.namaPart || ''
-
-
-  if (
-    !orderId ||
-    !partId
-  ) {
-
-    showHistoryError(
-      'Data part tidak tersedia.'
-    )
-
-    return
+    title.textContent =
+      `${pno || ''} - ${namaPart || ''}`
 
   }
 
-
-  /*
-    ==========================================
-    SUBTITLE
-    ==========================================
-  */
-
-  const subtitle =
-    document.getElementById(
-      'supply-history-subtitle'
-    )
-
-
-  if (subtitle) {
-
-    subtitle.textContent =
-      `${pno} - ${namaPart}`
-
-  }
-
-
-  /*
-    ==========================================
-    ELEMENT
-    ==========================================
-  */
-
-  const loading =
-    document.getElementById(
-      'supply-history-loading'
-    )
-
-
-  const error =
-    document.getElementById(
-      'supply-history-error'
-    )
-
-
-  const container =
-    document.getElementById(
-      'supply-history-table-container'
-    )
-
-
-  if (loading) {
-
-    loading.style.display =
-      'block'
-
-  }
-
-
-  if (error) {
-
-    error.style.display =
-      'none'
-
-    error.textContent =
-      ''
-
-  }
-
-
-  if (container) {
-
-    container.innerHTML =
-      ''
-
-  }
 
 
   modal.classList.add(
@@ -1428,25 +1191,24 @@ async function openSupplyHistory(
   )
 
 
+
+  body.innerHTML = `
+
+    <div class="wo-detail-loading">
+
+      Memuat Supply History...
+
+    </div>
+
+  `
+
+
+
   try {
-
-    /*
-      ----------------------------------------
-      IMPORT DINAMIS
-      ----------------------------------------
-    */
-
-    const {
-      getSupplyHistory
-    } =
-      await import(
-        '../../services/orderService.js'
-      )
-
 
     const history =
       await getSupplyHistory(
-        orderId,
+        currentOrderId,
         partId
       )
 
@@ -1464,59 +1226,50 @@ async function openSupplyHistory(
     )
 
 
-    showHistoryError(
-      error.message ||
-      'Gagal memuat supply history.'
-    )
+    body.innerHTML = `
 
-  }
-  finally {
+      <div class="supply-form-error show">
 
-    if (loading) {
+        ${escapeHTML(
+          error.message ||
+          'Gagal memuat Supply History.'
+        )}
 
-      loading.style.display =
-        'none'
+      </div>
 
-    }
+    `
 
   }
 
 }
 
 
-/*
-  ==================================================
-  RENDER HISTORY TABLE
-  ==================================================
-*/
 
 function renderSupplyHistoryTable(
   history
 ) {
 
-  const container =
+  const body =
     document.getElementById(
-      'supply-history-table-container'
+      'supply-history-body'
     )
 
 
-  if (!container) {
+  if (!body) {
 
     return
 
   }
 
 
-  if (
-    !Array.isArray(history) ||
-    history.length === 0
-  ) {
 
-    container.innerHTML = `
+  if (!history.length) {
+
+    body.innerHTML = `
 
       <div class="supply-history-empty">
 
-        Belum ada riwayat supply.
+        Belum ada history supply.
 
       </div>
 
@@ -1527,26 +1280,75 @@ function renderSupplyHistoryTable(
   }
 
 
-  const totalSupply =
-    history.reduce(
-      (
-        total,
-        item
-      ) => {
 
-        return (
-          total +
+  let totalSupply = 0
+
+
+
+  const rows =
+    history.map(
+      (item, index) => {
+
+        const qty =
           Number(
             item.qtySupply || 0
           )
-        )
-
-      },
-      0
-    )
 
 
-  container.innerHTML = `
+        totalSupply +=
+          qty
+
+
+
+        return `
+
+          <tr>
+
+            <td>
+              ${index + 1}
+            </td>
+
+
+            <td>
+              ${
+                item.ata
+                  ? escapeHTML(
+                      formatDate(
+                        item.ata
+                      )
+                    )
+                  : '-'
+              }
+            </td>
+
+
+            <td>
+              ${qty}
+            </td>
+
+
+            <td>
+              ${
+                item.createdAt
+                  ? escapeHTML(
+                      formatTimestamp(
+                        item.createdAt
+                      )
+                    )
+                  : '-'
+              }
+            </td>
+
+          </tr>
+
+        `
+
+      }
+    ).join('')
+
+
+
+  body.innerHTML = `
 
     <div class="supply-history-summary">
 
@@ -1580,19 +1382,27 @@ function renderSupplyHistoryTable(
 
     <div class="supply-history-table-wrapper">
 
-      <table class="supply-history-table">
+      <table class="wo-detail-table">
 
         <thead>
 
           <tr>
 
-            <th>No</th>
+            <th>
+              No
+            </th>
 
-            <th>ATA</th>
+            <th>
+              ATA
+            </th>
 
-            <th>Qty Supply</th>
+            <th>
+              Qty Supply
+            </th>
 
-            <th>Dicatat</th>
+            <th>
+              Dicatat
+            </th>
 
           </tr>
 
@@ -1601,50 +1411,7 @@ function renderSupplyHistoryTable(
 
         <tbody>
 
-          ${history
-            .map(
-              (
-                item,
-                index
-              ) => `
-
-                <tr>
-
-                  <td>
-                    ${index + 1}
-                  </td>
-
-
-                  <td>
-                    ${formatDate(
-                      item.ata
-                    )}
-                  </td>
-
-
-                  <td>
-
-                    <strong>
-                      ${Number(
-                        item.qtySupply || 0
-                      )}
-                    </strong>
-
-                  </td>
-
-
-                  <td>
-                    ${formatTimestamp(
-                      item.createdAt
-                    )}
-                  </td>
-
-                </tr>
-
-              `
-            )
-            .join('')
-          }
+          ${rows}
 
         </tbody>
 
@@ -1657,11 +1424,6 @@ function renderSupplyHistoryTable(
 }
 
 
-/*
-  ==================================================
-  HISTORY MODAL BUTTONS
-  ==================================================
-*/
 
 function initHistoryModalButtons() {
 
@@ -1671,9 +1433,9 @@ function initHistoryModalButtons() {
     )
 
 
-  const closeFooterButton =
+  const footerButton =
     document.getElementById(
-      'supply-history-close-button'
+      'supply-history-footer-close'
     )
 
 
@@ -1681,6 +1443,7 @@ function initHistoryModalButtons() {
     document.getElementById(
       'supply-history-overlay'
     )
+
 
 
   if (closeButton) {
@@ -1693,9 +1456,9 @@ function initHistoryModalButtons() {
   }
 
 
-  if (closeFooterButton) {
+  if (footerButton) {
 
-    closeFooterButton.addEventListener(
+    footerButton.addEventListener(
       'click',
       closeSupplyHistory
     )
@@ -1715,11 +1478,6 @@ function initHistoryModalButtons() {
 }
 
 
-/*
-  ==================================================
-  CLOSE HISTORY
-  ==================================================
-*/
 
 function closeSupplyHistory() {
 
@@ -1743,54 +1501,6 @@ function closeSupplyHistory() {
 }
 
 
-/*
-  ==================================================
-  SHOW HISTORY ERROR
-  ==================================================
-*/
-
-function showHistoryError(
-  message
-) {
-
-  const loading =
-    document.getElementById(
-      'supply-history-loading'
-    )
-
-
-  const error =
-    document.getElementById(
-      'supply-history-error'
-    )
-
-
-  if (loading) {
-
-    loading.style.display =
-      'none'
-
-  }
-
-
-  if (error) {
-
-    error.style.display =
-      'block'
-
-    error.textContent =
-      message
-
-  }
-
-}
-
-
-/*
-  ==================================================
-  GET TODAY DATE
-  ==================================================
-*/
 
 function getTodayDate() {
 
@@ -1820,8 +1530,6 @@ function getTodayDate() {
     )
 
 
-  return (
-    `${year}-${month}-${day}`
-  )
+  return `${year}-${month}-${day}`
 
 }

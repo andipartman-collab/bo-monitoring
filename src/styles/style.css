@@ -2040,3 +2040,20 @@ a {
   }
 
 }
+
+.wo-detail-eta-history-button {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  color: #2563eb;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.wo-detail-eta-history-button:hover {
+  opacity: 0.75;
+}
