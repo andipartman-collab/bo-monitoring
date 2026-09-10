@@ -407,12 +407,6 @@ export async function getOrderDetail(
   }
 
 
-  /*
-    ==========================================
-    1. AMBIL DATA WO
-    ==========================================
-  */
-
   const orderRef =
     doc(
       db,
@@ -448,12 +442,6 @@ export async function getOrderDetail(
   }
 
 
-  /*
-    ==========================================
-    2. AMBIL PARTS
-    ==========================================
-  */
-
   const partsRef =
     collection(
       db,
@@ -482,12 +470,6 @@ export async function getOrderDetail(
     )
 
 
-  /*
-    ==========================================
-    3. RETURN
-    ==========================================
-  */
-
   return {
 
     order,
@@ -501,15 +483,173 @@ export async function getOrderDetail(
 
 /*
   ==================================================
+  UPDATE ORDER
+  ==================================================
+
+  Mengubah informasi utama WO.
+
+  No WO sengaja tidak disediakan di sini
+  karena No WO adalah identitas yang terkunci.
+*/
+
+export async function updateOrder(
+  orderId,
+  orderData
+) {
+
+  if (!orderId) {
+
+    throw new Error(
+      'Order ID tidak tersedia.'
+    )
+
+  }
+
+
+  if (!orderData) {
+
+    throw new Error(
+      'Data perubahan WO tidak tersedia.'
+    )
+
+  }
+
+
+  const sa =
+    orderData.sa
+      ?.trim()
+      .toUpperCase() || ''
+
+  const customer =
+    orderData.customer
+      ?.trim()
+      .toUpperCase() || ''
+
+  const noPolisi =
+    orderData.noPolisi
+      ?.trim()
+      .toUpperCase() || ''
+
+  const model =
+    orderData.model
+      ?.trim()
+      .toUpperCase() || ''
+
+  const tanggalBooking =
+    orderData.tanggalBooking || ''
+
+  const note =
+    orderData.note
+      ?.trim()
+      .toUpperCase() || ''
+
+
+  if (!sa) {
+
+    throw new Error(
+      'SA wajib diisi.'
+    )
+
+  }
+
+
+  if (!customer) {
+
+    throw new Error(
+      'Customer wajib diisi.'
+    )
+
+  }
+
+
+  if (!noPolisi) {
+
+    throw new Error(
+      'No Polisi wajib diisi.'
+    )
+
+  }
+
+
+  if (!model) {
+
+    throw new Error(
+      'Model wajib diisi.'
+    )
+
+  }
+
+
+  const orderRef =
+    doc(
+      db,
+      'orders',
+      orderId
+    )
+
+
+  await runTransaction(
+    db,
+    async transaction => {
+
+      const orderSnapshot =
+        await transaction.get(
+          orderRef
+        )
+
+
+      if (!orderSnapshot.exists()) {
+
+        throw new Error(
+          'Data Work Order tidak ditemukan.'
+        )
+
+      }
+
+
+      transaction.update(
+        orderRef,
+        {
+
+          sa,
+          customer,
+          noPolisi,
+          model,
+          tanggalBooking,
+          note,
+          updatedAt:
+            serverTimestamp()
+
+        }
+      )
+
+    }
+  )
+
+
+  return {
+
+    orderId,
+
+    sa,
+    customer,
+    noPolisi,
+    model,
+    tanggalBooking,
+    note
+
+  }
+
+}
+
+
+/*
+  ==================================================
   GET PARTS WITH SUPPLY
   ==================================================
 
   Mengambil semua part dari sebuah WO
   beserta seluruh data supply masing-masing part.
-
-  Struktur:
-
-  orders/{orderId}/parts/{partId}/supplies/*
 */
 
 export async function getPartsWithSupply(
@@ -524,12 +664,6 @@ export async function getPartsWithSupply(
 
   }
 
-
-  /*
-    ==========================================
-    AMBIL SEMUA PART
-    ==========================================
-  */
 
   const partsRef =
     collection(
@@ -546,12 +680,6 @@ export async function getPartsWithSupply(
     )
 
 
-  /*
-    ==========================================
-    PROSES SETIAP PART
-    ==========================================
-  */
-
   const parts =
     await Promise.all(
 
@@ -561,12 +689,6 @@ export async function getPartsWithSupply(
           const partData =
             partDocument.data()
 
-
-          /*
-            ----------------------------------
-            REFERENSI SUPPLY
-            ----------------------------------
-          */
 
           const suppliesRef =
             collection(
@@ -579,23 +701,11 @@ export async function getPartsWithSupply(
             )
 
 
-          /*
-            ----------------------------------
-            AMBIL SUPPLY
-            ----------------------------------
-          */
-
           const suppliesSnapshot =
             await getDocs(
               suppliesRef
             )
 
-
-          /*
-            ----------------------------------
-            UBAH SUPPLY MENJADI ARRAY
-            ----------------------------------
-          */
 
           const supplies =
             suppliesSnapshot.docs.map(
@@ -609,12 +719,6 @@ export async function getPartsWithSupply(
               })
             )
 
-
-          /*
-            ----------------------------------
-            HITUNG TOTAL SUPPLY
-            ----------------------------------
-          */
 
           const totalSupply =
             supplies.reduce(
@@ -635,12 +739,6 @@ export async function getPartsWithSupply(
             )
 
 
-          /*
-            ----------------------------------
-            HITUNG SISA
-            ----------------------------------
-          */
-
           const qtyOrder =
             Number(
               partData.qtyOrder || 0
@@ -654,12 +752,6 @@ export async function getPartsWithSupply(
               0
             )
 
-
-          /*
-            ----------------------------------
-            RETURN PART
-            ----------------------------------
-          */
 
           return {
 
@@ -691,20 +783,6 @@ export async function getPartsWithSupply(
   ==================================================
   ADD SUPPLY
   ==================================================
-
-  Menyimpan satu transaksi supply.
-
-  Struktur:
-
-  orders/{orderId}
-    parts/{partId}
-      supplies/{supplyId}
-
-  Data:
-
-  - qtySupply
-  - ata
-  - createdAt
 */
 
 export async function addSupply(
@@ -714,62 +792,29 @@ export async function addSupply(
   ata
 ) {
 
-  /*
-    ==========================================
-    VALIDASI DASAR
-    ==========================================
-  */
-
   if (!orderId) {
-
-    throw new Error(
-      'Order ID tidak tersedia.'
-    )
-
+    throw new Error('Order ID tidak tersedia.')
   }
-
 
   if (!partId) {
-
-    throw new Error(
-      'Part ID tidak tersedia.'
-    )
-
+    throw new Error('Part ID tidak tersedia.')
   }
 
-
   const quantity =
-    Number(
-      qtySupply
-    )
-
+    Number(qtySupply)
 
   if (
     !Number.isInteger(quantity) ||
     quantity <= 0
   ) {
-
     throw new Error(
       'Qty Supply harus berupa angka bulat lebih dari 0.'
     )
-
   }
-
 
   if (!ata) {
-
-    throw new Error(
-      'ATA wajib diisi.'
-    )
-
+    throw new Error('ATA wajib diisi.')
   }
-
-
-  /*
-    ==========================================
-    REFERENSI PART
-    ==========================================
-  */
 
   const partRef =
     doc(
@@ -780,13 +825,6 @@ export async function addSupply(
       partId
     )
 
-
-  /*
-    ==========================================
-    REFERENSI ORDER
-    ==========================================
-  */
-
   const orderRef =
     doc(
       db,
@@ -794,51 +832,24 @@ export async function addSupply(
       orderId
     )
 
-
-  /*
-    ==========================================
-    REFERENSI SUPPLY COLLECTION
-    ==========================================
-  */
-
   const suppliesRef =
     collection(
       partRef,
       'supplies'
     )
 
-
-  /*
-    ==========================================
-    AMBIL SUPPLY YANG SUDAH ADA
-    ==========================================
-
-    Tidak menggunakan transaction.get(query)
-    karena transaction.get() membutuhkan
-    DocumentReference.
-  */
-
   const suppliesSnapshot =
     await getDocs(
       suppliesRef
     )
 
-
-  /*
-    ==========================================
-    HITUNG TOTAL SUPPLY SAAT INI
-    ==========================================
-  */
-
   let totalSupply = 0
-
 
   suppliesSnapshot.forEach(
     supplyDocument => {
 
       const supplyData =
         supplyDocument.data()
-
 
       totalSupply +=
         Number(
@@ -848,45 +859,24 @@ export async function addSupply(
     }
   )
 
-
-  /*
-    ==========================================
-    AMBIL DATA PART
-    ==========================================
-  */
-
   const partSnapshot =
     await getDoc(
       partRef
     )
 
-
-  if (
-    !partSnapshot.exists()
-  ) {
-
+  if (!partSnapshot.exists()) {
     throw new Error(
       'Data part tidak ditemukan.'
     )
-
   }
-
 
   const partData =
     partSnapshot.data()
-
 
   const qtyOrder =
     Number(
       partData.qtyOrder || 0
     )
-
-
-  /*
-    ==========================================
-    HITUNG SISA
-    ==========================================
-  */
 
   const sisa =
     Math.max(
@@ -895,128 +885,61 @@ export async function addSupply(
       0
     )
 
-
-  /*
-    ==========================================
-    VALIDASI QTY SUPPLY
-    ==========================================
-  */
-
-  if (
-    quantity > sisa
-  ) {
-
+  if (quantity > sisa) {
     throw new Error(
       `Qty Supply tidak boleh lebih dari sisa ${sisa}.`
     )
-
   }
-
-
-  /*
-    ==========================================
-    BUAT SUPPLY DOCUMENT BARU
-    ==========================================
-  */
 
   const supplyRef =
     doc(
       suppliesRef
     )
 
-
-  /*
-    ==========================================
-    SIMPAN DENGAN TRANSACTION
-    ==========================================
-  */
-
   await runTransaction(
     db,
     async transaction => {
-
-      /*
-        --------------------------------------
-        CEK PART SEKALI LAGI
-        --------------------------------------
-      */
 
       const latestPartSnapshot =
         await transaction.get(
           partRef
         )
 
-
-      if (
-        !latestPartSnapshot.exists()
-      ) {
-
+      if (!latestPartSnapshot.exists()) {
         throw new Error(
           'Data part tidak ditemukan.'
         )
-
       }
-
-
-      /*
-        --------------------------------------
-        DATA SUPPLY
-        --------------------------------------
-      */
 
       transaction.set(
         supplyRef,
         {
-
           qtySupply:
             quantity,
-
           ata:
             ata,
-
           createdAt:
             serverTimestamp()
-
         }
       )
-
-
-      /*
-        --------------------------------------
-        UPDATE ORDER
-        --------------------------------------
-      */
 
       transaction.update(
         orderRef,
         {
-
           updatedAt:
             serverTimestamp()
-
         }
       )
 
     }
   )
 
-
-  /*
-    ==========================================
-    RETURN
-    ==========================================
-  */
-
   return {
-
     supplyId:
       supplyRef.id,
-
     qtySupply:
       quantity,
-
     ata
-
   }
 
 }
@@ -1026,15 +949,6 @@ export async function addSupply(
   ==================================================
   GET SUPPLY HISTORY
   ==================================================
-
-  Mengambil seluruh history supply
-  dari satu part.
-
-  Struktur:
-
-  orders/{orderId}
-    parts/{partId}
-      supplies/*
 */
 
 export async function getSupplyHistory(
@@ -1043,22 +957,16 @@ export async function getSupplyHistory(
 ) {
 
   if (!orderId) {
-
     throw new Error(
       'Order ID tidak tersedia.'
     )
-
   }
 
-
   if (!partId) {
-
     throw new Error(
       'Part ID tidak tersedia.'
     )
-
   }
-
 
   const suppliesRef =
     collection(
@@ -1070,7 +978,6 @@ export async function getSupplyHistory(
       'supplies'
     )
 
-
   const suppliesQuery =
     query(
       suppliesRef,
@@ -1080,25 +987,21 @@ export async function getSupplyHistory(
       )
     )
 
-
   const snapshot =
     await getDocs(
       suppliesQuery
     )
 
-
   return snapshot.docs.map(
     document => ({
-
       id:
         document.id,
-
       ...document.data()
-
     })
   )
 
 }
+
 
 export async function getETAHistory(
   orderId,
@@ -1106,22 +1009,16 @@ export async function getETAHistory(
 ) {
 
   if (!orderId) {
-
     throw new Error(
       'Order ID tidak tersedia.'
     )
-
   }
 
-
   if (!partId) {
-
     throw new Error(
       'Part ID tidak tersedia.'
     )
-
   }
-
 
   const historyRef =
     collection(
@@ -1133,7 +1030,6 @@ export async function getETAHistory(
       'etaHistory'
     )
 
-
   const historyQuery =
     query(
       historyRef,
@@ -1143,20 +1039,16 @@ export async function getETAHistory(
       )
     )
 
-
   const snapshot =
     await getDocs(
       historyQuery
     )
 
-
   return snapshot.docs.map(
     document => ({
-
-      id: document.id,
-
+      id:
+        document.id,
       ...document.data()
-
     })
   )
 
