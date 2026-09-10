@@ -106,7 +106,8 @@ export function renderWODetailDeleteModal() {
 */
 export function initWODetailDelete(
   orderId,
-  order
+  order,
+  onDeleted
 ) {
 
   const deleteButton =
@@ -191,11 +192,9 @@ export function initWODetailDelete(
 
       closeModal()
 
-      document.dispatchEvent(
-        new CustomEvent(
-          'work-order-deleted'
-        )
-      )
+      if (typeof onDeleted === 'function') {
+        onDeleted()
+      }
 
     }
     catch (error) {
