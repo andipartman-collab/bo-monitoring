@@ -22,6 +22,12 @@ import {
 
 
 import {
+  renderWODetailDeleteModal,
+  initWODetailDelete
+} from './WODetailDelete.js'
+
+
+import {
   renderWODetailParts,
   initWODetailSupply
 } from './WODetailParts.js'
@@ -32,7 +38,6 @@ import {
   RENDER WO DETAIL
   ==================================================
 */
-
 export function renderWODetail() {
 
   return `
@@ -66,13 +71,13 @@ export function renderWODetail() {
       ></div>
 
 
-      <div
-        id="wo-detail-content"
-      ></div>
+      <div id="wo-detail-content"></div>
 
       ${renderWODetailEditModal()}
 
       ${renderWODetailPartEditModal()}
+
+      ${renderWODetailDeleteModal()}
 
     </div>
 
@@ -85,7 +90,6 @@ export function renderWODetail() {
   INIT WO DETAIL
   ==================================================
 */
-
 export async function initWODetail(
   orderId
 ) {
@@ -139,7 +143,6 @@ export async function initWODetail(
   RENDER DETAIL
   ==================================================
 */
-
 function renderDetail(
   order,
   parts,
@@ -157,8 +160,7 @@ function renderDetail(
     )
 
   if (loading) {
-    loading.style.display =
-      'none'
+    loading.style.display = 'none'
   }
 
   if (!content) {
@@ -167,108 +169,43 @@ function renderDetail(
 
   content.innerHTML = `
 
-    ${renderWODetailInfo(
-      order
-    )}
+    ${renderWODetailInfo(order)}
 
-    ${renderWODetailParts(
-      parts
-    )}
+    ${renderWODetailParts(parts)}
 
   `
 
-
-  /*
-    ==========================================
-    AKTIFKAN EDIT WO
-    ==========================================
-  */
 
   initWODetailEdit(
     orderId,
     order,
     async () => {
-
-      try {
-
-        const refreshedOrder =
-          await getOrderDetail(
-            orderId
-          )
-
-        const refreshedParts =
-          await getPartsWithSupply(
-            orderId
-          )
-
-        renderDetail(
-          refreshedOrder.order,
-          refreshedParts,
-          orderId
-        )
-
-      }
-      catch (error) {
-
-        console.error(
-          'GAGAL REFRESH WO:',
-          error
-        )
-
-      }
-
+      await refreshDetail(orderId)
     }
   )
 
-
-  /*
-    ==========================================
-    AKTIFKAN EDIT PART
-    ==========================================
-  */
 
   initWODetailPartEdit(
     orderId,
     parts,
     async () => {
-
-      try {
-
-        const refreshedOrder =
-          await getOrderDetail(
-            orderId
-          )
-
-        const refreshedParts =
-          await getPartsWithSupply(
-            orderId
-          )
-
-        renderDetail(
-          refreshedOrder.order,
-          refreshedParts,
-          orderId
-        )
-
-      }
-      catch (error) {
-
-        console.error(
-          'GAGAL REFRESH PART:',
-          error
-        )
-
-      }
-
+      await refreshDetail(orderId)
     }
   )
 
 
-  /*
-    ==========================================
-    AKTIFKAN SUPPLY
-    ==========================================
-  */
+  initWODetailDelete(
+    orderId,
+    order,
+    () => {
+      document.dispatchEvent(
+        new CustomEvent(
+          'work-order-deleted'
+        )
+      )
+    }
+  )
+
 
   initWODetailSupply(
     orderId,
@@ -299,7 +236,33 @@ function renderDetail(
 
     }
   )
+}
 
+
+/*
+  ==================================================
+  REFRESH DETAIL
+  ==================================================
+*/
+async function refreshDetail(
+  orderId
+) {
+
+  const refreshedOrder =
+    await getOrderDetail(
+      orderId
+    )
+
+  const refreshedParts =
+    await getPartsWithSupply(
+      orderId
+    )
+
+  renderDetail(
+    refreshedOrder.order,
+    refreshedParts,
+    orderId
+  )
 }
 
 
@@ -308,7 +271,6 @@ function renderDetail(
   BACK BUTTON
   ==================================================
 */
-
 function initBackButton() {
 
   const button =
@@ -323,13 +285,11 @@ function initBackButton() {
   button.addEventListener(
     'click',
     () => {
-
       document.dispatchEvent(
         new CustomEvent(
           'back-to-all-order'
         )
       )
-
     }
   )
 }
@@ -340,7 +300,6 @@ function initBackButton() {
   ERROR
   ==================================================
 */
-
 function showError(
   messageText
 ) {
@@ -356,18 +315,14 @@ function showError(
     )
 
   if (loading) {
-    loading.style.display =
-      'none'
+    loading.style.display = 'none'
   }
 
   if (message) {
-
     message.className =
       'wo-detail-message error'
 
     message.textContent =
       messageText
-
   }
-
 }
