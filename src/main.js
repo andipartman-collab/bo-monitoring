@@ -1,4 +1,5 @@
 import './styles/style.css'
+import './styles/wo-detail-edit.css'
 
 
 import { testFirestore }
