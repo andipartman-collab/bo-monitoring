@@ -1,10 +1,8 @@
 /* ==================================================
    WO DETAIL UI REFINEMENT
-   Override existing style.css without changing
-   existing page components.
 ================================================== */
 
-/* SIDEBAR - stronger typography */
+/* Sidebar typography */
 .sidebar-title strong {
   font-size: 15px;
   font-weight: 800;
@@ -29,8 +27,7 @@
   font-weight: 800;
 }
 
-
-/* WO INFO - more compact */
+/* Compact WO information */
 .wo-detail-card {
   margin-bottom: 16px;
 }
@@ -68,8 +65,7 @@
   grid-column: span 2;
 }
 
-
-/* PART TABLE - tighter rows + wider name column */
+/* Compact part table */
 .wo-detail-table {
   min-width: 980px;
   table-layout: fixed;
@@ -96,6 +92,7 @@
   width: 125px;
 }
 
+/* Nama Part dibuat lebih lebar */
 .wo-detail-table th:nth-child(3),
 .wo-detail-table td:nth-child(3) {
   width: 310px;
@@ -111,7 +108,7 @@
   width: 105px;
 }
 
-/* Qty Order, Supply, Sisa: maximum 3 digits */
+/* Qty Order, Supply, Sisa cukup untuk 3 digit */
 .wo-detail-table th:nth-child(6),
 .wo-detail-table td:nth-child(6),
 .wo-detail-table th:nth-child(7),
@@ -142,8 +139,6 @@
   font-size: 11px;
 }
 
-
-/* MOBILE */
 @media (max-width: 1000px) {
   .wo-detail-info-note {
     grid-column: span 2;
