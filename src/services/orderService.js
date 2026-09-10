@@ -1,13 +1,14 @@
 import {
   collection,
   doc,
+  getDoc,
+  getDocs,
   runTransaction,
   serverTimestamp,
   query,
   orderBy,
   limit,
-  startAfter,
-  getDocs
+  startAfter
 } from 'firebase/firestore'
 
 import {
@@ -19,24 +20,18 @@ import {
   ==================================================
   CREATE NEW ORDER
   ==================================================
-
-  Proses:
-
-  1. Cek No WO di woRegistry
-  2. Buat document WO
-  3. Buat document Parts
-  4. Buat registry No WO
-
-  Semua dilakukan dalam 1 transaction.
 */
 
-
-export async function createNewOrder(orderData) {
+export async function createNewOrder(
+  orderData
+) {
 
   if (!orderData) {
+
     throw new Error(
       'Data order tidak tersedia.'
     )
+
   }
 
 
@@ -47,17 +42,13 @@ export async function createNewOrder(orderData) {
 
 
   if (!noWo) {
+
     throw new Error(
       'No WO tidak boleh kosong.'
     )
+
   }
 
-
-  /*
-    ==========================================
-    REFERENSI FIRESTORE
-    ==========================================
-  */
 
   const registryRef =
     doc(
@@ -79,20 +70,14 @@ export async function createNewOrder(orderData) {
   const createdParts = []
 
 
-  /*
-    ==========================================
-    TRANSACTION
-    ==========================================
-  */
-
   await runTransaction(
     db,
     async transaction => {
 
       /*
-        --------------------------------------
+        ========================================
         1. CEK NO WO
-        --------------------------------------
+        ========================================
       */
 
       const registrySnapshot =
@@ -101,7 +86,9 @@ export async function createNewOrder(orderData) {
         )
 
 
-      if (registrySnapshot.exists()) {
+      if (
+        registrySnapshot.exists()
+      ) {
 
         throw new Error(
           `No WO ${noWo} sudah digunakan.`
@@ -111,9 +98,9 @@ export async function createNewOrder(orderData) {
 
 
       /*
-        --------------------------------------
+        ========================================
         2. DATA WO
-        --------------------------------------
+        ========================================
       */
 
       const orderPayload = {
@@ -158,9 +145,9 @@ export async function createNewOrder(orderData) {
 
 
       /*
-        --------------------------------------
+        ========================================
         3. SIMPAN WO
-        --------------------------------------
+        ========================================
       */
 
       transaction.set(
@@ -170,9 +157,9 @@ export async function createNewOrder(orderData) {
 
 
       /*
-        --------------------------------------
+        ========================================
         4. SIMPAN PARTS
-        --------------------------------------
+        ========================================
       */
 
       const parts =
@@ -233,8 +220,12 @@ export async function createNewOrder(orderData) {
 
 
           createdParts.push({
-            id: partRef.id,
+
+            id:
+              partRef.id,
+
             ...partPayload
+
           })
 
         }
@@ -242,9 +233,9 @@ export async function createNewOrder(orderData) {
 
 
       /*
-        --------------------------------------
+        ========================================
         5. SIMPAN REGISTRY
-        --------------------------------------
+        ========================================
       */
 
       transaction.set(
@@ -265,12 +256,6 @@ export async function createNewOrder(orderData) {
     }
   )
 
-
-  /*
-    ==========================================
-    RETURN
-    ==========================================
-  */
 
   return {
 
@@ -293,12 +278,6 @@ export async function createNewOrder(orderData) {
   ==================================================
 
   Mengambil daftar WO dengan pagination.
-
-  Default:
-  20 WO per halaman.
-
-  cursor:
-  document terakhir dari halaman sebelumnya.
 */
 
 export async function getOrders(
@@ -316,10 +295,12 @@ export async function getOrders(
   const baseQuery =
     query(
       ordersRef,
+
       orderBy(
         'createdAt',
         'desc'
       ),
+
       limit(
         pageSize
       )
@@ -334,13 +315,16 @@ export async function getOrders(
     const nextQuery =
       query(
         ordersRef,
+
         orderBy(
           'createdAt',
           'desc'
         ),
+
         startAfter(
           cursor
         ),
+
         limit(
           pageSize
         )
@@ -392,6 +376,123 @@ export async function getOrders(
 
     hasNextPage:
       snapshot.size === pageSize
+
+  }
+
+}
+
+
+/*
+  ==================================================
+  GET ORDER DETAIL
+  ==================================================
+
+  Mengambil:
+  - Data WO
+  - Semua Parts
+
+  orderId adalah document ID Firestore.
+*/
+
+export async function getOrderDetail(
+  orderId
+) {
+
+  if (!orderId) {
+
+    throw new Error(
+      'Order ID tidak tersedia.'
+    )
+
+  }
+
+
+  /*
+    ==========================================
+    1. AMBIL DATA WO
+    ==========================================
+  */
+
+  const orderRef =
+    doc(
+      db,
+      'orders',
+      orderId
+    )
+
+
+  const orderSnapshot =
+    await getDoc(
+      orderRef
+    )
+
+
+  if (
+    !orderSnapshot.exists()
+  ) {
+
+    throw new Error(
+      'Data Work Order tidak ditemukan.'
+    )
+
+  }
+
+
+  const order = {
+
+    id:
+      orderSnapshot.id,
+
+    ...orderSnapshot.data()
+
+  }
+
+
+  /*
+    ==========================================
+    2. AMBIL PARTS
+    ==========================================
+  */
+
+  const partsRef =
+    collection(
+      db,
+      'orders',
+      orderId,
+      'parts'
+    )
+
+
+  const partsSnapshot =
+    await getDocs(
+      partsRef
+    )
+
+
+  const parts =
+    partsSnapshot.docs.map(
+      document => ({
+
+        id:
+          document.id,
+
+        ...document.data()
+
+      })
+    )
+
+
+  /*
+    ==========================================
+    3. RETURN
+    ==========================================
+  */
+
+  return {
+
+    order,
+
+    parts
 
   }
 

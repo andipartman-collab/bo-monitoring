@@ -595,14 +595,36 @@ function initDetailButtons() {
         'click',
         () => {
 
-          console.log(
-            'DETAIL ORDER:',
+          const orderId =
             button.dataset.orderId
+
+
+          if (!orderId) {
+
+            console.error(
+              'Order ID tidak tersedia.'
+            )
+
+            return
+
+          }
+
+
+          console.log(
+            'BUKA WO DETAIL:',
+            orderId
           )
 
 
-          alert(
-            'Fitur Detail Order akan kita buat pada tahap berikutnya.'
+          document.dispatchEvent(
+            new CustomEvent(
+              'open-wo-detail',
+              {
+                detail: {
+                  orderId
+                }
+              }
+            )
           )
 
         }

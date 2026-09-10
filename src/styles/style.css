@@ -1091,3 +1091,234 @@ a {
   background: #fff5f5;
   color: #991b1b;
 }
+
+/* ==================================================
+   WO DETAIL
+   ================================================== */
+
+.wo-detail-page {
+  padding: 0 28px 32px;
+}
+
+
+/* ==================================================
+   ACTION
+   ================================================== */
+
+.wo-detail-actions {
+  margin-bottom: 18px;
+}
+
+.wo-detail-back-button {
+  border: none;
+  background: #ffffff;
+  color: #0b1f3a;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wo-detail-back-button:hover {
+  background: #f5f7fa;
+}
+
+
+/* ==================================================
+   CARD
+   ================================================== */
+
+.wo-detail-card {
+  background: #ffffff;
+  border: 1px solid #e3e7ee;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.wo-detail-card-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid #e8ebf0;
+}
+
+.wo-detail-card-header h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #0b1f3a;
+}
+
+.wo-detail-card-header p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+
+/* ==================================================
+   INFO
+   ================================================== */
+
+.wo-detail-info-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+.wo-detail-info-item {
+  padding: 18px 22px;
+  border-right: 1px solid #edf0f4;
+  border-bottom: 1px solid #edf0f4;
+  min-height: 78px;
+  box-sizing: border-box;
+}
+
+.wo-detail-info-item span {
+  display: block;
+  margin-bottom: 7px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.wo-detail-info-item strong {
+  display: block;
+  color: #111827;
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.wo-detail-info-note {
+  grid-column: span 3;
+}
+
+
+/* ==================================================
+   TABLE
+   ================================================== */
+
+.wo-detail-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.wo-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.wo-detail-table th {
+  background: #f5f7fa;
+  color: #374151;
+  padding: 13px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 800;
+  border-bottom: 1px solid #e3e7ee;
+  white-space: nowrap;
+}
+
+.wo-detail-table td {
+  padding: 14px;
+  color: #374151;
+  font-size: 13px;
+  border-bottom: 1px solid #edf0f4;
+  vertical-align: middle;
+}
+
+.wo-detail-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+
+/* ==================================================
+   EMPTY
+   ================================================== */
+
+.wo-detail-empty {
+  padding: 36px 22px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+/* ==================================================
+   LOADING
+   ================================================== */
+
+.wo-detail-loading {
+  background: #ffffff;
+  border: 1px solid #e3e7ee;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+
+/* ==================================================
+   MESSAGE
+   ================================================== */
+
+.wo-detail-message {
+  display: none;
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.wo-detail-message.error {
+  display: block;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+}
+
+
+/* ==================================================
+   RESPONSIVE
+   ================================================== */
+
+@media (
+  max-width: 1000px
+) {
+
+  .wo-detail-info-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .wo-detail-info-note {
+    grid-column: span 2;
+  }
+
+}
+
+
+@media (
+  max-width: 600px
+) {
+
+  .wo-detail-page {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .wo-detail-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wo-detail-info-note {
+    grid-column: span 1;
+  }
+
+}

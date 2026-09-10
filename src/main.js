@@ -30,6 +30,12 @@ import {
 } from './pages/Dashboard/Dashboard.js'
 
 
+import {
+  renderWODetail,
+  initWODetail
+} from './pages/WODetail/WODetail.js'
+
+
 const app =
   document.querySelector(
     '#app'
@@ -39,6 +45,12 @@ const app =
 let currentPage =
   'new-order'
 
+
+/*
+  ==================================================
+  RENDER APP
+  ==================================================
+*/
 
 function renderApp() {
 
@@ -65,6 +77,9 @@ function renderApp() {
 
   initNavigation()
 
+  initWODetailNavigation()
+
+
   renderPage(
     currentPage
   )
@@ -72,8 +87,15 @@ function renderApp() {
 }
 
 
+/*
+  ==================================================
+  RENDER PAGE
+  ==================================================
+*/
+
 function renderPage(
-  page
+  page,
+  params = {}
 ) {
 
   const pageContent =
@@ -107,6 +129,12 @@ function renderPage(
   )
 
 
+  /*
+    ==========================================
+    ALL ORDER
+    ==========================================
+  */
+
   if (
     page ===
     'all-order'
@@ -130,6 +158,43 @@ function renderPage(
   }
 
 
+  /*
+    ==========================================
+    WO DETAIL
+    ==========================================
+  */
+
+  if (
+    page ===
+    'wo-detail'
+  ) {
+
+    topbarContainer.innerHTML =
+      renderTopbar(
+        'WO Detail',
+        'Detail Work Order dan daftar part yang dipesan.'
+      )
+
+
+    pageContent.innerHTML =
+      renderWODetail()
+
+
+    initWODetail(
+      params.orderId
+    )
+
+    return
+
+  }
+
+
+  /*
+    ==========================================
+    DASHBOARD
+    ==========================================
+  */
+
   if (
     page ===
     'dashboard'
@@ -145,10 +210,17 @@ function renderPage(
     pageContent.innerHTML =
       renderDashboard()
 
+
     return
 
   }
 
+
+  /*
+    ==========================================
+    NEW ORDER
+    ==========================================
+  */
 
   topbarContainer.innerHTML =
     renderTopbar(
@@ -165,6 +237,12 @@ function renderPage(
 
 }
 
+
+/*
+  ==================================================
+  INIT SIDEBAR NAVIGATION
+  ==================================================
+*/
 
 function initNavigation() {
 
@@ -189,7 +267,9 @@ function initNavigation() {
 
 
           if (!page) {
+
             return
+
           }
 
 
@@ -205,6 +285,78 @@ function initNavigation() {
 
 }
 
+
+/*
+  ==================================================
+  INIT WO DETAIL NAVIGATION
+  ==================================================
+*/
+
+function initWODetailNavigation() {
+
+  /*
+    ------------------------------------------
+    BUKA WO DETAIL
+    ------------------------------------------
+  */
+
+  document.addEventListener(
+    'open-wo-detail',
+    event => {
+
+      const orderId =
+        event.detail?.orderId
+
+
+      if (!orderId) {
+
+        return
+
+      }
+
+
+      console.log(
+        'BUKA WO DETAIL:',
+        orderId
+      )
+
+
+      renderPage(
+        'wo-detail',
+        {
+          orderId
+        }
+      )
+
+    }
+  )
+
+
+  /*
+    ------------------------------------------
+    KEMBALI KE ALL ORDER
+    ------------------------------------------
+  */
+
+  document.addEventListener(
+    'back-to-all-order',
+    () => {
+
+      renderPage(
+        'all-order'
+      )
+
+    }
+  )
+
+}
+
+
+/*
+  ==================================================
+  UPDATE SIDEBAR ACTIVE STATE
+  ==================================================
+*/
 
 function updateSidebarActiveState(
   page
@@ -230,7 +382,19 @@ function updateSidebarActiveState(
 }
 
 
+/*
+  ==================================================
+  START APPLICATION
+  ==================================================
+*/
+
 renderApp()
 
+
+/*
+  ==================================================
+  TEST FIRESTORE
+  ==================================================
+*/
 
 testFirestore()
