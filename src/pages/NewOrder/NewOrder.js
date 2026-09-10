@@ -21,17 +21,13 @@ import {
   createNewOrder
 } from '../../services/orderService.js'
 
+
 export function renderNewOrder() {
 
   return `
     <div class="new-order-page">
 
       <form id="new-order-form">
-
-        <div
-          id="new-order-message"
-          class="new-order-message"
-        ></div>
 
         ${renderNewOrderForm()}
 
@@ -56,6 +52,16 @@ export function renderNewOrder() {
           </button>
 
         </div>
+
+        <!--
+          Notifikasi ditempatkan di bawah tombol
+          agar hasil simpan langsung terlihat.
+        -->
+
+        <div
+          id="new-order-message"
+          class="new-order-message"
+        ></div>
 
       </form>
 
@@ -268,11 +274,19 @@ function handleCancel() {
     )
 
   if (message) {
+
     message.textContent = ''
+
   }
 
 }
 
+
+/*
+  ========================================
+  VALIDATION ERROR
+  ========================================
+*/
 
 function showValidationErrors(errors) {
 
@@ -332,9 +346,11 @@ function showValidationErrors(errors) {
           )
 
         if (input) {
+
           input.classList.add(
             'validation-error'
           )
+
         }
 
       }
@@ -346,9 +362,11 @@ function showValidationErrors(errors) {
           )
 
         if (input) {
+
           input.classList.add(
             'validation-error'
           )
+
         }
 
       }
@@ -366,6 +384,7 @@ function showValidationErrors(errors) {
       error =>
         error.field !== 'parts'
     )
+
 
   if (firstError) {
 
@@ -402,9 +421,38 @@ function showValidationErrors(errors) {
     }
 
   }
+  else {
+
+    /*
+      Kalau error hanya:
+      "Minimal tambahkan 1 part",
+      arahkan layar ke bagian Part Order.
+    */
+
+    const partsSection =
+      document.querySelector(
+        '.new-order-section:nth-of-type(2)'
+      )
+
+    if (partsSection) {
+
+      partsSection.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+
+    }
+
+  }
 
 }
 
+
+/*
+  ========================================
+  CLEAR VALIDATION
+  ========================================
+*/
 
 function clearValidation() {
 
@@ -412,6 +460,7 @@ function clearValidation() {
     document.querySelectorAll(
       '.validation-error'
     )
+
 
   invalidFields.forEach(
     field => {
@@ -429,6 +478,7 @@ function clearValidation() {
       'new-order-message'
     )
 
+
   if (message) {
 
     message.className =
@@ -441,12 +491,19 @@ function clearValidation() {
 }
 
 
+/*
+  ========================================
+  SUCCESS MESSAGE
+  ========================================
+*/
+
 function showSuccessMessage(messageText) {
 
   const message =
     document.getElementById(
       'new-order-message'
     )
+
 
   if (!message) {
     return
@@ -456,14 +513,29 @@ function showSuccessMessage(messageText) {
   message.className =
     'new-order-message success'
 
+
   message.innerHTML = `
     <strong>
-      ${escapeHTML(messageText)}
+      ✓ ${escapeHTML(messageText)}
     </strong>
   `
 
+
+  /*
+    Scroll ke notifikasi
+    agar user langsung melihat hasil.
+  */
+
+  scrollToMessage()
+
 }
 
+
+/*
+  ========================================
+  ERROR MESSAGE
+  ========================================
+*/
 
 function showErrorMessage(messageText) {
 
@@ -484,20 +556,83 @@ function showErrorMessage(messageText) {
 
   message.innerHTML = `
     <strong>
-      ${escapeHTML(messageText)}
+      ✕ ${escapeHTML(messageText)}
     </strong>
   `
+
+
+  /*
+    Scroll ke notifikasi
+    agar error langsung terlihat.
+  */
+
+  scrollToMessage()
 
 }
 
 
+/*
+  ========================================
+  SCROLL KE NOTIFIKASI
+  ========================================
+*/
+
+function scrollToMessage() {
+
+  const message =
+    document.getElementById(
+      'new-order-message'
+    )
+
+
+  if (!message) {
+    return
+  }
+
+
+  setTimeout(
+    () => {
+
+      message.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+
+    },
+    50
+  )
+
+}
+
+
+/*
+  ========================================
+  ESCAPE HTML
+  ========================================
+*/
+
 function escapeHTML(value) {
 
   return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
+    .replaceAll(
+      '&',
+      '&amp;'
+    )
+    .replaceAll(
+      '<',
+      '&lt;'
+    )
+    .replaceAll(
+      '>',
+      '&gt;'
+    )
+    .replaceAll(
+      '"',
+      '&quot;'
+    )
+    .replaceAll(
+      "'",
+      '&#039;'
+    )
 
 }
