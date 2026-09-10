@@ -10,11 +10,8 @@ export function renderSidebar() {
         </div>
 
         <div class="sidebar-title">
-
           <strong>BO Monitoring</strong>
-
           <span>Toyota Spare Part</span>
-
         </div>
 
       </div>
@@ -44,22 +41,29 @@ export function renderSidebar() {
 
         <a
           href="#"
-          class="menu-item active"
+          class="menu-item"
           data-page="new-order"
         >
           <span class="menu-icon">＋</span>
           <span>New Order</span>
         </a>
 
+
+        <a
+          href="#"
+          class="menu-item"
+          data-page="eta-update"
+        >
+          <span class="menu-icon">↻</span>
+          <span>Update ETA</span>
+        </a>
+
       </nav>
 
 
       <div class="sidebar-footer">
-
         <span>BO Monitoring</span>
-
         <small>v1.0.0</small>
-
       </div>
 
     </aside>
