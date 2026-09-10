@@ -17,6 +17,9 @@ import {
   getNewOrderData
 } from './NewOrderData.js'
 
+import {
+  createNewOrder
+} from '../../services/orderService.js'
 
 export function renderNewOrder() {
 
@@ -107,7 +110,7 @@ function initNewOrderForm() {
 }
 
 
-function handleSubmit(event) {
+async function handleSubmit(event) {
 
   event.preventDefault()
 
@@ -133,36 +136,75 @@ function handleSubmit(event) {
     getNewOrderData()
 
 
-  console.log(
-    'NEW ORDER DATA:',
-    orderData
-  )
+  /*
+    ========================================
+    SIMPAN KE FIRESTORE
+    ========================================
+  */
+
+  const saveButton =
+    document.getElementById(
+      'save-new-order'
+    )
 
 
-  console.log(
-    'WO DATA:',
-    {
-      noWo: orderData.noWo,
-      sa: orderData.sa,
-      customer: orderData.customer,
-      noPolisi: orderData.noPolisi,
-      model: orderData.model,
-      tanggalBooking:
-        orderData.tanggalBooking,
-      note: orderData.note
+  if (saveButton) {
+
+    saveButton.disabled = true
+
+    saveButton.textContent =
+      'Menyimpan...'
+
+  }
+
+
+  try {
+
+    const result =
+      await createNewOrder(
+        orderData
+      )
+
+
+    console.log(
+      'NEW ORDER BERHASIL DISIMPAN:',
+      result
+    )
+
+
+    showSuccessMessage(
+      `Order ${result.noWo} berhasil disimpan.`
+    )
+
+
+  }
+  catch (error) {
+
+    console.error(
+      'GAGAL MENYIMPAN NEW ORDER:',
+      error
+    )
+
+
+    showErrorMessage(
+      error.message ||
+      'Terjadi kesalahan saat menyimpan order.'
+    )
+
+
+  }
+  finally {
+
+    if (saveButton) {
+
+      saveButton.disabled = false
+
+      saveButton.textContent =
+        'Simpan Order'
+
     }
-  )
 
-
-  console.log(
-    'PART DATA:',
-    orderData.parts
-  )
-
-
-  showSuccessMessage(
-    'DATA BERHASIL DIAMBIL. Silakan cek Console.'
-  )
+  }
 
 }
 
@@ -413,6 +455,32 @@ function showSuccessMessage(messageText) {
 
   message.className =
     'new-order-message success'
+
+  message.innerHTML = `
+    <strong>
+      ${escapeHTML(messageText)}
+    </strong>
+  `
+
+}
+
+
+function showErrorMessage(messageText) {
+
+  const message =
+    document.getElementById(
+      'new-order-message'
+    )
+
+
+  if (!message) {
+    return
+  }
+
+
+  message.className =
+    'new-order-message error'
+
 
   message.innerHTML = `
     <strong>
