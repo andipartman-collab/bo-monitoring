@@ -13,6 +13,10 @@ import {
   validateNewOrder
 } from './NewOrderValidation.js'
 
+import {
+  getNewOrderData
+} from './NewOrderData.js'
+
 
 export function renderNewOrder() {
 
@@ -107,7 +111,6 @@ function handleSubmit(event) {
 
   event.preventDefault()
 
-
   clearValidation()
 
 
@@ -122,11 +125,43 @@ function handleSubmit(event) {
     )
 
     return
+
   }
 
 
+  const orderData =
+    getNewOrderData()
+
+
+  console.log(
+    'NEW ORDER DATA:',
+    orderData
+  )
+
+
+  console.log(
+    'WO DATA:',
+    {
+      noWo: orderData.noWo,
+      sa: orderData.sa,
+      customer: orderData.customer,
+      noPolisi: orderData.noPolisi,
+      model: orderData.model,
+      tanggalBooking:
+        orderData.tanggalBooking,
+      note: orderData.note
+    }
+  )
+
+
+  console.log(
+    'PART DATA:',
+    orderData.parts
+  )
+
+
   showSuccessMessage(
-    'VALIDASI BERHASIL. Data siap untuk disimpan.'
+    'DATA BERHASIL DIAMBIL. Silakan cek Console.'
   )
 
 }
