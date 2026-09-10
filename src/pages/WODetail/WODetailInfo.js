@@ -1,7 +1,6 @@
 import {
   escapeHTML,
-  formatDate,
-  formatTimestamp
+  formatDate
 } from './WODetailUtils.js'
 
 
@@ -77,8 +76,8 @@ export function renderWODetailInfo(
           <strong>
             ${escapeHTML(
               order.customer || '-'
-            )}
-          </strong>
+            )
+          }</strong>
 
         </div>
 
@@ -122,19 +121,6 @@ export function renderWODetailInfo(
         </div>
 
 
-        <div class="wo-detail-info-item">
-
-          <span>Dibuat</span>
-
-          <strong>
-            ${formatTimestamp(
-              order.createdAt
-            )}
-          </strong>
-
-        </div>
-
-
         <div class="wo-detail-info-item wo-detail-info-note">
 
           <span>Note</span>
@@ -152,5 +138,4 @@ export function renderWODetailInfo(
     </section>
 
   `
-
 }
