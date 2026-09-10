@@ -1,6 +1,6 @@
 import {
   updatePart
-} from '../../services/orderService.js'
+} from '../../services/partService.js'
 
 
 /*
@@ -311,10 +311,6 @@ export function initWODetailPartEdit(
     ==========================================
     BUAT TOMBOL EDIT DI SETIAP ROW
     ==========================================
-
-    WODetailParts.js tetap tidak perlu diubah.
-    Tombol ditambahkan ke action area yang
-    sudah tersedia.
   */
 
   const actionGroups =
