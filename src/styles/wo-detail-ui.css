@@ -1,0 +1,157 @@
+/* ==================================================
+   WO DETAIL UI REFINEMENT
+   Override existing style.css without changing
+   existing page components.
+================================================== */
+
+/* SIDEBAR - stronger typography */
+.sidebar-title strong {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.sidebar-title span {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.78;
+}
+
+.menu-item {
+  height: 46px;
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.menu-icon {
+  width: 27px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+
+/* WO INFO - more compact */
+.wo-detail-card {
+  margin-bottom: 16px;
+}
+
+.wo-detail-card-header {
+  padding: 15px 20px;
+}
+
+.wo-detail-card-header h2 {
+  font-size: 18px;
+}
+
+.wo-detail-card-header p {
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.wo-detail-info-item {
+  padding: 11px 18px;
+  min-height: 62px;
+}
+
+.wo-detail-info-item span {
+  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wo-detail-info-item strong {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.wo-detail-info-note {
+  grid-column: span 2;
+}
+
+
+/* PART TABLE - tighter rows + wider name column */
+.wo-detail-table {
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+.wo-detail-table th {
+  padding: 9px 10px;
+  font-size: 11px;
+}
+
+.wo-detail-table td {
+  padding: 9px 10px;
+  font-size: 12px;
+}
+
+.wo-detail-table th:nth-child(1),
+.wo-detail-table td:nth-child(1) {
+  width: 42px;
+  text-align: center;
+}
+
+.wo-detail-table th:nth-child(2),
+.wo-detail-table td:nth-child(2) {
+  width: 125px;
+}
+
+.wo-detail-table th:nth-child(3),
+.wo-detail-table td:nth-child(3) {
+  width: 310px;
+}
+
+.wo-detail-table th:nth-child(4),
+.wo-detail-table td:nth-child(4) {
+  width: 105px;
+}
+
+.wo-detail-table th:nth-child(5),
+.wo-detail-table td:nth-child(5) {
+  width: 105px;
+}
+
+/* Qty Order, Supply, Sisa: maximum 3 digits */
+.wo-detail-table th:nth-child(6),
+.wo-detail-table td:nth-child(6),
+.wo-detail-table th:nth-child(7),
+.wo-detail-table td:nth-child(7),
+.wo-detail-table th:nth-child(8),
+.wo-detail-table td:nth-child(8) {
+  width: 58px;
+  text-align: center;
+}
+
+.wo-detail-table th:nth-child(9),
+.wo-detail-table td:nth-child(9) {
+  width: 105px;
+}
+
+.wo-detail-table th:nth-child(10),
+.wo-detail-table td:nth-child(10) {
+  width: 205px;
+}
+
+.wo-detail-action-buttons {
+  gap: 5px;
+}
+
+.wo-detail-action-buttons button {
+  height: 30px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+
+
+/* MOBILE */
+@media (max-width: 1000px) {
+  .wo-detail-info-note {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .wo-detail-info-note {
+    grid-column: span 1;
+  }
+}
