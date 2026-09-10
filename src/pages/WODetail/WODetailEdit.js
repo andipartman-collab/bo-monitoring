@@ -177,16 +177,21 @@ export function initWODetailEdit(
   onSaved
 ) {
 
-  const modal =
-    document.getElementById('wo-edit-modal')
-
   const editButton =
     document.getElementById('wo-edit-button')
+
+  const modal =
+    document.getElementById('wo-edit-modal')
 
   const form =
     document.getElementById('wo-edit-form')
 
-  if (!modal || !editButton || !form) {
+  if (!editButton || !modal || !form) {
+
+    console.warn(
+      'WO EDIT: elemen edit belum tersedia.'
+    )
+
     return
   }
 
@@ -219,7 +224,9 @@ export function initWODetailEdit(
 
 
   function clearMessage() {
+
     if (!message) return
+
     message.textContent = ''
     message.className = 'wo-edit-message'
   }
@@ -253,129 +260,140 @@ export function initWODetailEdit(
 
 
   function openModal() {
+
     fillForm()
+
     modal.style.display = 'flex'
-    document.body.classList.add('wo-edit-modal-open')
-    customerInput.focus()
+    modal.removeAttribute('hidden')
+
+    document.body.classList.add(
+      'wo-edit-modal-open'
+    )
+
+    setTimeout(() => {
+      customerInput.focus()
+    }, 0)
   }
 
 
   function closeModal() {
+
     modal.style.display = 'none'
-    document.body.classList.remove('wo-edit-modal-open')
+
+    document.body.classList.remove(
+      'wo-edit-modal-open'
+    )
+
     clearMessage()
   }
 
 
-  editButton.addEventListener(
-    'click',
-    openModal
-  )
+  editButton.onclick = openModal
 
 
   modal.querySelectorAll('[data-edit-close]').forEach(
     element => {
-      element.addEventListener(
-        'click',
-        closeModal
-      )
+
+      element.onclick = closeModal
+
     }
   )
 
 
-  form.addEventListener(
-    'submit',
-    async event => {
+  form.onsubmit = async event => {
 
-      event.preventDefault()
-      clearMessage()
+    event.preventDefault()
+    clearMessage()
 
-      const sa =
-        saInput.value.trim().toUpperCase()
+    const sa =
+      saInput.value.trim().toUpperCase()
 
-      const customer =
-        customerInput.value.trim().toUpperCase()
+    const customer =
+      customerInput.value.trim().toUpperCase()
 
-      const noPolisi =
-        noPolisiInput.value.trim().toUpperCase()
+    const noPolisi =
+      noPolisiInput.value.trim().toUpperCase()
 
-      const model =
-        modelInput.value.trim().toUpperCase()
+    const model =
+      modelInput.value.trim().toUpperCase()
 
-      const tanggalBooking =
-        tanggalBookingInput.value || ''
+    const tanggalBooking =
+      tanggalBookingInput.value || ''
 
-      const note =
-        noteInput.value.trim().toUpperCase()
+    const note =
+      noteInput.value.trim().toUpperCase()
 
-      if (!sa) {
-        showMessage('SA wajib dipilih.', 'error')
-        saInput.focus()
-        return
-      }
+    if (!sa) {
+      showMessage('SA wajib dipilih.', 'error')
+      saInput.focus()
+      return
+    }
 
-      if (!customer) {
-        showMessage('Customer wajib diisi.', 'error')
-        customerInput.focus()
-        return
-      }
+    if (!customer) {
+      showMessage('Customer wajib diisi.', 'error')
+      customerInput.focus()
+      return
+    }
 
-      if (!noPolisi) {
-        showMessage('No Polisi wajib diisi.', 'error')
-        noPolisiInput.focus()
-        return
-      }
+    if (!noPolisi) {
+      showMessage('No Polisi wajib diisi.', 'error')
+      noPolisiInput.focus()
+      return
+    }
 
-      if (!model) {
-        showMessage('Model wajib diisi.', 'error')
-        modelInput.focus()
-        return
-      }
+    if (!model) {
+      showMessage('Model wajib diisi.', 'error')
+      modelInput.focus()
+      return
+    }
 
-      saveButton.disabled = true
-      saveButton.textContent = 'Menyimpan...'
+    saveButton.disabled = true
+    saveButton.textContent = 'Menyimpan...'
 
-      try {
+    try {
 
-        await updateOrder(
-          orderId,
-          {
-            sa,
-            customer,
-            noPolisi,
-            model,
-            tanggalBooking,
-            note
-          }
-        )
-
-        closeModal()
-
-        if (typeof onSaved === 'function') {
-          await onSaved()
+      await updateOrder(
+        orderId,
+        {
+          sa,
+          customer,
+          noPolisi,
+          model,
+          tanggalBooking,
+          note
         }
+      )
 
-      }
-      catch (error) {
+      closeModal()
 
-        console.error(
-          'GAGAL UPDATE WO:',
-          error
-        )
-
-        showMessage(
-          error.message || 'Gagal menyimpan perubahan WO.',
-          'error'
-        )
-
-      }
-      finally {
-        saveButton.disabled = false
-        saveButton.textContent = 'Simpan Perubahan'
+      if (typeof onSaved === 'function') {
+        await onSaved()
       }
 
     }
-  )
+    catch (error) {
+
+      console.error(
+        'GAGAL UPDATE WO:',
+        error
+      )
+
+      showMessage(
+        error.message ||
+        'Gagal menyimpan perubahan WO.',
+        'error'
+      )
+
+    }
+    finally {
+
+      saveButton.disabled = false
+      saveButton.textContent =
+        'Simpan Perubahan'
+
+    }
+
+  }
 
 
   function showMessage(
@@ -386,6 +404,7 @@ export function initWODetailEdit(
     if (!message) return
 
     message.textContent = text
-    message.className = `wo-edit-message ${type}`
+    message.className =
+      `wo-edit-message ${type}`
   }
 }
