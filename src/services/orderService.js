@@ -2,7 +2,12 @@ import {
   collection,
   doc,
   runTransaction,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  orderBy,
+  limit,
+  startAfter,
+  getDocs
 } from 'firebase/firestore'
 
 import {
@@ -276,6 +281,117 @@ export async function createNewOrder(orderData) {
 
     parts:
       createdParts
+
+  }
+
+}
+
+
+/*
+  ==================================================
+  GET ORDERS
+  ==================================================
+
+  Mengambil daftar WO dengan pagination.
+
+  Default:
+  20 WO per halaman.
+
+  cursor:
+  document terakhir dari halaman sebelumnya.
+*/
+
+export async function getOrders(
+  cursor = null,
+  pageSize = 20
+) {
+
+  const ordersRef =
+    collection(
+      db,
+      'orders'
+    )
+
+
+  const baseQuery =
+    query(
+      ordersRef,
+      orderBy(
+        'createdAt',
+        'desc'
+      ),
+      limit(
+        pageSize
+      )
+    )
+
+
+  let snapshot
+
+
+  if (cursor) {
+
+    const nextQuery =
+      query(
+        ordersRef,
+        orderBy(
+          'createdAt',
+          'desc'
+        ),
+        startAfter(
+          cursor
+        ),
+        limit(
+          pageSize
+        )
+      )
+
+
+    snapshot =
+      await getDocs(
+        nextQuery
+      )
+
+  }
+  else {
+
+    snapshot =
+      await getDocs(
+        baseQuery
+      )
+
+  }
+
+
+  const orders =
+    snapshot.docs.map(
+      document => ({
+
+        id:
+          document.id,
+
+        ...document.data()
+
+      })
+    )
+
+
+  const lastDoc =
+    snapshot.docs.length > 0
+      ? snapshot.docs[
+          snapshot.docs.length - 1
+        ]
+      : null
+
+
+  return {
+
+    orders,
+
+    lastDoc,
+
+    hasNextPage:
+      snapshot.size === pageSize
 
   }
 
