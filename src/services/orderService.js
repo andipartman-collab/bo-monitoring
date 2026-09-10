@@ -497,3 +497,526 @@ export async function getOrderDetail(
   }
 
 }
+
+
+/*
+  ==================================================
+  GET PARTS WITH SUPPLY
+  ==================================================
+
+  Mengambil semua part dari sebuah WO
+  beserta seluruh data supply masing-masing part.
+
+  Struktur:
+
+  orders/{orderId}/parts/{partId}/supplies/*
+*/
+
+export async function getPartsWithSupply(
+  orderId
+) {
+
+  if (!orderId) {
+
+    throw new Error(
+      'Order ID tidak tersedia.'
+    )
+
+  }
+
+
+  /*
+    ==========================================
+    AMBIL SEMUA PART
+    ==========================================
+  */
+
+  const partsRef =
+    collection(
+      db,
+      'orders',
+      orderId,
+      'parts'
+    )
+
+
+  const partsSnapshot =
+    await getDocs(
+      partsRef
+    )
+
+
+  /*
+    ==========================================
+    PROSES SETIAP PART
+    ==========================================
+  */
+
+  const parts =
+    await Promise.all(
+
+      partsSnapshot.docs.map(
+        async partDocument => {
+
+          const partData =
+            partDocument.data()
+
+
+          /*
+            ----------------------------------
+            REFERENSI SUPPLY
+            ----------------------------------
+          */
+
+          const suppliesRef =
+            collection(
+              db,
+              'orders',
+              orderId,
+              'parts',
+              partDocument.id,
+              'supplies'
+            )
+
+
+          /*
+            ----------------------------------
+            AMBIL SUPPLY
+            ----------------------------------
+          */
+
+          const suppliesSnapshot =
+            await getDocs(
+              suppliesRef
+            )
+
+
+          /*
+            ----------------------------------
+            UBAH SUPPLY MENJADI ARRAY
+            ----------------------------------
+          */
+
+          const supplies =
+            suppliesSnapshot.docs.map(
+              supplyDocument => ({
+
+                id:
+                  supplyDocument.id,
+
+                ...supplyDocument.data()
+
+              })
+            )
+
+
+          /*
+            ----------------------------------
+            HITUNG TOTAL SUPPLY
+            ----------------------------------
+          */
+
+          const totalSupply =
+            supplies.reduce(
+              (
+                total,
+                supply
+              ) => {
+
+                return (
+                  total +
+                  Number(
+                    supply.qtySupply || 0
+                  )
+                )
+
+              },
+              0
+            )
+
+
+          /*
+            ----------------------------------
+            HITUNG SISA
+            ----------------------------------
+          */
+
+          const qtyOrder =
+            Number(
+              partData.qtyOrder || 0
+            )
+
+
+          const sisa =
+            Math.max(
+              qtyOrder -
+              totalSupply,
+              0
+            )
+
+
+          /*
+            ----------------------------------
+            RETURN PART
+            ----------------------------------
+          */
+
+          return {
+
+            id:
+              partDocument.id,
+
+            ...partData,
+
+            supplies,
+
+            totalSupply,
+
+            sisa
+
+          }
+
+        }
+      )
+
+    )
+
+
+  return parts
+
+}
+
+
+/*
+  ==================================================
+  ADD SUPPLY
+  ==================================================
+
+  Menyimpan satu transaksi supply.
+
+  Struktur:
+
+  orders/{orderId}
+    parts/{partId}
+      supplies/{supplyId}
+
+  Data:
+
+  - qtySupply
+  - ata
+  - createdAt
+*/
+
+export async function addSupply(
+  orderId,
+  partId,
+  qtySupply,
+  ata
+) {
+
+  /*
+    ==========================================
+    VALIDASI DASAR
+    ==========================================
+  */
+
+  if (!orderId) {
+
+    throw new Error(
+      'Order ID tidak tersedia.'
+    )
+
+  }
+
+
+  if (!partId) {
+
+    throw new Error(
+      'Part ID tidak tersedia.'
+    )
+
+  }
+
+
+  const quantity =
+    Number(
+      qtySupply
+    )
+
+
+  if (
+    !Number.isInteger(quantity) ||
+    quantity <= 0
+  ) {
+
+    throw new Error(
+      'Qty Supply harus berupa angka bulat lebih dari 0.'
+    )
+
+  }
+
+
+  if (!ata) {
+
+    throw new Error(
+      'ATA wajib diisi.'
+    )
+
+  }
+
+
+  /*
+    ==========================================
+    REFERENSI PART
+    ==========================================
+  */
+
+  const partRef =
+    doc(
+      db,
+      'orders',
+      orderId,
+      'parts',
+      partId
+    )
+
+
+  /*
+    ==========================================
+    REFERENSI ORDER
+    ==========================================
+  */
+
+  const orderRef =
+    doc(
+      db,
+      'orders',
+      orderId
+    )
+
+
+  /*
+    ==========================================
+    REFERENSI SUPPLY COLLECTION
+    ==========================================
+  */
+
+  const suppliesRef =
+    collection(
+      partRef,
+      'supplies'
+    )
+
+
+  /*
+    ==========================================
+    AMBIL SUPPLY YANG SUDAH ADA
+    ==========================================
+
+    Tidak menggunakan transaction.get(query)
+    karena transaction.get() membutuhkan
+    DocumentReference.
+  */
+
+  const suppliesSnapshot =
+    await getDocs(
+      suppliesRef
+    )
+
+
+  /*
+    ==========================================
+    HITUNG TOTAL SUPPLY SAAT INI
+    ==========================================
+  */
+
+  let totalSupply = 0
+
+
+  suppliesSnapshot.forEach(
+    supplyDocument => {
+
+      const supplyData =
+        supplyDocument.data()
+
+
+      totalSupply +=
+        Number(
+          supplyData.qtySupply || 0
+        )
+
+    }
+  )
+
+
+  /*
+    ==========================================
+    AMBIL DATA PART
+    ==========================================
+  */
+
+  const partSnapshot =
+    await getDoc(
+      partRef
+    )
+
+
+  if (
+    !partSnapshot.exists()
+  ) {
+
+    throw new Error(
+      'Data part tidak ditemukan.'
+    )
+
+  }
+
+
+  const partData =
+    partSnapshot.data()
+
+
+  const qtyOrder =
+    Number(
+      partData.qtyOrder || 0
+    )
+
+
+  /*
+    ==========================================
+    HITUNG SISA
+    ==========================================
+  */
+
+  const sisa =
+    Math.max(
+      qtyOrder -
+      totalSupply,
+      0
+    )
+
+
+  /*
+    ==========================================
+    VALIDASI QTY SUPPLY
+    ==========================================
+  */
+
+  if (
+    quantity > sisa
+  ) {
+
+    throw new Error(
+      `Qty Supply tidak boleh lebih dari sisa ${sisa}.`
+    )
+
+  }
+
+
+  /*
+    ==========================================
+    BUAT SUPPLY DOCUMENT BARU
+    ==========================================
+  */
+
+  const supplyRef =
+    doc(
+      suppliesRef
+    )
+
+
+  /*
+    ==========================================
+    SIMPAN DENGAN TRANSACTION
+    ==========================================
+  */
+
+  await runTransaction(
+    db,
+    async transaction => {
+
+      /*
+        --------------------------------------
+        CEK PART SEKALI LAGI
+        --------------------------------------
+      */
+
+      const latestPartSnapshot =
+        await transaction.get(
+          partRef
+        )
+
+
+      if (
+        !latestPartSnapshot.exists()
+      ) {
+
+        throw new Error(
+          'Data part tidak ditemukan.'
+        )
+
+      }
+
+
+      /*
+        --------------------------------------
+        DATA SUPPLY
+        --------------------------------------
+      */
+
+      transaction.set(
+        supplyRef,
+        {
+
+          qtySupply:
+            quantity,
+
+          ata:
+            ata,
+
+          createdAt:
+            serverTimestamp()
+
+        }
+      )
+
+
+      /*
+        --------------------------------------
+        UPDATE ORDER
+        --------------------------------------
+      */
+
+      transaction.update(
+        orderRef,
+        {
+
+          updatedAt:
+            serverTimestamp()
+
+        }
+      )
+
+    }
+  )
+
+
+  /*
+    ==========================================
+    RETURN
+    ==========================================
+  */
+
+  return {
+
+    supplyId:
+      supplyRef.id,
+
+    qtySupply:
+      quantity,
+
+    ata
+
+  }
+
+}

@@ -1322,3 +1322,350 @@ a {
   }
 
 }
+
+/* ==================================================
+   SUPPLY BUTTON
+   ================================================== */
+
+.wo-detail-supply-button {
+  border: none;
+  background: #0b1f3a;
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wo-detail-supply-button:hover {
+  background: #16345c;
+}
+
+.wo-detail-supply-button:disabled {
+  background: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+
+/* ==================================================
+   SUPPLY MODAL
+   ================================================== */
+
+.supply-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.supply-modal.show {
+  display: block;
+}
+
+.supply-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+
+/* ==================================================
+   MODAL CONTENT
+   ================================================== */
+
+.supply-modal-content {
+  position: relative;
+  width: min(
+    520px,
+    calc(100% - 32px)
+  );
+
+  margin: 80px auto 0;
+
+  background: #ffffff;
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.18);
+
+  overflow: hidden;
+}
+
+
+/* ==================================================
+   MODAL HEADER
+   ================================================== */
+
+.supply-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 20px 22px;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.supply-modal-header h3 {
+  margin: 0;
+
+  color: #0b1f3a;
+
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.supply-modal-header p {
+  margin: 5px 0 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+.supply-modal-close {
+  width: 32px;
+  height: 32px;
+
+  border: none;
+
+  background: #f3f4f6;
+
+  color: #374151;
+
+  border-radius: 7px;
+
+  font-size: 22px;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.supply-modal-close:hover {
+  background: #e5e7eb;
+}
+
+
+/* ==================================================
+   MODAL BODY
+   ================================================== */
+
+.supply-modal-body {
+  padding: 22px;
+}
+
+
+/* ==================================================
+   PART INFO
+   ================================================== */
+
+.supply-part-info {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 1px;
+
+  margin-bottom: 22px;
+
+  background: #e5e7eb;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 8px;
+
+  overflow: hidden;
+}
+
+.supply-part-info > div {
+  padding: 12px 14px;
+
+  background: #f9fafb;
+}
+
+.supply-part-info span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #6b7280;
+
+  font-size: 11px;
+
+  font-weight: 600;
+}
+
+.supply-part-info strong {
+  display: block;
+
+  color: #111827;
+
+  font-size: 13px;
+
+  word-break: break-word;
+}
+
+
+/* ==================================================
+   FORM
+   ================================================== */
+
+.supply-form-group {
+  margin-bottom: 18px;
+}
+
+.supply-form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #374151;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+.supply-form-group input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  padding: 11px 12px;
+
+  color: #111827;
+
+  background: #ffffff;
+
+  font-size: 14px;
+
+  outline: none;
+}
+
+.supply-form-group input:focus {
+  border-color: #0b1f3a;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(11, 31, 58, 0.08);
+}
+
+.supply-form-group small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #6b7280;
+
+  font-size: 11px;
+}
+
+
+/* ==================================================
+   FORM ERROR
+   ================================================== */
+
+.supply-form-error {
+  display: none;
+
+  padding: 11px 12px;
+
+  border-radius: 7px;
+
+  background: #fff1f2;
+
+  border: 1px solid #fecdd3;
+
+  color: #be123c;
+
+  font-size: 13px;
+}
+
+.supply-form-error.show {
+  display: block;
+}
+
+
+/* ==================================================
+   MODAL FOOTER
+   ================================================== */
+
+.supply-modal-footer {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 16px 22px;
+
+  border-top: 1px solid #e5e7eb;
+
+  background: #fafafa;
+}
+
+.supply-cancel-button,
+.supply-save-button {
+  border-radius: 8px;
+
+  padding: 10px 17px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.supply-cancel-button {
+  border: 1px solid #d1d5db;
+
+  background: #ffffff;
+
+  color: #374151;
+}
+
+.supply-cancel-button:hover {
+  background: #f3f4f6;
+}
+
+.supply-save-button {
+  border: none;
+
+  background: #0b1f3a;
+
+  color: #ffffff;
+}
+
+.supply-save-button:hover {
+  background: #16345c;
+}
+
+
+/* ==================================================
+   RESPONSIVE
+   ================================================== */
+
+@media (
+  max-width: 600px
+) {
+
+  .supply-modal-content {
+    margin-top: 30px;
+  }
+
+  .supply-part-info {
+    grid-template-columns: 1fr;
+  }
+
+}

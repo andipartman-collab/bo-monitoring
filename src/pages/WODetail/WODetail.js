@@ -1,13 +1,17 @@
 import {
-  getOrderDetail
+  getOrderDetail,
+  getPartsWithSupply
 } from '../../services/orderService.js'
+
 
 import {
   renderWODetailInfo
 } from './WODetailInfo.js'
 
+
 import {
-  renderWODetailParts
+  renderWODetailParts,
+  initWODetailSupply
 } from './WODetailParts.js'
 
 
@@ -87,15 +91,40 @@ export async function initWODetail(
 
   try {
 
-    const result =
+    /*
+      ==========================================
+      AMBIL DATA WO
+      ==========================================
+    */
+
+    const orderResult =
       await getOrderDetail(
         orderId
       )
 
 
+    /*
+      ==========================================
+      AMBIL PART + SUPPLY
+      ==========================================
+    */
+
+    const parts =
+      await getPartsWithSupply(
+        orderId
+      )
+
+
+    /*
+      ==========================================
+      TAMPILKAN
+      ==========================================
+    */
+
     renderDetail(
-      result.order,
-      result.parts
+      orderResult.order,
+      parts,
+      orderId
     )
 
   }
@@ -125,7 +154,8 @@ export async function initWODetail(
 
 function renderDetail(
   order,
-  parts
+  parts,
+  orderId
 ) {
 
   const loading =
@@ -167,6 +197,44 @@ function renderDetail(
     )}
 
   `
+
+
+  /*
+    ==========================================
+    AKTIFKAN SUPPLY
+    ==========================================
+  */
+
+  initWODetailSupply(
+    orderId,
+    async () => {
+
+      try {
+
+        const updatedParts =
+          await getPartsWithSupply(
+            orderId
+          )
+
+
+        renderDetail(
+          order,
+          updatedParts,
+          orderId
+        )
+
+      }
+      catch (error) {
+
+        console.error(
+          'GAGAL REFRESH SUPPLY:',
+          error
+        )
+
+      }
+
+    }
+  )
 
 }
 
