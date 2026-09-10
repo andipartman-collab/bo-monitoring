@@ -1,10 +1,11 @@
 import {
+  collection,
   collectionGroup,
+  doc,
   getDocs,
   query,
-  where,
-  writeBatch,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch
 } from 'firebase/firestore'
 
 import {
@@ -22,7 +23,7 @@ function normalizeKey(value) {
 }
 
 
-function normalizeETA(value) {
+export function normalizeETA(value) {
   if (!value) return ''
 
   if (typeof value === 'string') {
@@ -41,6 +42,20 @@ function normalizeETA(value) {
     }
   }
 
+  if (typeof value === 'number') {
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30))
+    const date = new Date(
+      excelEpoch.getTime() + value * 86400000
+    )
+
+    if (!Number.isNaN(date.getTime())) {
+      const year = date.getUTCFullYear()
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+      const day = String(date.getUTCDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+  }
+
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     const year = value.getFullYear()
     const month = String(value.getMonth() + 1).padStart(2, '0')
@@ -52,32 +67,56 @@ function normalizeETA(value) {
 }
 
 
+function getRowValue(row, names) {
+  const entries = Object.entries(row)
+
+  for (const name of names) {
+    const target = normalizeKey(name)
+
+    const entry = entries.find(([key]) => {
+      return normalizeKey(key) === target
+    })
+
+    if (entry) {
+      return entry[1]
+    }
+  }
+
+  return ''
+}
+
+
 export async function previewETAUpdate(rows) {
   const inputRows = Array.isArray(rows) ? rows : []
 
-  const partsQuery = query(
-    collectionGroup(db, 'parts')
+  const partsSnapshot = await getDocs(
+    query(
+      collectionGroup(db, 'parts')
+    )
   )
-
-  const partsSnapshot = await getDocs(partsQuery)
 
   const partsMap = new Map()
 
   partsSnapshot.forEach(partDocument => {
     const data = partDocument.data()
+    const noOrder = normalizeKey(data.noOrder)
+    const pno = normalizeKey(data.pno)
 
-    const key = `${normalizeKey(data.noOrder)}|${normalizeKey(data.pno)}`
+    if (!noOrder || !pno) {
+      return
+    }
 
-    if (!key.startsWith('|') && !partsMap.has(key)) {
+    const key = `${noOrder}|${pno}`
+
+    if (!partsMap.has(key)) {
       partsMap.set(key, {
         ref: partDocument.ref,
-        ...data
+        currentETA: normalizeETA(data.eta)
       })
     }
   })
 
   const preview = []
-
   let matched = 0
   let changed = 0
   let same = 0
@@ -85,9 +124,28 @@ export async function previewETAUpdate(rows) {
   let invalid = 0
 
   inputRows.forEach((row, index) => {
-    const noOrder = normalizeKey(row.noOrder)
-    const pno = normalizeKey(row.pno)
-    const eta = normalizeETA(row.eta)
+    const noOrder = normalizeKey(
+      getRowValue(row, [
+        'No Order',
+        'NoOrder',
+        'NO ORDER',
+        'NOORDER'
+      ])
+    )
+
+    const pno = normalizeKey(
+      getRowValue(row, [
+        'PNO',
+        'Part No',
+        'PART NO',
+        'Part Number',
+        'PART NUMBER'
+      ])
+    )
+
+    const eta = normalizeETA(
+      getRowValue(row, ['ETA'])
+    )
 
     if (!noOrder || !pno || !eta) {
       invalid += 1
@@ -100,6 +158,7 @@ export async function previewETAUpdate(rows) {
         newETA: eta,
         status: 'INVALID'
       })
+
       return
     }
 
@@ -117,13 +176,14 @@ export async function previewETAUpdate(rows) {
         newETA: eta,
         status: 'NOT_FOUND'
       })
+
       return
     }
 
     matched += 1
 
-    const currentETA = normalizeETA(part.eta)
-    const isChanged = currentETA !== eta
+    const isChanged =
+      part.currentETA !== eta
 
     if (isChanged) {
       changed += 1
@@ -135,7 +195,7 @@ export async function previewETAUpdate(rows) {
       rowNumber: index + 2,
       noOrder,
       pno,
-      currentETA,
+      currentETA: part.currentETA,
       newETA: eta,
       status: isChanged ? 'CHANGED' : 'SAME',
       partRef: part.ref
@@ -158,25 +218,61 @@ export async function previewETAUpdate(rows) {
 
 export async function applyETAUpdate(previewRows) {
   const changes = (Array.isArray(previewRows) ? previewRows : [])
-    .filter(row => row.status === 'CHANGED' && row.partRef && row.newETA)
+    .filter(row => {
+      return (
+        row.status === 'CHANGED' &&
+        row.partRef &&
+        row.newETA
+      )
+    })
 
   let updated = 0
 
-  for (let start = 0; start < changes.length; start += BATCH_SIZE) {
+  for (
+    let start = 0;
+    start < changes.length;
+    start += BATCH_SIZE
+  ) {
     const batch = writeBatch(db)
-
+    const orderRefs = new Map()
     const chunk = changes.slice(start, start + BATCH_SIZE)
 
     chunk.forEach(row => {
-      batch.update(row.partRef, {
-        eta: row.newETA
-      })
+      batch.update(
+        row.partRef,
+        {
+          eta: row.newETA
+        }
+      )
+
+      const historyRef = doc(
+        collection(
+          row.partRef,
+          'etaHistory'
+        )
+      )
 
       batch.set(
-        collection(row.partRef, 'etaHistory').withConverter?.
-          ? null
-          : row.partRef,
-        {}
+        historyRef,
+        {
+          eta: row.newETA,
+          updatedAt: serverTimestamp()
+        }
+      )
+
+      const orderRef = row.partRef.parent.parent
+
+      if (orderRef) {
+        orderRefs.set(orderRef.path, orderRef)
+      }
+    })
+
+    orderRefs.forEach(orderRef => {
+      batch.update(
+        orderRef,
+        {
+          updatedAt: serverTimestamp()
+        }
       )
     })
 
@@ -184,5 +280,7 @@ export async function applyETAUpdate(previewRows) {
     updated += chunk.length
   }
 
-  return { updated }
+  return {
+    updated
+  }
 }
