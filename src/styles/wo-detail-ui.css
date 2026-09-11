@@ -2,7 +2,6 @@
    WO DETAIL UI REFINEMENT
 ================================================== */
 
-/* Sidebar typography */
 .sidebar-title strong {
   font-size: 15px;
   font-weight: 800;
@@ -27,7 +26,6 @@
   font-weight: 800;
 }
 
-/* Compact WO information */
 .wo-detail-card {
   margin-bottom: 16px;
 }
@@ -72,7 +70,63 @@
   grid-column: span 2;
 }
 
-/* Delete WO button */
+.wo-status-badge {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  white-space: nowrap;
+}
+
+.wo-status-badge.on-order {
+  background: #fff4cc;
+  color: #8a5a00;
+}
+
+.wo-status-badge.part-arrival {
+  background: #e8f7ee;
+  color: #18733d;
+}
+
+.wo-status-badge.booking {
+  background: #e8eefc;
+  color: #294b91;
+}
+
+.wo-status-badge.no-show {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.wo-status-badge.completed {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.wo-detail-finish-button {
+  border: 1px solid #18733d;
+  background: #18733d;
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wo-detail-finish-button:hover:not(:disabled) {
+  background: #145c32;
+}
+
+.wo-detail-finish-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .wo-detail-delete-button {
   border: 1px solid #b42318;
   background: #b42318;
@@ -99,7 +153,6 @@
   outline-offset: 2px;
 }
 
-/* Delete confirmation modal */
 .wo-delete-modal {
   position: fixed;
   inset: 0;
@@ -251,7 +304,6 @@
   overflow: hidden;
 }
 
-/* Compact part table */
 .wo-detail-table {
   min-width: 980px;
   table-layout: fixed;
@@ -278,7 +330,6 @@
   width: 125px;
 }
 
-/* Nama Part dibuat lebih seimbang */
 .wo-detail-table th:nth-child(3),
 .wo-detail-table td:nth-child(3) {
   width: 260px;
@@ -294,7 +345,6 @@
   width: 105px;
 }
 
-/* Qty Order, Supply, Sisa cukup untuk 3 digit */
 .wo-detail-table th:nth-child(6),
 .wo-detail-table td:nth-child(6),
 .wo-detail-table th:nth-child(7),
@@ -337,6 +387,7 @@
   }
 
   .wo-detail-edit-button,
+  .wo-detail-finish-button,
   .wo-detail-delete-button {
     width: 100%;
   }
