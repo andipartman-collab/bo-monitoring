@@ -346,14 +346,10 @@ export function initAllOrderEnhancement() {
     enhance(root)
   })
 
-  const pageContent = document.getElementById('page-content')
-
-  if (pageContent) {
-    observer.observe(pageContent, {
-      childList: true,
-      subtree: true
-    })
-  }
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  })
 }
 
 
