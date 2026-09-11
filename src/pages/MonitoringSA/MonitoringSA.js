@@ -161,6 +161,7 @@ async function getAllOrders() {
 function renderSASummary(summary) {
   const element = document.getElementById('monitoring-sa-summary')
   if (!element) return
+
   element.innerHTML = `
     <div class="monitoring-sa-summary-card total"><span>TOTAL ORDER</span><strong>${summary.total}</strong></div>
     <div class="monitoring-sa-summary-card on-order"><span>ON ORDER</span><strong>${summary.onOrder}</strong></div>
@@ -200,21 +201,42 @@ function renderSATable(rows) {
             <td>${formatDate(item.order.tanggalBooking)}</td>
             <td><span class="monitoring-sa-status ${statusClass(item.status)}">${item.status}</span></td>
             <td>
-              <button
-                type="button"
-                class="monitoring-booking-edit-button"
-                data-edit-booking="${item.order.id}"
-                data-no-wo="${escapeHTML(item.order.noWo || '-') }"
-                data-booking="${escapeHTML(item.order.tanggalBooking || '')}"
-              >
-                Edit Booking
-              </button>
+              <div class="monitoring-sa-row-actions">
+                <button
+                  type="button"
+                  class="monitoring-sa-detail-button"
+                  data-open-wo-detail="${escapeHTML(item.order.id)}"
+                >
+                  Detail
+                </button>
+                <button
+                  type="button"
+                  class="monitoring-booking-edit-button"
+                  data-edit-booking="${escapeHTML(item.order.id)}"
+                  data-no-wo="${escapeHTML(item.order.noWo || '-') }"
+                  data-booking="${escapeHTML(item.order.tanggalBooking || '')}"
+                >
+                  Edit Booking
+                </button>
+              </div>
             </td>
           </tr>
         `).join('')}
       </tbody>
     </table>
   `
+
+  document.querySelectorAll('[data-open-wo-detail]').forEach(button => {
+    button.addEventListener('click', () => {
+      document.dispatchEvent(
+        new CustomEvent('open-monitoring-sa-wo-detail', {
+          detail: {
+            orderId: button.dataset.openWoDetail
+          }
+        })
+      )
+    })
+  })
 
   document.querySelectorAll('[data-edit-booking]').forEach(button => {
     button.addEventListener('click', () => {
