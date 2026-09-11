@@ -15,11 +15,11 @@ export function renderDashboard() {
 
       <div class="dashboard-summary-cards">
 
-        ${renderSummaryCard('TOTAL ORDER', 'totalOrder')}
-        ${renderSummaryCard('ON ORDER', 'onOrder')}
-        ${renderSummaryCard('PART ARRIVAL', 'partArrival')}
-        ${renderSummaryCard('BOOKING', 'booking')}
-        ${renderSummaryCard('NO SHOW', 'noShow')}
+        ${renderSummaryCard('TOTAL ORDER', 'totalOrder', '')}
+        ${renderSummaryCard('ON ORDER', 'onOrder', 'ON ORDER')}
+        ${renderSummaryCard('PART ARRIVAL', 'partArrival', 'PART ARRIVAL')}
+        ${renderSummaryCard('BOOKING', 'booking', 'BOOKING')}
+        ${renderSummaryCard('NO SHOW', 'noShow', 'NO SHOW')}
 
       </div>
 
@@ -49,9 +49,18 @@ export function renderDashboard() {
 }
 
 
-function renderSummaryCard(label, key) {
+function renderSummaryCard(label, key, status) {
+  const clickable = label !== 'TOTAL ORDER'
+    ? ' dashboard-summary-card-clickable'
+    : ' dashboard-summary-card-clickable'
+
   return `
-    <div class="dashboard-summary-card">
+    <button
+      type="button"
+      class="dashboard-summary-card${clickable} ${statusCardClass(status)}"
+      data-dashboard-status="${status}"
+      aria-label="Buka All Order ${label}"
+    >
       <span class="dashboard-summary-label">${label}</span>
       <strong
         id="dashboard-summary-${key}"
@@ -59,14 +68,27 @@ function renderSummaryCard(label, key) {
       >
         -
       </strong>
-    </div>
+    </button>
   `
+}
+
+
+function statusCardClass(status) {
+  if (!status) {
+    return 'dashboard-summary-total'
+  }
+
+  return `dashboard-summary-${String(status)
+    .toLowerCase()
+    .replaceAll(' ', '-')}`
 }
 
 
 export async function initDashboard() {
 
   setSummaryMessage('Memuat summary order...')
+
+  initSummaryCardNavigation()
 
   try {
     const summary = await getDashboardSummary()
@@ -90,6 +112,25 @@ export async function initDashboard() {
       'Gagal memuat summary order.'
     )
   }
+}
+
+
+function initSummaryCardNavigation() {
+  document
+    .querySelectorAll('.dashboard-summary-card')
+    .forEach(card => {
+      card.addEventListener('click', () => {
+        const status = card.dataset.dashboardStatus || ''
+
+        document.dispatchEvent(
+          new CustomEvent('open-all-order-filter', {
+            detail: {
+              statusFilter: status
+            }
+          })
+        )
+      })
+    })
 }
 
 
