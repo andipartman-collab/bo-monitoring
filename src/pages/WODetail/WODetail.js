@@ -3,61 +3,54 @@ import {
   getPartsWithSupply
 } from '../../services/orderService.js'
 
-
 import {
   getOrderStatus
 } from '../../services/orderStatusService.js'
 
-
 import {
   renderWODetailInfo
 } from './WODetailInfo.js'
-
 
 import {
   renderWODetailEditModal,
   initWODetailEdit
 } from './WODetailEdit.js'
 
-
 import {
   renderWODetailPartEditModal,
   initWODetailPartEdit
 } from './WODetailPartEdit.js'
-
 
 import {
   renderWODetailDeleteModal,
   initWODetailDelete
 } from './WODetailDelete.js'
 
-
 import {
   renderWODetailParts,
   initWODetailSupply
 } from './WODetailParts.js'
 
-
 import {
   finishWorkOrder
 } from '../../services/woFinishService.js'
 
+let currentReadOnly = false
+let currentBackEvent = 'back-to-all-order'
 
-export function renderWODetail() {
+export function renderWODetail({ readOnly = false } = {}) {
+  currentReadOnly = readOnly
+
   return `
-
-    <div class="wo-detail-page">
-
+    <div class="wo-detail-page${readOnly ? ' wo-detail-readonly' : ''}">
       <div class="wo-detail-actions">
-
         <button
           type="button"
           id="wo-detail-back"
           class="wo-detail-back-button"
         >
-          ← Kembali ke All Order
+          ${readOnly ? '← Kembali ke Monitoring SA' : '← Kembali ke All Order'}
         </button>
-
       </div>
 
       <div
@@ -74,27 +67,24 @@ export function renderWODetail() {
 
       <div id="wo-detail-content"></div>
 
-      ${renderWODetailEditModal()}
-
-      ${renderWODetailPartEditModal()}
-
-      ${renderWODetailDeleteModal()}
-
+      ${readOnly ? '' : renderWODetailEditModal()}
+      ${readOnly ? '' : renderWODetailPartEditModal()}
+      ${readOnly ? '' : renderWODetailDeleteModal()}
     </div>
-
   `
 }
 
-
 export async function initWODetail(
-  orderId
+  orderId,
+  options = {}
 ) {
+  currentReadOnly = Boolean(options.readOnly)
+  currentBackEvent = options.backEvent || 'back-to-all-order'
+
   initBackButton()
 
   if (!orderId) {
-    showError(
-      'Order ID tidak tersedia.'
-    )
+    showError('Order ID tidak tersedia.')
     return
   }
 
@@ -102,11 +92,7 @@ export async function initWODetail(
     await refreshDetail(orderId)
   }
   catch (error) {
-    console.error(
-      'GAGAL MEMUAT WO DETAIL:',
-      error
-    )
-
+    console.error('GAGAL MEMUAT WO DETAIL:', error)
     showError(
       error.message ||
       'Gagal memuat detail Work Order.'
@@ -114,22 +100,14 @@ export async function initWODetail(
   }
 }
 
-
 async function renderDetail(
   order,
   parts,
   orderId,
   statusInfo
 ) {
-  const loading =
-    document.getElementById(
-      'wo-detail-loading'
-    )
-
-  const content =
-    document.getElementById(
-      'wo-detail-content'
-    )
+  const loading = document.getElementById('wo-detail-loading')
+  const content = document.getElementById('wo-detail-content')
 
   if (loading) {
     loading.style.display = 'none'
@@ -142,11 +120,17 @@ async function renderDetail(
   content.innerHTML = `
     ${renderWODetailInfo(
       order,
-      statusInfo
+      statusInfo,
+      { readOnly: currentReadOnly }
     )}
 
     ${renderWODetailParts(parts)}
   `
+
+  if (currentReadOnly) {
+    initReadOnlyHistory(orderId)
+    return
+  }
 
   initWODetailEdit(
     orderId,
@@ -169,9 +153,7 @@ async function renderDetail(
     order,
     () => {
       document.dispatchEvent(
-        new CustomEvent(
-          'back-to-all-order'
-        )
+        new CustomEvent('back-to-all-order')
       )
     }
   )
@@ -183,10 +165,7 @@ async function renderDetail(
         await refreshDetail(orderId)
       }
       catch (error) {
-        console.error(
-          'GAGAL REFRESH SUPPLY:',
-          error
-        )
+        console.error('GAGAL REFRESH SUPPLY:', error)
       }
     }
   )
@@ -197,26 +176,15 @@ async function renderDetail(
   )
 }
 
+async function refreshDetail(orderId) {
+  const orderResult = await getOrderDetail(orderId)
+  const parts = await getPartsWithSupply(orderId)
 
-async function refreshDetail(
-  orderId
-) {
-  const orderResult =
-    await getOrderDetail(
-      orderId
-    )
-
-  const parts =
-    await getPartsWithSupply(
-      orderId
-    )
-
-  const statusInfo =
-    await getOrderStatus(
-      orderId,
-      orderResult.order,
-      parts
-    )
+  const statusInfo = await getOrderStatus(
+    orderId,
+    orderResult.order,
+    parts
+  )
 
   await renderDetail(
     orderResult.order,
@@ -226,110 +194,75 @@ async function refreshDetail(
   )
 }
 
-
-function initFinishButton(
-  orderId,
-  statusInfo
-) {
-  const button =
-    document.getElementById(
-      'wo-finish-button'
-    )
-
-  if (!button) {
-    return
-  }
-
-  button.addEventListener(
-    'click',
-    async () => {
-      const confirmed =
-        window.confirm(
-          'Selesaikan Work Order ini?'
-        )
-
-      if (!confirmed) {
-        return
-      }
-
-      button.disabled = true
-      button.textContent =
-        'Menyelesaikan...'
-
-      try {
-        await finishWorkOrder(
-          orderId
-        )
-
-        await refreshDetail(
-          orderId
-        )
-      }
-      catch (error) {
-        console.error(
-          'GAGAL FINISH ORDER:',
-          error
-        )
-
-        showError(
-          error.message ||
-          'Gagal menyelesaikan Work Order.'
-        )
-
-        button.disabled = false
-        button.textContent =
-          '✓ Finish Order'
-      }
-    }
+function initReadOnlyHistory(orderId) {
+  const historyButtons = document.querySelectorAll(
+    '.wo-detail-history-button'
   )
+
+  historyButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      document.dispatchEvent(
+        new CustomEvent('open-readonly-supply-history', {
+          detail: {
+            orderId,
+            partId: button.dataset.partId,
+            pno: button.dataset.pno || '',
+            namaPart: button.dataset.namaPart || ''
+          }
+        })
+      )
+    })
+  })
 }
 
+function initFinishButton(orderId, statusInfo) {
+  const button = document.getElementById('wo-finish-button')
+  if (!button) return
+
+  button.addEventListener('click', async () => {
+    const confirmed = window.confirm('Selesaikan Work Order ini?')
+    if (!confirmed) return
+
+    button.disabled = true
+    button.textContent = 'Menyelesaikan...'
+
+    try {
+      await finishWorkOrder(orderId)
+      await refreshDetail(orderId)
+    }
+    catch (error) {
+      console.error('GAGAL FINISH ORDER:', error)
+      showError(
+        error.message ||
+        'Gagal menyelesaikan Work Order.'
+      )
+      button.disabled = false
+      button.textContent = '✓ Finish Order'
+    }
+  })
+}
 
 function initBackButton() {
-  const button =
-    document.getElementById(
-      'wo-detail-back'
+  const button = document.getElementById('wo-detail-back')
+  if (!button) return
+
+  button.addEventListener('click', () => {
+    document.dispatchEvent(
+      new CustomEvent(currentBackEvent)
     )
-
-  if (!button) {
-    return
-  }
-
-  button.addEventListener(
-    'click',
-    () => {
-      document.dispatchEvent(
-        new CustomEvent(
-          'back-to-all-order'
-        )
-      )
-    }
-  )
+  })
 }
 
-
-function showError(
-  messageText
-) {
-  const loading =
-    document.getElementById(
-      'wo-detail-loading'
-    )
-
-  const message =
-    document.getElementById(
-      'wo-detail-message'
-    )
+function showError(messageText) {
+  const loading = document.getElementById('wo-detail-loading')
+  const message = document.getElementById('wo-detail-message')
 
   if (loading) {
     loading.style.display = 'none'
   }
 
   if (message) {
-    message.className =
-      'wo-detail-message error'
-
-    message.textContent =
-      messageText
+    message.className = 'wo-detail-message error'
+    message.textContent = messageText
   }
 }
