@@ -80,7 +80,6 @@ export function renderETAUpdate() {
           <table class="eta-update-table">
             <thead>
               <tr>
-                <th>Baris</th>
                 <th>Order No</th>
                 <th>Process Pno</th>
                 <th>Latest ETD</th>
@@ -258,22 +257,20 @@ function renderSummary(summary) {
 
   if (!container) return
 
-  const items = [
-    ['Total Baris', summary.rows],
-    ['Match', summary.matched],
-    ['Berubah', summary.changed],
-    ['Sama', summary.same],
-    ['Tidak Ditemukan', summary.notFound],
-    ['Invalid', summary.invalid],
-    ['Ambiguous', summary.ambiguous]
-  ]
-
-  container.innerHTML = items.map(([label, value]) => `
-    <div class="eta-update-summary-item">
-      <span>${label}</span>
-      <strong>${value}</strong>
-    </div>
-  `).join('')
+  if (summary.changed > 0) {
+    container.innerHTML = `
+      <div class="eta-update-summary-message changed">
+        Terdapat perubahan ETA &raquo; <strong>${summary.changed} order</strong>
+      </div>
+    `
+  }
+  else {
+    container.innerHTML = `
+      <div class="eta-update-summary-message no-change">
+        ETA tidak berubah
+      </div>
+    `
+  }
 
   if (applyButton) {
     applyButton.disabled = summary.changed === 0
@@ -291,7 +288,6 @@ function renderPreview(rows) {
 
   tbody.innerHTML = visibleRows.map(row => `
     <tr>
-      <td>${row.rowNumber}</td>
       <td>${escapeCell(row.noOrder)}</td>
       <td>${escapeCell(row.pno)}</td>
       <td>${formatETA(row.latestETD)}</td>
