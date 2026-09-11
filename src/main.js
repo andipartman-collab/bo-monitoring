@@ -2,6 +2,7 @@ import './styles/style.css'
 import './styles/wo-detail-edit.css'
 import './styles/wo-detail-ui.css'
 import './styles/eta-update.css'
+import './styles/all-order.css'
 
 
 import { testFirestore }
@@ -26,6 +27,9 @@ import {
   renderAllOrder,
   initAllOrder
 } from './pages/AllOrder/AllOrder.js'
+
+
+import './pages/AllOrder/AllOrderEnhancement.js'
 
 
 import {
