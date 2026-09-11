@@ -18,14 +18,14 @@ export function renderETAUpdate() {
       <div class="eta-update-header">
         <div>
           <h2>Update ETA</h2>
-          <p>Upload Excel untuk mencocokkan No Order + PNO dan memperbarui ETA.</p>
+          <p>Upload file Excel Logistic untuk mencocokkan Order No + Process Pno.</p>
         </div>
       </div>
 
       <section class="eta-update-card">
         <div class="eta-update-card-header">
-          <h3>1. Upload File Excel</h3>
-          <p>Kolom yang dibutuhkan: No Order, PNO, dan ETA.</p>
+          <h3>1. Upload File Excel Logistic</h3>
+          <p>Data yang digunakan: Order No, Process Pno, dan Latest ETD. ETA baru = Latest ETD + 1 hari.</p>
         </div>
 
         <div class="eta-update-upload-body">
@@ -53,7 +53,7 @@ export function renderETAUpdate() {
       <section class="eta-update-card" id="eta-update-summary-card" style="display:none;">
         <div class="eta-update-card-header">
           <h3>2. Hasil Pencocokan</h3>
-          <p>Perubahan belum disimpan sampai tombol Update ETA ditekan.</p>
+          <p>Belum ada data yang disimpan sampai tombol Update ETA ditekan.</p>
         </div>
 
         <div class="eta-update-summary" id="eta-update-summary"></div>
@@ -81,8 +81,9 @@ export function renderETAUpdate() {
             <thead>
               <tr>
                 <th>Baris</th>
-                <th>No Order</th>
-                <th>PNO</th>
+                <th>Order No</th>
+                <th>Process Pno</th>
+                <th>Latest ETD</th>
                 <th>ETA Lama</th>
                 <th>ETA Baru</th>
                 <th>Status</th>
@@ -129,7 +130,10 @@ export function initETAUpdate() {
     const file = fileInput.files?.[0]
 
     if (!file) {
-      showMessage('Silakan pilih file Excel terlebih dahulu.', 'error')
+      showMessage(
+        'Silakan pilih file Excel Logistic terlebih dahulu.',
+        'error'
+      )
       return
     }
 
@@ -154,12 +158,11 @@ export function initETAUpdate() {
 
       const rows = XLSX.utils.sheet_to_json(
         worksheet,
-        { defval: '' }
+        {
+          defval: '',
+          raw: false
+        }
       )
-
-      if (!rows.length) {
-        throw new Error('Excel tidak memiliki data.')
-      }
 
       const result = await previewETAUpdate(rows)
 
@@ -185,7 +188,10 @@ export function initETAUpdate() {
 
   applyButton.onclick = async () => {
     if (!currentPreview.length || !currentSummary?.changed) {
-      showMessage('Tidak ada perubahan ETA yang perlu disimpan.', 'error')
+      showMessage(
+        'Tidak ada perubahan ETA yang perlu disimpan.',
+        'error'
+      )
       return
     }
 
@@ -258,7 +264,8 @@ function renderSummary(summary) {
     ['Berubah', summary.changed],
     ['Sama', summary.same],
     ['Tidak Ditemukan', summary.notFound],
-    ['Invalid', summary.invalid]
+    ['Invalid', summary.invalid],
+    ['Ambiguous', summary.ambiguous]
   ]
 
   container.innerHTML = items.map(([label, value]) => `
@@ -287,6 +294,7 @@ function renderPreview(rows) {
       <td>${row.rowNumber}</td>
       <td>${escapeCell(row.noOrder)}</td>
       <td>${escapeCell(row.pno)}</td>
+      <td>${formatETA(row.latestETD)}</td>
       <td>${formatETA(row.currentETA)}</td>
       <td>${formatETA(row.newETA)}</td>
       <td>
