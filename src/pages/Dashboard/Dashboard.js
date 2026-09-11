@@ -3,15 +3,6 @@ export function renderDashboard() {
   return `
     <div class="dashboard">
 
-      <div class="page-header">
-        <div>
-          <h2>Dashboard</h2>
-          <p>
-            Monitoring status Back Order spare part
-          </p>
-        </div>
-      </div>
-
       <div class="dashboard-cards">
 
         <div class="dashboard-card">
