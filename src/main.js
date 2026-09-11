@@ -73,6 +73,7 @@ function renderApp() {
 
   initNavigation()
   initWODetailNavigation()
+  initDashboardNavigation()
   renderPage(currentPage)
 }
 
@@ -104,7 +105,7 @@ function renderPage(
 
     pageContent.innerHTML = renderAllOrder()
     initAllOrderPage()
-    initAllOrder()
+    initAllOrder(params)
     return
   }
 
@@ -205,6 +206,22 @@ function initWODetailNavigation() {
     'work-order-deleted',
     () => {
       renderPage('all-order')
+    }
+  )
+}
+
+
+function initDashboardNavigation() {
+  document.addEventListener(
+    'open-all-order-filter',
+    event => {
+      renderPage(
+        'all-order',
+        {
+          statusFilter:
+            event.detail?.statusFilter || ''
+        }
+      )
     }
   )
 }
