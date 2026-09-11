@@ -6,12 +6,12 @@ export function renderSidebar() {
       <div class="sidebar-header">
 
         <div class="sidebar-logo">
-          BO
+          SR
         </div>
 
         <div class="sidebar-title">
-          <strong>BO Monitoring</strong>
-          <span>Toyota Spare Part</span>
+          <strong>SOP Monitoring</strong>
+          <span>Nasmoco Slamet Riyadi</span>
         </div>
 
       </div>

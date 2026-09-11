@@ -128,7 +128,7 @@ function renderPage(
     topbarContainer.innerHTML =
       renderTopbar(
         'Dashboard',
-        'Monitoring Back Order Spare Part.'
+        'Monitoring Special Order Part.'
       )
 
     pageContent.innerHTML = renderDashboard()
@@ -139,7 +139,7 @@ function renderPage(
     topbarContainer.innerHTML =
       renderTopbar(
         'Update ETA',
-        'Update ETA part melalui file Excel berdasarkan No Order + PNO.'
+        'Update ETA Part secara otomatis dari file excel TPOS'
       )
 
     pageContent.innerHTML = renderETAUpdate()
@@ -150,7 +150,7 @@ function renderPage(
   topbarContainer.innerHTML =
     renderTopbar(
       'New Order',
-      'Buat Work Order baru dan tambahkan part yang diperlukan.'
+      'Buat Work Order baru dan tambahkan part yang akan dipesan.'
     )
 
   pageContent.innerHTML = renderNewOrder()
