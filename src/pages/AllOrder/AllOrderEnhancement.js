@@ -321,13 +321,19 @@ function formatDate(value) {
 
 
 function enhance(root) {
-  if (root.dataset.allOrderEnhanced === '1') {
+  if (!root) {
     return
   }
 
-  root.dataset.allOrderEnhanced = '1'
   renderSearchBar(root)
   enhanceNormalPage(root)
+}
+
+
+export function enhanceAllOrderPage(
+  root = document.querySelector('.all-order-page')
+) {
+  enhance(root)
 }
 
 
@@ -351,6 +357,3 @@ export function initAllOrderEnhancement() {
     subtree: true
   })
 }
-
-
-initAllOrderEnhancement()
