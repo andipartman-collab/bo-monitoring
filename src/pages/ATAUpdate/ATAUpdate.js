@@ -231,6 +231,11 @@ function renderSummary(summary) {
 
   if (!container) return
 
+  const notMatched =
+    Number(summary.notFound || 0) +
+    Number(summary.overSupply || 0) +
+    Number(summary.invalid || 0)
+
   const messages = []
 
   if (summary.matched > 0) {
@@ -241,34 +246,18 @@ function renderSummary(summary) {
     `)
   }
 
-  if (summary.notFound > 0) {
+  if (notMatched > 0) {
     messages.push(`
       <div class="ata-update-summary-message not-found">
-        Tidak ditemukan supply baru untuk <strong>${summary.notFound} part</strong>
-      </div>
-    `)
-  }
-
-  if (summary.overSupply > 0) {
-    messages.push(`
-      <div class="ata-update-summary-message over-supply">
-        <strong>${summary.overSupply} part</strong> melebihi sisa yang tersedia
-      </div>
-    `)
-  }
-
-  if (summary.invalid > 0) {
-    messages.push(`
-      <div class="ata-update-summary-message invalid">
-        <strong>${summary.invalid} part</strong> tidak dapat diproses karena data tidak valid / ambigu
+        Tidak ditemukan data supply baru
       </div>
     `)
   }
 
   if (messages.length === 0) {
     messages.push(`
-      <div class="ata-update-summary-message no-change">
-        Tidak ditemukan supply baru
+      <div class="ata-update-summary-message not-found">
+        Tidak ditemukan data supply baru
       </div>
     `)
   }
@@ -339,7 +328,7 @@ function renderPreview(rows) {
       <td>${row.currentSupply}</td>
       <td>${row.sisa}</td>
       <td>
-        <span class="ata-update-status ${row.status.toLowerCase().replaceAll('_', '-')}">
+        <span class="ata-update-status ${row.status.toLowerCase().replaceAll('_', '-')}"">
           ${row.status}
         </span>
       </td>
