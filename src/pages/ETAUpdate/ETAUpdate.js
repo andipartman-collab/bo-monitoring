@@ -15,13 +15,6 @@ export function renderETAUpdate() {
   return `
     <div class="eta-update-page">
 
-      <div class="eta-update-header">
-        <div>
-          <h2>Update ETA</h2>
-          <p>Upload file Excel Logistic untuk mencocokkan Order No + Process Pno.</p>
-        </div>
-      </div>
-
       <section class="eta-update-card">
         <div class="eta-update-card-header">
           <h3>1. Upload File Excel Logistic</h3>
