@@ -1,0 +1,204 @@
+.monitoring-sa-page {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.monitoring-sa-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.monitoring-sa-card {
+  min-height: 190px;
+  padding: 24px 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #0b1f3a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  cursor: pointer;
+  font: inherit;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.monitoring-sa-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(15, 39, 71, .10);
+  border-color: #cbd5e1;
+}
+
+.monitoring-sa-card:focus-visible {
+  outline: 2px solid #0b1f3a;
+  outline-offset: 2px;
+}
+
+.monitoring-sa-avatar,
+.monitoring-sa-detail-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2f7;
+  font-size: 32px;
+}
+
+.monitoring-sa-name {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.monitoring-sa-order-count {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.monitoring-sa-back-button {
+  margin-bottom: 18px;
+  border: none;
+  background: transparent;
+  color: #0b1f3a;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.monitoring-sa-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.monitoring-sa-detail-header h2 {
+  margin: 0;
+  color: #0b1f3a;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.monitoring-sa-detail-header p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.monitoring-sa-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.monitoring-sa-summary-card {
+  min-height: 92px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-top-width: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.monitoring-sa-summary-card span {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.monitoring-sa-summary-card strong {
+  font-size: 26px;
+}
+
+.monitoring-sa-summary-card.total { border-top-color: #0b1f3a; color: #0b1f3a; }
+.monitoring-sa-summary-card.on-order { border-top-color: #f59e0b; color: #b45309; }
+.monitoring-sa-summary-card.part-arrival { border-top-color: #2563eb; color: #1d4ed8; }
+.monitoring-sa-summary-card.booking { border-top-color: #16a34a; color: #15803d; }
+.monitoring-sa-summary-card.no-show { border-top-color: #dc2626; color: #b91c1c; }
+
+.monitoring-sa-table-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.monitoring-sa-loading,
+.monitoring-sa-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.monitoring-sa-table-wrapper {
+  overflow-x: auto;
+}
+
+.monitoring-sa-table {
+  width: 100%;
+  min-width: 850px;
+  border-collapse: collapse;
+}
+
+.monitoring-sa-table th {
+  padding: 10px 12px;
+  background: #f5f7fa;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.monitoring-sa-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf0f4;
+  color: #374151;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.monitoring-sa-table tbody tr:hover {
+  background: #fafbfc;
+}
+
+.monitoring-sa-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.monitoring-sa-status.on-order { background: #fff4cc; color: #8a5a00; }
+.monitoring-sa-status.part-arrival { background: #dbeafe; color: #1d4ed8; }
+.monitoring-sa-status.booking { background: #dcfce7; color: #166534; }
+.monitoring-sa-status.no-show { background: #fee2e2; color: #991b1b; }
+
+@media (max-width: 1100px) {
+  .monitoring-sa-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .monitoring-sa-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .monitoring-sa-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .monitoring-sa-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 480px) {
+  .monitoring-sa-grid,
+  .monitoring-sa-summary { grid-template-columns: 1fr; }
+}
