@@ -4,15 +4,16 @@ import {
 } from './WODetailUtils.js'
 
 
-/*
-  ==================================================
-  RENDER WO INFO
-  ==================================================
-*/
-
 export function renderWODetailInfo(
-  order
+  order,
+  statusInfo = {}
 ) {
+  const status =
+    statusInfo.status || 'ON ORDER'
+
+  const showFinishButton =
+    status === 'BOOKING' ||
+    status === 'NO SHOW'
 
   return `
 
@@ -31,6 +32,16 @@ export function renderWODetailInfo(
         </div>
 
         <div class="wo-detail-card-header-actions">
+
+          ${showFinishButton ? `
+            <button
+              type="button"
+              id="wo-finish-button"
+              class="wo-detail-finish-button"
+            >
+              ✓ Finish Order
+            </button>
+          ` : ''}
 
           <button
             type="button"
@@ -56,93 +67,45 @@ export function renderWODetailInfo(
       <div class="wo-detail-info-grid">
 
         <div class="wo-detail-info-item">
-
           <span>No WO</span>
-
-          <strong>
-            ${escapeHTML(
-              order.noWo || '-'
-            )}
-          </strong>
-
+          <strong>${escapeHTML(order.noWo || '-')}</strong>
         </div>
 
-
         <div class="wo-detail-info-item">
-
           <span>SA</span>
-
-          <strong>
-            ${escapeHTML(
-              order.sa || '-'
-            )}
-          </strong>
-
+          <strong>${escapeHTML(order.sa || '-')}</strong>
         </div>
 
-
         <div class="wo-detail-info-item">
-
           <span>Customer</span>
-
-          <strong>
-            ${escapeHTML(
-              order.customer || '-'
-            )}
-          </strong>
-
+          <strong>${escapeHTML(order.customer || '-')}</strong>
         </div>
 
-
         <div class="wo-detail-info-item">
-
           <span>No Polisi</span>
-
-          <strong>
-            ${escapeHTML(
-              order.noPolisi || '-'
-            )}
-          </strong>
-
+          <strong>${escapeHTML(order.noPolisi || '-')}</strong>
         </div>
 
-
         <div class="wo-detail-info-item">
-
           <span>Model</span>
-
-          <strong>
-            ${escapeHTML(
-              order.model || '-'
-            )}
-          </strong>
-
+          <strong>${escapeHTML(order.model || '-')}</strong>
         </div>
-
 
         <div class="wo-detail-info-item">
-
           <span>Tgl Booking</span>
-
-          <strong>
-            ${formatDate(
-              order.tanggalBooking
-            )}
-          </strong>
-
+          <strong>${formatDate(order.tanggalBooking)}</strong>
         </div>
 
+        <div class="wo-detail-info-item">
+          <span>Status WO</span>
+          <strong class="wo-status-badge ${status.toLowerCase().replace(' ', '-')}">
+            ${escapeHTML(status)}
+          </strong>
+        </div>
 
         <div class="wo-detail-info-item wo-detail-info-note">
-
           <span>Note</span>
-
-          <strong>
-            ${escapeHTML(
-              order.note || '-'
-            )}
-          </strong>
-
+          <strong>${escapeHTML(order.note || '-')}</strong>
         </div>
 
       </div>
