@@ -231,11 +231,6 @@ function renderSummary(summary) {
 
   if (!container) return
 
-  const notAdded =
-    Number(summary.notFound || 0) +
-    Number(summary.invalid || 0) +
-    Number(summary.overSupply || 0)
-
   const messages = []
 
   if (summary.matched > 0) {
@@ -344,7 +339,7 @@ function renderPreview(rows) {
       <td>${row.currentSupply}</td>
       <td>${row.sisa}</td>
       <td>
-        <span class="ata-update-status ${row.status.toLowerCase().replaceAll('_', '-')}"">
+        <span class="ata-update-status ${row.status.toLowerCase().replaceAll('_', '-')}">
           ${row.status}
         </span>
       </td>
