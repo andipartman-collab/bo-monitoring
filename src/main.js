@@ -3,6 +3,7 @@ import './styles/dashboard.css'
 import './styles/wo-detail-edit.css'
 import './styles/wo-detail-ui.css'
 import './styles/eta-update.css'
+import './styles/ata-update.css'
 import './styles/all-order.css'
 
 
@@ -49,6 +50,12 @@ import {
 } from './pages/ETAUpdate/ETAUpdate.js'
 
 
+import {
+  renderATAUpdate,
+  initATAUpdate
+} from './pages/ATAUpdate/ATAUpdate.js'
+
+
 const app =
   document.querySelector(
     '#app'
@@ -56,7 +63,7 @@ const app =
 
 
 let currentPage =
-  'new-order'
+  'dashboard'
 
 
 function renderApp() {
@@ -142,6 +149,18 @@ function renderPage(
 
     pageContent.innerHTML = renderETAUpdate()
     initETAUpdate()
+    return
+  }
+
+  if (page === 'ata-update') {
+    topbarContainer.innerHTML =
+      renderTopbar(
+        'Update ATA',
+        'Update Supply Part secara otomatis dari file excel Logistic'
+      )
+
+    pageContent.innerHTML = renderATAUpdate()
+    initATAUpdate()
     return
   }
 
