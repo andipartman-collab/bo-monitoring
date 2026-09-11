@@ -1,5 +1,6 @@
 import './styles/style.css'
 import './styles/dashboard.css'
+import './styles/monitoring-sa.css'
 import './styles/wo-detail-edit.css'
 import './styles/wo-detail-ui.css'
 import './styles/eta-update.css'
@@ -36,6 +37,12 @@ import {
   renderDashboard,
   initDashboard
 } from './pages/Dashboard/Dashboard.js'
+
+
+import {
+  renderMonitoringSA,
+  initMonitoringSA
+} from './pages/MonitoringSA/MonitoringSA.js'
 
 
 import {
@@ -137,6 +144,18 @@ function renderPage(
 
     pageContent.innerHTML = renderDashboard()
     initDashboard()
+    return
+  }
+
+  if (page === 'monitoring-sa') {
+    topbarContainer.innerHTML =
+      renderTopbar(
+        'Monitoring by SA',
+        'Monitoring Work Order berdasarkan SA.'
+      )
+
+    pageContent.innerHTML = renderMonitoringSA()
+    initMonitoringSA()
     return
   }
 
