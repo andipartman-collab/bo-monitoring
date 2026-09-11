@@ -1,29 +1,25 @@
+import {
+  getDashboardSummary
+} from '../../services/dashboardService.js'
+
+
 export function renderDashboard() {
 
   return `
     <div class="dashboard">
 
-      <div class="dashboard-cards">
+      <div
+        id="dashboard-summary-message"
+        class="dashboard-summary-message"
+      ></div>
 
-        <div class="dashboard-card">
-          <span class="card-label">Total Order</span>
-          <strong class="card-value">0</strong>
-        </div>
+      <div class="dashboard-summary-cards">
 
-        <div class="dashboard-card">
-          <span class="card-label">Back Order</span>
-          <strong class="card-value">0</strong>
-        </div>
-
-        <div class="dashboard-card">
-          <span class="card-label">Supply</span>
-          <strong class="card-value">0</strong>
-        </div>
-
-        <div class="dashboard-card">
-          <span class="card-label">Selesai</span>
-          <strong class="card-value">0</strong>
-        </div>
+        ${renderSummaryCard('TOTAL ORDER', 'totalOrder')}
+        ${renderSummaryCard('ON ORDER', 'onOrder')}
+        ${renderSummaryCard('PART ARRIVAL', 'partArrival')}
+        ${renderSummaryCard('BOOKING', 'booking')}
+        ${renderSummaryCard('NO SHOW', 'noShow')}
 
       </div>
 
@@ -32,18 +28,17 @@ export function renderDashboard() {
         <div class="content-card-header">
           <div>
             <h3>Monitoring Order</h3>
-            <p>Data order akan tampil di sini.</p>
+            <p>Area dashboard untuk informasi monitoring berikutnya.</p>
           </div>
         </div>
 
         <div class="empty-state">
           <div class="empty-icon">▤</div>
 
-          <h3>Belum ada data</h3>
+          <h3>Monitoring Order</h3>
 
           <p>
-            Data order akan muncul setelah
-            database terhubung.
+            Informasi dashboard lainnya akan ditambahkan di sini.
           </p>
         </div>
 
@@ -51,4 +46,77 @@ export function renderDashboard() {
 
     </div>
   `
+}
+
+
+function renderSummaryCard(label, key) {
+  return `
+    <div class="dashboard-summary-card">
+      <span class="dashboard-summary-label">${label}</span>
+      <strong
+        id="dashboard-summary-${key}"
+        class="dashboard-summary-value"
+      >
+        -
+      </strong>
+    </div>
+  `
+}
+
+
+export async function initDashboard() {
+
+  setSummaryMessage('Memuat summary order...')
+
+  try {
+    const summary = await getDashboardSummary()
+
+    updateSummaryValue('totalOrder', summary.totalOrder)
+    updateSummaryValue('onOrder', summary.onOrder)
+    updateSummaryValue('partArrival', summary.partArrival)
+    updateSummaryValue('booking', summary.booking)
+    updateSummaryValue('noShow', summary.noShow)
+
+    setSummaryMessage('')
+  }
+  catch (error) {
+    console.error(
+      'GAGAL MEMUAT SUMMARY DASHBOARD:',
+      error
+    )
+
+    setSummaryMessage(
+      error.message ||
+      'Gagal memuat summary order.'
+    )
+  }
+}
+
+
+function updateSummaryValue(key, value) {
+  const element = document.getElementById(
+    `dashboard-summary-${key}`
+  )
+
+  if (!element) {
+    return
+  }
+
+  element.textContent = Number(value || 0)
+}
+
+
+function setSummaryMessage(message) {
+  const element = document.getElementById(
+    'dashboard-summary-message'
+  )
+
+  if (!element) {
+    return
+  }
+
+  element.textContent = message
+  element.style.display = message
+    ? 'block'
+    : 'none'
 }
