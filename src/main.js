@@ -1,4 +1,5 @@
 import './styles/style.css'
+import './styles/dashboard.css'
 import './styles/wo-detail-edit.css'
 import './styles/wo-detail-ui.css'
 import './styles/eta-update.css'
@@ -31,7 +32,8 @@ import {
 
 
 import {
-  renderDashboard
+  renderDashboard,
+  initDashboard
 } from './pages/Dashboard/Dashboard.js'
 
 
@@ -126,6 +128,7 @@ function renderPage(
       )
 
     pageContent.innerHTML = renderDashboard()
+    initDashboard()
     return
   }
 
