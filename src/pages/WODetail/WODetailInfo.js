@@ -3,35 +3,31 @@ import {
   formatDate
 } from './WODetailUtils.js'
 
-
 export function renderWODetailInfo(
   order,
-  statusInfo = {}
+  statusInfo = {},
+  options = {}
 ) {
   const status =
     statusInfo.status || 'ON ORDER'
 
+  const readOnly =
+    Boolean(options.readOnly)
+
   const showFinishButton =
-    status === 'BOOKING'
+    status === 'BOOKING' && !readOnly
 
   return `
-
     <section class="wo-detail-card">
-
       <div class="wo-detail-card-header">
-
         <div>
-
           <h2>Informasi Work Order</h2>
-
           <p>
             Informasi utama Work Order.
           </p>
-
         </div>
 
         <div class="wo-detail-card-header-actions">
-
           ${showFinishButton ? `
             <button
               type="button"
@@ -42,29 +38,27 @@ export function renderWODetailInfo(
             </button>
           ` : ''}
 
-          <button
-            type="button"
-            id="wo-edit-button"
-            class="wo-detail-edit-button"
-          >
-            ✏ Edit WO
-          </button>
+          ${readOnly ? '' : `
+            <button
+              type="button"
+              id="wo-edit-button"
+              class="wo-detail-edit-button"
+            >
+              ✏ Edit WO
+            </button>
 
-          <button
-            type="button"
-            id="wo-delete-button"
-            class="wo-detail-delete-button"
-          >
-            🗑 Hapus WO
-          </button>
-
+            <button
+              type="button"
+              id="wo-delete-button"
+              class="wo-detail-delete-button"
+            >
+              🗑 Hapus WO
+            </button>
+          `}
         </div>
-
       </div>
 
-
       <div class="wo-detail-info-grid">
-
         <div class="wo-detail-info-item">
           <span>No WO</span>
           <strong>${escapeHTML(order.noWo || '-')}</strong>
@@ -106,10 +100,7 @@ export function renderWODetailInfo(
           <span>Note</span>
           <strong>${escapeHTML(order.note || '-')}</strong>
         </div>
-
       </div>
-
     </section>
-
   `
 }
