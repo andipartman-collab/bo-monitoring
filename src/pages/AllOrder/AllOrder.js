@@ -18,17 +18,15 @@ let pageCursors = []
 let currentOrders = []
 let searchTerm = ''
 let searchTimer = null
+let statusFilter = ''
 
 
-/*
-  ==================================================
-  RENDER ALL ORDER
-  ==================================================
-*/
 export function renderAllOrder() {
 
   return `
     <div class="all-order-page">
+
+      <div class="all-order-filter-indicator" id="all-order-filter-indicator"></div>
 
       <div class="all-order-search">
         <div class="all-order-search-field">
@@ -89,16 +87,12 @@ export function renderAllOrder() {
 }
 
 
-/*
-  ==================================================
-  INIT ALL ORDER
-  ==================================================
-*/
-export async function initAllOrder() {
+export async function initAllOrder(options = {}) {
 
   currentPage = 1
   pageCursors = []
   currentOrders = []
+  statusFilter = String(options.statusFilter || '')
 
   const input = document.getElementById(
     'all-order-search-input'
@@ -109,9 +103,10 @@ export async function initAllOrder() {
   }
 
   updateSearchControls()
+  renderFilterIndicator()
 
-  if (searchTerm) {
-    await loadSearchResults()
+  if (searchTerm || statusFilter) {
+    await loadFilteredResults()
     return
   }
 
@@ -142,7 +137,7 @@ function initSearch() {
 
     clearTimeout(searchTimer)
     searchTimer = setTimeout(() => {
-      initAllOrder()
+      initAllOrder({ statusFilter })
     }, 350)
   })
 
@@ -154,20 +149,20 @@ function initSearch() {
     event.preventDefault()
     searchTerm = input.value.trim()
     updateSearchControls()
-    initAllOrder()
+    initAllOrder({ statusFilter })
   })
 
   button.addEventListener('click', () => {
     searchTerm = input.value.trim()
     updateSearchControls()
-    initAllOrder()
+    initAllOrder({ statusFilter })
   })
 
   clear.addEventListener('click', () => {
     searchTerm = ''
     input.value = ''
     updateSearchControls()
-    initAllOrder()
+    initAllOrder({ statusFilter })
   })
 }
 
@@ -193,11 +188,6 @@ function updateSearchControls() {
 }
 
 
-/*
-  ==================================================
-  LOAD PAGE
-  ==================================================
-*/
 async function loadPage() {
 
   showLoading()
@@ -238,23 +228,21 @@ async function loadPage() {
 }
 
 
-/*
-  ==================================================
-  SEARCH
-  ==================================================
-*/
-async function loadSearchResults() {
+async function loadFilteredResults() {
 
   showLoading()
 
   try {
-    const result = await getAllOrdersForSearch()
+    const allOrders = await getAllOrdersForSearch()
 
-    const normalizedTerm = searchTerm
-      .toUpperCase()
+    const filteredOrders = []
 
-    const filtered = result.filter(order => {
-      return [
+    for (const order of allOrders) {
+      if (!order?.id) {
+        continue
+      }
+
+      const matchesSearch = !searchTerm || [
         order.noWo,
         order.sa,
         order.customer,
@@ -262,16 +250,36 @@ async function loadSearchResults() {
       ].some(value => {
         return String(value || '')
           .toUpperCase()
-          .includes(normalizedTerm)
+          .includes(searchTerm.toUpperCase())
       })
-    })
 
-    if (filtered.length === 0) {
-      renderEmptySearch()
+      if (!matchesSearch) {
+        continue
+      }
+
+      if (!statusFilter) {
+        filteredOrders.push(order)
+        continue
+      }
+
+      const detail = await getOrderDetail(order.id)
+      const statusInfo = await getOrderStatus(
+        order.id,
+        detail.order,
+        detail.parts
+      )
+
+      if (statusInfo.status === statusFilter) {
+        filteredOrders.push(order)
+      }
+    }
+
+    if (filteredOrders.length === 0) {
+      renderEmptyFiltered()
       return
     }
 
-    currentOrders = filtered.slice(0, PAGE_SIZE)
+    currentOrders = filteredOrders.slice(0, PAGE_SIZE)
 
     renderTable(currentOrders)
 
@@ -283,7 +291,7 @@ async function loadSearchResults() {
       pagination.innerHTML = `
         <div class="pagination-info">
           Menampilkan <strong>${currentOrders.length}</strong>
-          dari <strong>${filtered.length}</strong> hasil
+          dari <strong>${filteredOrders.length}</strong> hasil
         </div>
       `
     }
@@ -292,13 +300,13 @@ async function loadSearchResults() {
   }
   catch (error) {
     console.error(
-      'GAGAL MENCARI ALL ORDER:',
+      'GAGAL MEMFILTER ALL ORDER:',
       error
     )
 
     showError(
       error.message ||
-      'Gagal melakukan pencarian.'
+      'Gagal memfilter data order.'
     )
   }
 }
@@ -325,11 +333,6 @@ async function getAllOrdersForSearch() {
 }
 
 
-/*
-  ==================================================
-  RENDER TABLE
-  ==================================================
-*/
 function renderTable(orders) {
 
   const loading = document.getElementById(
@@ -379,9 +382,7 @@ function renderTable(orders) {
 
         <tbody>
           ${orders.map((order, index) => {
-            const number = searchTerm
-              ? index + 1
-              : ((currentPage - 1) * PAGE_SIZE) + index + 1
+            const number = index + 1
 
             return `
               <tr>
@@ -430,11 +431,6 @@ function renderTable(orders) {
 }
 
 
-/*
-  ==================================================
-  APPLY STATUS
-  ==================================================
-*/
 async function applyStatuses(orders) {
 
   const rows = [
@@ -485,11 +481,6 @@ async function applyStatuses(orders) {
 }
 
 
-/*
-  ==================================================
-  STATUS CLASS
-  ==================================================
-*/
 function statusClass(status) {
   return String(status || '')
     .toLowerCase()
@@ -497,11 +488,6 @@ function statusClass(status) {
 }
 
 
-/*
-  ==================================================
-  PAGINATION
-  ==================================================
-*/
 function renderPagination(hasNextPage) {
 
   const pagination = document.getElementById(
@@ -512,7 +498,7 @@ function renderPagination(hasNextPage) {
     return
   }
 
-  if (searchTerm) {
+  if (searchTerm || statusFilter) {
     return
   }
 
@@ -544,23 +530,11 @@ function renderPagination(hasNextPage) {
     </div>
   `
 
-  const previousButton = document.getElementById(
-    'all-order-prev'
-  )
+  document.getElementById('all-order-prev')
+    ?.addEventListener('click', goPrevious)
 
-  const nextButton = document.getElementById(
-    'all-order-next'
-  )
-
-  previousButton?.addEventListener(
-    'click',
-    goPrevious
-  )
-
-  nextButton?.addEventListener(
-    'click',
-    goNext
-  )
+  document.getElementById('all-order-next')
+    ?.addEventListener('click', goNext)
 }
 
 
@@ -584,11 +558,6 @@ async function goPrevious() {
 }
 
 
-/*
-  ==================================================
-  DETAIL BUTTON
-  ==================================================
-*/
 function initDetailButtons() {
 
   document
@@ -616,7 +585,43 @@ function initDetailButtons() {
 }
 
 
-function renderEmptySearch() {
+function renderFilterIndicator() {
+  const element = document.getElementById(
+    'all-order-filter-indicator'
+  )
+
+  if (!element) {
+    return
+  }
+
+  if (!statusFilter) {
+    element.innerHTML = ''
+    return
+  }
+
+  element.innerHTML = `
+    Menampilkan WO dengan status
+    <strong>${escapeHTML(statusFilter)}</strong>
+    <button
+      type="button"
+      id="all-order-clear-status-filter"
+      class="all-order-clear-status-filter"
+    >
+      Tampilkan semua
+    </button>
+  `
+
+  document
+    .getElementById('all-order-clear-status-filter')
+    ?.addEventListener('click', () => {
+      statusFilter = ''
+      renderFilterIndicator()
+      initAllOrder({ statusFilter: '' })
+    })
+}
+
+
+function renderEmptyFiltered() {
   const loading = document.getElementById(
     'all-order-loading'
   )
@@ -637,26 +642,22 @@ function renderEmptySearch() {
     pagination.innerHTML = ''
   }
 
-  if (container) {
-    container.innerHTML = `
-      <div class="all-order-empty">
-        <div class="all-order-empty-icon">⌕</div>
-        <h3>Data tidak ditemukan</h3>
-        <p>
-          Tidak ada WO yang cocok dengan pencarian
-          "${escapeHTML(searchTerm)}".
-        </p>
-      </div>
-    `
+  if (!container) {
+    return
   }
+
+  container.innerHTML = `
+    <div class="all-order-empty">
+      <div class="all-order-empty-icon">⌕</div>
+      <h3>Data tidak ditemukan</h3>
+      <p>
+        Tidak ada WO yang sesuai dengan filter yang dipilih.
+      </p>
+    </div>
+  `
 }
 
 
-/*
-  ==================================================
-  LOADING
-  ==================================================
-*/
 function showLoading() {
 
   const loading = document.getElementById(
@@ -677,9 +678,11 @@ function showLoading() {
 
   if (loading) {
     loading.style.display = 'block'
-    loading.textContent = searchTerm
-      ? 'Mencari data...'
-      : 'Memuat data...'
+    loading.textContent = statusFilter
+      ? 'Memuat WO berdasarkan status...'
+      : searchTerm
+        ? 'Mencari data...'
+        : 'Memuat data...'
   }
 
   if (container) {
@@ -697,11 +700,6 @@ function showLoading() {
 }
 
 
-/*
-  ==================================================
-  ERROR
-  ==================================================
-*/
 function showError(messageText) {
 
   const loading = document.getElementById(
@@ -723,11 +721,6 @@ function showError(messageText) {
 }
 
 
-/*
-  ==================================================
-  FORMAT DATE
-  ==================================================
-*/
 function formatDate(dateString) {
 
   if (!dateString) {
@@ -746,11 +739,6 @@ function formatDate(dateString) {
 }
 
 
-/*
-  ==================================================
-  ESCAPE HTML
-  ==================================================
-*/
 function escapeHTML(value) {
 
   return String(value ?? '')
