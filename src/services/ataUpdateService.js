@@ -98,6 +98,7 @@ export async function previewATAUpdate(rows) {
   validateHeaders(inputRows)
 
   const groupedMap = new Map()
+  let invalidRows = 0
 
   inputRows.forEach((row, index) => {
     const noOrder = normalizeKey(
@@ -113,6 +114,7 @@ export async function previewATAUpdate(rows) {
     )
 
     if (!noOrder || !pno || shippedQty <= 0) {
+      invalidRows += 1
       return
     }
 
@@ -151,7 +153,6 @@ export async function previewATAUpdate(rows) {
 
     partsMap.get(key).push({
       ref: partDocument.ref,
-      orderId: partDocument.ref.parent.parent?.id || '',
       namaPart: data.namaPart || '',
       qtyOrder: Number(data.qtyOrder || 0)
     })
@@ -162,7 +163,7 @@ export async function previewATAUpdate(rows) {
   let total = 0
   let matched = 0
   let notFound = 0
-  let invalid = 0
+  let ambiguous = 0
   let overSupply = 0
 
   for (const item of groupedMap.values()) {
@@ -186,7 +187,7 @@ export async function previewATAUpdate(rows) {
     }
 
     if (matches.length > 1) {
-      invalid += 1
+      ambiguous += 1
 
       preview.push({
         ...item,
@@ -249,17 +250,14 @@ export async function previewATAUpdate(rows) {
     })
   }
 
-  if (inputRows.length !== groupedMap.size) {
-    invalid += inputRows.length - groupedMap.size
-  }
-
   return {
     summary: {
       rows: inputRows.length,
       total,
       matched,
       notFound,
-      invalid,
+      invalid: invalidRows,
+      ambiguous,
       overSupply
     },
     preview
