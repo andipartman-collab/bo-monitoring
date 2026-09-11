@@ -58,6 +58,16 @@ export function renderSidebar() {
           <span>Update ETA</span>
         </a>
 
+
+        <a
+          href="#"
+          class="menu-item"
+          data-page="ata-update"
+        >
+          <span class="menu-icon">⇩</span>
+          <span>Update ATA</span>
+        </a>
+
       </nav>
 
 
