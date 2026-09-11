@@ -5,6 +5,11 @@ import {
 
 
 import {
+  getOrderStatus
+} from '../../services/orderStatusService.js'
+
+
+import {
   renderWODetailInfo
 } from './WODetailInfo.js'
 
@@ -33,13 +38,12 @@ import {
 } from './WODetailParts.js'
 
 
-/*
-  ==================================================
-  RENDER WO DETAIL
-  ==================================================
-*/
-export function renderWODetail() {
+import {
+  finishWorkOrder
+} from '../../services/woFinishService.js'
 
+
+export function renderWODetail() {
   return `
 
     <div class="wo-detail-page">
@@ -82,15 +86,9 @@ export function renderWODetail() {
 }
 
 
-/*
-  ==================================================
-  INIT WO DETAIL
-  ==================================================
-*/
 export async function initWODetail(
   orderId
 ) {
-
   initBackButton()
 
   if (!orderId) {
@@ -101,26 +99,9 @@ export async function initWODetail(
   }
 
   try {
-
-    const orderResult =
-      await getOrderDetail(
-        orderId
-      )
-
-    const parts =
-      await getPartsWithSupply(
-        orderId
-      )
-
-    renderDetail(
-      orderResult.order,
-      parts,
-      orderId
-    )
-
+    await refreshDetail(orderId)
   }
   catch (error) {
-
     console.error(
       'GAGAL MEMUAT WO DETAIL:',
       error
@@ -130,22 +111,16 @@ export async function initWODetail(
       error.message ||
       'Gagal memuat detail Work Order.'
     )
-
   }
 }
 
 
-/*
-  ==================================================
-  RENDER DETAIL
-  ==================================================
-*/
-function renderDetail(
+async function renderDetail(
   order,
   parts,
-  orderId
+  orderId,
+  statusInfo
 ) {
-
   const loading =
     document.getElementById(
       'wo-detail-loading'
@@ -165,11 +140,12 @@ function renderDetail(
   }
 
   content.innerHTML = `
-
-    ${renderWODetailInfo(order)}
+    ${renderWODetailInfo(
+      order,
+      statusInfo
+    )}
 
     ${renderWODetailParts(parts)}
-
   `
 
   initWODetailEdit(
@@ -203,69 +179,113 @@ function renderDetail(
   initWODetailSupply(
     orderId,
     async () => {
-
       try {
-
-        const updatedParts =
-          await getPartsWithSupply(
-            orderId
-          )
-
-        renderDetail(
-          order,
-          updatedParts,
-          orderId
-        )
-
+        await refreshDetail(orderId)
       }
       catch (error) {
-
         console.error(
           'GAGAL REFRESH SUPPLY:',
           error
         )
+      }
+    }
+  )
 
+  initFinishButton(
+    orderId,
+    statusInfo
+  )
+}
+
+
+async function refreshDetail(
+  orderId
+) {
+  const orderResult =
+    await getOrderDetail(
+      orderId
+    )
+
+  const parts =
+    await getPartsWithSupply(
+      orderId
+    )
+
+  const statusInfo =
+    await getOrderStatus(
+      orderId,
+      orderResult.order,
+      parts
+    )
+
+  await renderDetail(
+    orderResult.order,
+    parts,
+    orderId,
+    statusInfo
+  )
+}
+
+
+function initFinishButton(
+  orderId,
+  statusInfo
+) {
+  const button =
+    document.getElementById(
+      'wo-finish-button'
+    )
+
+  if (!button) {
+    return
+  }
+
+  button.addEventListener(
+    'click',
+    async () => {
+      const confirmed =
+        window.confirm(
+          'Selesaikan Work Order ini?'
+        )
+
+      if (!confirmed) {
+        return
       }
 
+      button.disabled = true
+      button.textContent =
+        'Menyelesaikan...'
+
+      try {
+        await finishWorkOrder(
+          orderId
+        )
+
+        await refreshDetail(
+          orderId
+        )
+      }
+      catch (error) {
+        console.error(
+          'GAGAL FINISH ORDER:',
+          error
+        )
+
+        showError(
+          error.message ||
+          'Gagal menyelesaikan Work Order.'
+        )
+
+        button.disabled = false
+        button.textContent =
+          '✓ Finish Order'
+      }
     }
   )
 }
 
 
-/*
-  ==================================================
-  REFRESH DETAIL
-  ==================================================
-*/
-async function refreshDetail(
-  orderId
-) {
-
-  const refreshedOrder =
-    await getOrderDetail(
-      orderId
-    )
-
-  const refreshedParts =
-    await getPartsWithSupply(
-      orderId
-    )
-
-  renderDetail(
-    refreshedOrder.order,
-    refreshedParts,
-    orderId
-  )
-}
-
-
-/*
-  ==================================================
-  BACK BUTTON
-  ==================================================
-*/
 function initBackButton() {
-
   const button =
     document.getElementById(
       'wo-detail-back'
@@ -288,15 +308,9 @@ function initBackButton() {
 }
 
 
-/*
-  ==================================================
-  ERROR
-  ==================================================
-*/
 function showError(
   messageText
 ) {
-
   const loading =
     document.getElementById(
       'wo-detail-loading'
