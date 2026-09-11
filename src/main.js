@@ -29,7 +29,10 @@ import {
 } from './pages/AllOrder/AllOrder.js'
 
 
-import './pages/AllOrder/AllOrderEnhancement.js'
+import {
+  initAllOrderEnhancement,
+  enhanceAllOrderPage
+} from './pages/AllOrder/AllOrderEnhancement.js'
 
 
 import {
@@ -73,6 +76,7 @@ function renderApp() {
 
   initNavigation()
   initWODetailNavigation()
+  initAllOrderEnhancement()
   renderPage(currentPage)
 }
 
@@ -103,6 +107,7 @@ function renderPage(
       )
 
     pageContent.innerHTML = renderAllOrder()
+    enhanceAllOrderPage()
     initAllOrder()
     return
   }
