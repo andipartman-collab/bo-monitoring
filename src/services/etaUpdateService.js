@@ -13,7 +13,24 @@ import {
 } from './firebase.js'
 
 
-const BATCH_SIZE = 400
+/*
+  ==================================================
+  UPDATE ETA SERVICE
+  ==================================================
+
+  Sumber Excel Logistic:
+  - Order No
+  - Process Pno
+  - Latest ETD
+
+  Aturan:
+  - Match berdasarkan Order No + Process Pno.
+  - ETA baru = Latest ETD + 1 hari.
+  - Latest ETD kosong / tidak valid -> tidak update.
+  - ETA history hanya dibuat jika ETA benar-benar berubah.
+*/
+
+const BATCH_SIZE = 150
 
 
 function normalizeKey(value) {
@@ -26,68 +43,151 @@ function normalizeKey(value) {
 export function normalizeETA(value) {
   if (!value) return ''
 
-  if (typeof value === 'string') {
-    const text = value.trim()
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
-      return text
-    }
-
-    const match = text.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/)
-
-    if (match) {
-      const day = match[1].padStart(2, '0')
-      const month = match[2].padStart(2, '0')
-      return `${match[3]}-${month}-${day}`
-    }
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return toISODate(value)
   }
 
-  if (typeof value === 'number') {
+  if (typeof value === 'number' && Number.isFinite(value)) {
     const excelEpoch = new Date(Date.UTC(1899, 11, 30))
     const date = new Date(
       excelEpoch.getTime() + value * 86400000
     )
 
     if (!Number.isNaN(date.getTime())) {
-      const year = date.getUTCFullYear()
-      const month = String(date.getUTCMonth() + 1).padStart(2, '0')
-      const day = String(date.getUTCDate()).padStart(2, '0')
-      return `${year}-${month}-${day}`
+      return toISODateUTC(date)
     }
   }
 
-  if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    const year = value.getFullYear()
-    const month = String(value.getMonth() + 1).padStart(2, '0')
-    const day = String(value.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
+  const text = String(value).trim()
+
+  let match = text.match(
+    /^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/
+  )
+
+  if (match) {
+    return buildISODate(
+      match[1],
+      match[2],
+      match[3]
+    )
+  }
+
+  match = text.match(
+    /^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/
+  )
+
+  if (match) {
+    return buildISODate(
+      match[3],
+      match[2],
+      match[1]
+    )
   }
 
   return ''
 }
 
 
-function getRowValue(row, names) {
-  const entries = Object.entries(row)
+function buildISODate(year, month, day) {
+  const y = Number(year)
+  const m = Number(month)
+  const d = Number(day)
 
-  for (const name of names) {
-    const target = normalizeKey(name)
+  const date = new Date(
+    Date.UTC(y, m - 1, d)
+  )
 
-    const entry = entries.find(([key]) => {
-      return normalizeKey(key) === target
-    })
-
-    if (entry) {
-      return entry[1]
-    }
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getUTCFullYear() !== y ||
+    date.getUTCMonth() + 1 !== m ||
+    date.getUTCDate() !== d
+  ) {
+    return ''
   }
 
-  return ''
+  return toISODateUTC(date)
+}
+
+
+function toISODate(date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0')
+  ].join('-')
+}
+
+
+function toISODateUTC(date) {
+  return [
+    date.getUTCFullYear(),
+    String(date.getUTCMonth() + 1).padStart(2, '0'),
+    String(date.getUTCDate()).padStart(2, '0')
+  ].join('-')
+}
+
+
+function addOneDay(isoDate) {
+  const [year, month, day] = isoDate
+    .split('-')
+    .map(Number)
+
+  const date = new Date(
+    Date.UTC(year, month - 1, day + 1)
+  )
+
+  return toISODateUTC(date)
+}
+
+
+function getRowValue(row, headerName) {
+  const target = normalizeKey(headerName)
+
+  const entry = Object.entries(row).find(
+    ([key]) => normalizeKey(key) === target
+  )
+
+  return entry ? entry[1] : ''
+}
+
+
+function validateHeaders(rows) {
+  const firstRow = rows?.[0]
+
+  if (!firstRow || typeof firstRow !== 'object') {
+    throw new Error('Data Excel tidak ditemukan.')
+  }
+
+  const headers = Object.keys(firstRow)
+    .map(normalizeKey)
+
+  const requiredHeaders = [
+    'ORDER NO',
+    'PROCESS PNO',
+    'LATEST ETD'
+  ]
+
+  const missing = requiredHeaders.filter(
+    header => !headers.includes(header)
+  )
+
+  if (missing.length) {
+    throw new Error(
+      `Format Excel tidak sesuai. Kolom wajib: Order No, Process Pno, Latest ETD. Kolom tidak ditemukan: ${missing.join(', ')}`
+    )
+  }
 }
 
 
 export async function previewETAUpdate(rows) {
   const inputRows = Array.isArray(rows) ? rows : []
+
+  if (!inputRows.length) {
+    throw new Error('Excel tidak memiliki data.')
+  }
+
+  validateHeaders(inputRows)
 
   const partsSnapshot = await getDocs(
     query(
@@ -107,13 +207,14 @@ export async function previewETAUpdate(rows) {
     }
 
     const key = `${noOrder}|${pno}`
+    const existing = partsMap.get(key) || []
 
-    if (!partsMap.has(key)) {
-      partsMap.set(key, {
-        ref: partDocument.ref,
-        currentETA: normalizeETA(data.eta)
-      })
-    }
+    existing.push({
+      ref: partDocument.ref,
+      currentETA: normalizeETA(data.eta)
+    })
+
+    partsMap.set(key, existing)
   })
 
   const preview = []
@@ -122,40 +223,37 @@ export async function previewETAUpdate(rows) {
   let same = 0
   let notFound = 0
   let invalid = 0
+  let ambiguous = 0
 
   inputRows.forEach((row, index) => {
     const noOrder = normalizeKey(
-      getRowValue(row, [
-        'No Order',
-        'NoOrder',
-        'NO ORDER',
-        'NOORDER'
-      ])
+      getRowValue(row, 'Order No')
     )
 
     const pno = normalizeKey(
-      getRowValue(row, [
-        'PNO',
-        'Part No',
-        'PART NO',
-        'Part Number',
-        'PART NUMBER'
-      ])
+      getRowValue(row, 'Process Pno')
     )
 
-    const eta = normalizeETA(
-      getRowValue(row, ['ETA'])
+    const latestETD = normalizeETA(
+      getRowValue(row, 'Latest ETD')
     )
 
-    if (!noOrder || !pno || !eta) {
+    const newETA = latestETD
+      ? addOneDay(latestETD)
+      : ''
+
+    const rowNumber = index + 2
+
+    if (!noOrder || !pno || !latestETD) {
       invalid += 1
 
       preview.push({
-        rowNumber: index + 2,
+        rowNumber,
         noOrder,
         pno,
+        latestETD,
         currentETA: '',
-        newETA: eta,
+        newETA,
         status: 'INVALID'
       })
 
@@ -163,18 +261,35 @@ export async function previewETAUpdate(rows) {
     }
 
     const key = `${noOrder}|${pno}`
-    const part = partsMap.get(key)
+    const matches = partsMap.get(key) || []
 
-    if (!part) {
+    if (!matches.length) {
       notFound += 1
 
       preview.push({
-        rowNumber: index + 2,
+        rowNumber,
         noOrder,
         pno,
+        latestETD,
         currentETA: '',
-        newETA: eta,
+        newETA,
         status: 'NOT_FOUND'
+      })
+
+      return
+    }
+
+    if (matches.length > 1) {
+      ambiguous += 1
+
+      preview.push({
+        rowNumber,
+        noOrder,
+        pno,
+        latestETD,
+        currentETA: '',
+        newETA,
+        status: 'AMBIGUOUS'
       })
 
       return
@@ -182,8 +297,9 @@ export async function previewETAUpdate(rows) {
 
     matched += 1
 
+    const part = matches[0]
     const isChanged =
-      part.currentETA !== eta
+      part.currentETA !== newETA
 
     if (isChanged) {
       changed += 1
@@ -192,11 +308,12 @@ export async function previewETAUpdate(rows) {
     }
 
     preview.push({
-      rowNumber: index + 2,
+      rowNumber,
       noOrder,
       pno,
+      latestETD,
       currentETA: part.currentETA,
-      newETA: eta,
+      newETA,
       status: isChanged ? 'CHANGED' : 'SAME',
       partRef: part.ref
     })
@@ -209,7 +326,8 @@ export async function previewETAUpdate(rows) {
       changed,
       same,
       notFound,
-      invalid
+      invalid,
+      ambiguous
     },
     preview
   }
@@ -235,7 +353,10 @@ export async function applyETAUpdate(previewRows) {
   ) {
     const batch = writeBatch(db)
     const orderRefs = new Map()
-    const chunk = changes.slice(start, start + BATCH_SIZE)
+    const chunk = changes.slice(
+      start,
+      start + BATCH_SIZE
+    )
 
     chunk.forEach(row => {
       batch.update(
@@ -263,7 +384,10 @@ export async function applyETAUpdate(previewRows) {
       const orderRef = row.partRef.parent.parent
 
       if (orderRef) {
-        orderRefs.set(orderRef.path, orderRef)
+        orderRefs.set(
+          orderRef.path,
+          orderRef
+        )
       }
     })
 
