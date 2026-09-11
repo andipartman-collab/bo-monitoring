@@ -231,27 +231,54 @@ function renderSummary(summary) {
 
   if (!container) return
 
-  container.innerHTML = `
-    <div class="ata-update-summary-message total">
-      Total kombinasi &raquo; <strong>${summary.total}</strong>
-    </div>
+  const notAdded =
+    Number(summary.notFound || 0) +
+    Number(summary.invalid || 0) +
+    Number(summary.overSupply || 0)
 
-    <div class="ata-update-summary-message matched">
-      MATCH &raquo; <strong>${summary.matched}</strong>
-    </div>
+  const messages = []
 
-    <div class="ata-update-summary-message not-found">
-      NOT FOUND &raquo; <strong>${summary.notFound}</strong>
-    </div>
+  if (summary.matched > 0) {
+    messages.push(`
+      <div class="ata-update-summary-message matched">
+        Terdapat <strong>${summary.matched} supply part baru</strong>
+      </div>
+    `)
+  }
 
-    <div class="ata-update-summary-message invalid">
-      INVALID / AMBIGUOUS &raquo; <strong>${summary.invalid}</strong>
-    </div>
+  if (summary.notFound > 0) {
+    messages.push(`
+      <div class="ata-update-summary-message not-found">
+        Tidak ditemukan supply baru untuk <strong>${summary.notFound} part</strong>
+      </div>
+    `)
+  }
 
-    <div class="ata-update-summary-message over-supply">
-      OVER SUPPLY &raquo; <strong>${summary.overSupply}</strong>
-    </div>
-  `
+  if (summary.overSupply > 0) {
+    messages.push(`
+      <div class="ata-update-summary-message over-supply">
+        <strong>${summary.overSupply} part</strong> melebihi sisa yang tersedia
+      </div>
+    `)
+  }
+
+  if (summary.invalid > 0) {
+    messages.push(`
+      <div class="ata-update-summary-message invalid">
+        <strong>${summary.invalid} part</strong> tidak dapat diproses karena data tidak valid / ambigu
+      </div>
+    `)
+  }
+
+  if (messages.length === 0) {
+    messages.push(`
+      <div class="ata-update-summary-message no-change">
+        Tidak ditemukan supply baru
+      </div>
+    `)
+  }
+
+  container.innerHTML = messages.join('')
 
   if (note) {
     note.textContent =
@@ -317,7 +344,7 @@ function renderPreview(rows) {
       <td>${row.currentSupply}</td>
       <td>${row.sisa}</td>
       <td>
-        <span class="ata-update-status ${row.status.toLowerCase().replaceAll('_', '-')}">
+        <span class="ata-update-status ${row.status.toLowerCase().replaceAll('_', '-')}"">
           ${row.status}
         </span>
       </td>
