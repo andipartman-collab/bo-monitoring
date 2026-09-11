@@ -53,12 +53,12 @@ export function renderETAUpdate() {
       <section class="eta-update-card" id="eta-update-summary-card" style="display:none;">
         <div class="eta-update-card-header">
           <h3>2. Hasil Pencocokan</h3>
-          <p>Belum ada data yang disimpan sampai tombol Update ETA ditekan.</p>
+          <p id="eta-update-summary-note">Belum ada data yang disimpan sampai tombol Update ETA ditekan.</p>
         </div>
 
         <div class="eta-update-summary" id="eta-update-summary"></div>
 
-        <div class="eta-update-actions">
+        <div class="eta-update-actions" id="eta-update-actions">
           <button
             type="button"
             id="eta-update-apply-button"
@@ -209,32 +209,10 @@ export function initETAUpdate() {
     try {
       const result = await applyETAUpdate(currentPreview)
 
-      showMessage(
-        `${result.updated} ETA berhasil diperbarui dan history ETA telah dicatat.`,
-        'success'
-      )
+      showUpdateSuccess(result.updated)
 
-      const refreshedPreview = currentPreview.map(row => {
-        if (row.status !== 'CHANGED') {
-          return row
-        }
-
-        return {
-          ...row,
-          currentETA: row.newETA,
-          status: 'UPDATED'
-        }
-      })
-
-      currentPreview = refreshedPreview
-      currentSummary = {
-        ...currentSummary,
-        changed: 0,
-        same: currentSummary.same + result.updated
-      }
-
-      renderSummary(currentSummary)
-      renderPreview(currentPreview)
+      currentPreview = []
+      currentSummary = null
     }
     catch (error) {
       console.error('GAGAL UPDATE ETA:', error)
@@ -244,8 +222,10 @@ export function initETAUpdate() {
       )
     }
     finally {
-      applyButton.disabled = !currentSummary?.changed
-      applyButton.textContent = 'Update ETA'
+      if (document.getElementById('eta-update-apply-button')) {
+        applyButton.disabled = true
+        applyButton.textContent = 'Update ETA'
+      }
     }
   }
 }
@@ -254,6 +234,8 @@ export function initETAUpdate() {
 function renderSummary(summary) {
   const container = document.getElementById('eta-update-summary')
   const applyButton = document.getElementById('eta-update-apply-button')
+  const actions = document.getElementById('eta-update-actions')
+  const note = document.getElementById('eta-update-summary-note')
 
   if (!container) return
 
@@ -272,9 +254,60 @@ function renderSummary(summary) {
     `
   }
 
+  if (note) {
+    note.textContent =
+      'Belum ada data yang disimpan sampai tombol Update ETA ditekan.'
+  }
+
+  if (actions) {
+    actions.style.display = 'flex'
+  }
+
   if (applyButton) {
     applyButton.disabled = summary.changed === 0
   }
+}
+
+
+function showUpdateSuccess(updatedCount) {
+  const summaryCard = document.getElementById('eta-update-summary-card')
+  const resultCard = document.getElementById('eta-update-result-card')
+  const summaryContainer = document.getElementById('eta-update-summary')
+  const summaryNote = document.getElementById('eta-update-summary-note')
+  const actions = document.getElementById('eta-update-actions')
+  const tbody = document.getElementById('eta-update-table-body')
+  const message = document.getElementById('eta-update-message')
+
+  if (summaryCard) {
+    summaryCard.style.display = 'block'
+  }
+
+  if (resultCard) {
+    resultCard.style.display = 'none'
+  }
+
+  if (tbody) {
+    tbody.innerHTML = ''
+  }
+
+  if (summaryNote) {
+    summaryNote.textContent =
+      'Proses update ETA telah selesai.'
+  }
+
+  if (summaryContainer) {
+    summaryContainer.innerHTML = `
+      <div class="eta-update-summary-message success">
+        Perubahan ETA berhasil diupdate &raquo; <strong>${updatedCount} order</strong>
+      </div>
+    `
+  }
+
+  if (actions) {
+    actions.style.display = 'none'
+  }
+
+  clearMessage()
 }
 
 
@@ -341,11 +374,20 @@ function hideResults() {
   const resultCard = document.getElementById('eta-update-result-card')
   const tbody = document.getElementById('eta-update-table-body')
   const applyButton = document.getElementById('eta-update-apply-button')
+  const actions = document.getElementById('eta-update-actions')
+  const summaryContainer = document.getElementById('eta-update-summary')
+  const summaryNote = document.getElementById('eta-update-summary-note')
 
   if (summaryCard) summaryCard.style.display = 'none'
   if (resultCard) resultCard.style.display = 'none'
   if (tbody) tbody.innerHTML = ''
   if (applyButton) applyButton.disabled = true
+  if (actions) actions.style.display = 'flex'
+  if (summaryContainer) summaryContainer.innerHTML = ''
+  if (summaryNote) {
+    summaryNote.textContent =
+      'Belum ada data yang disimpan sampai tombol Update ETA ditekan.'
+  }
 }
 
 
