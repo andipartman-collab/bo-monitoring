@@ -231,38 +231,20 @@ function renderSummary(summary) {
 
   if (!container) return
 
-  const notMatched =
-    Number(summary.notFound || 0) +
-    Number(summary.overSupply || 0) +
-    Number(summary.invalid || 0)
-
-  const messages = []
-
   if (summary.matched > 0) {
-    messages.push(`
+    container.innerHTML = `
       <div class="ata-update-summary-message matched">
         Terdapat <strong>${summary.matched} supply part baru</strong>
       </div>
-    `)
+    `
   }
-
-  if (notMatched > 0) {
-    messages.push(`
+  else {
+    container.innerHTML = `
       <div class="ata-update-summary-message not-found">
         Tidak ditemukan data supply baru
       </div>
-    `)
+    `
   }
-
-  if (messages.length === 0) {
-    messages.push(`
-      <div class="ata-update-summary-message not-found">
-        Tidak ditemukan data supply baru
-      </div>
-    `)
-  }
-
-  container.innerHTML = messages.join('')
 
   if (note) {
     note.textContent =
