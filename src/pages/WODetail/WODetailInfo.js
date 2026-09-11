@@ -12,8 +12,7 @@ export function renderWODetailInfo(
     statusInfo.status || 'ON ORDER'
 
   const showFinishButton =
-    status === 'BOOKING' ||
-    status === 'NO SHOW'
+    status === 'BOOKING'
 
   return `
 
