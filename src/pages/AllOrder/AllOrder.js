@@ -24,21 +24,6 @@ export function renderAllOrder() {
   return `
     <div class="all-order-page">
 
-      <div class="all-order-header">
-
-        <div>
-
-          <h2>All Order</h2>
-
-          <p>
-            Daftar seluruh Work Order.
-          </p>
-
-        </div>
-
-      </div>
-
-
       <div
         id="all-order-message"
         class="all-order-message"
@@ -649,24 +634,20 @@ function showLoading() {
       'all-order-loading'
     )
 
-
   const container =
     document.getElementById(
       'all-order-table-container'
     )
-
 
   const pagination =
     document.getElementById(
       'all-order-pagination'
     )
 
-
   const message =
     document.getElementById(
       'all-order-message'
     )
-
 
   if (loading) {
 
@@ -678,7 +659,6 @@ function showLoading() {
 
   }
 
-
   if (container) {
 
     container.innerHTML =
@@ -686,14 +666,12 @@ function showLoading() {
 
   }
 
-
   if (pagination) {
 
     pagination.innerHTML =
       ''
 
   }
-
 
   if (message) {
 
@@ -723,12 +701,10 @@ function showError(
       'all-order-loading'
     )
 
-
   const message =
     document.getElementById(
       'all-order-message'
     )
-
 
   if (loading) {
 
@@ -736,7 +712,6 @@ function showError(
       'none'
 
   }
-
 
   if (message) {
 
@@ -765,22 +740,18 @@ function formatDate(
     return '-'
   }
 
-
   const parts =
     dateString.split('-')
-
 
   if (parts.length !== 3) {
     return dateString
   }
-
 
   const [
     year,
     month,
     day
   ] = parts
-
 
   return `${day}/${month}/${year}`
 
@@ -801,7 +772,6 @@ function formatTimestamp(
     return '-'
   }
 
-
   if (
     timestamp.toDate
   ) {
@@ -811,7 +781,6 @@ function formatTimestamp(
     )
 
   }
-
 
   return '-'
 
@@ -836,7 +805,6 @@ function formatDateTime(
       '0'
     )
 
-
   const month =
     String(
       date.getMonth() + 1
@@ -845,10 +813,8 @@ function formatDateTime(
       '0'
     )
 
-
   const year =
     date.getFullYear()
-
 
   const hours =
     String(
@@ -858,7 +824,6 @@ function formatDateTime(
       '0'
     )
 
-
   const minutes =
     String(
       date.getMinutes()
@@ -866,7 +831,6 @@ function formatDateTime(
       2,
       '0'
     )
-
 
   return `${day}/${month}/${year} ${hours}:${minutes}`
 
