@@ -1,5 +1,6 @@
 import {
   buildNotifications,
+  buildTodayTodoNotifications,
   NOTIFICATION_DEFINITIONS,
   formatDate
 } from '../../services/notificationServiceV2.js'
@@ -9,6 +10,7 @@ const PART_TYPES = ['eta-not-found','eta-long-lead-time','potential-deadstock','
 let activeGroup = 'WO'
 let selectedType = ''
 let notificationData = null
+let selectedRowsOverride = null
 
 export function renderNotificationCenter() {
   return `<div class="notification-center-page"><div class="notification-center-summary" id="notification-center-summary">${renderSummarySkeleton()}</div><div class="notification-center-tabs"><button type="button" class="notification-center-tab active" data-notification-group="WO">WO</button><button type="button" class="notification-center-tab" data-notification-group="PART">PART</button></div><div id="notification-center-content"><div class="notification-center-loading">Memuat Notification Center...</div></div></div>`
@@ -17,12 +19,19 @@ export function renderNotificationCenter() {
 export async function initNotificationCenter(params = {}) {
   activeGroup = PART_TYPES.includes(params.type) ? 'PART' : 'WO'
   selectedType = params.type || ''
+  selectedRowsOverride = null
   notificationData = null
   bindGroupTabs()
   syncGroupTabState()
 
   try {
     notificationData = await buildNotifications()
+
+    if (params.todayOnly && selectedType) {
+      const todayData = await buildTodayTodoNotifications()
+      selectedRowsOverride = todayData[selectedType] || []
+    }
+
     renderNotificationContent()
   } catch (error) {
     console.error('GAGAL MEMUAT NOTIFICATION CENTER:', error)
@@ -35,6 +44,7 @@ function bindGroupTabs() {
   document.querySelectorAll('[data-notification-group]').forEach(button => button.addEventListener('click', () => {
     activeGroup = button.dataset.notificationGroup || 'WO'
     selectedType = ''
+    selectedRowsOverride = null
     syncGroupTabState()
     renderNotificationContent()
   }))
@@ -60,6 +70,7 @@ function renderNotificationContent() {
   content.innerHTML = `<div class="notification-center-card-grid">${types.map(renderNotificationCard).join('')}</div>`
   document.querySelectorAll('[data-notification-type]').forEach(card => card.addEventListener('click', () => {
     selectedType = card.dataset.notificationType || ''
+    selectedRowsOverride = null
     renderNotificationContent()
   }))
 }
@@ -80,7 +91,7 @@ function renderNotificationCard(type) {
 
 function renderNotificationDetail(type) {
   const definition = NOTIFICATION_DEFINITIONS[type]
-  const rows = notificationData[type] || []
+  const rows = selectedRowsOverride || notificationData[type] || []
   return `<div class="notification-detail-header"><button type="button" class="notification-detail-back" id="notification-detail-back">← Kembali</button><div><h2>${definition.title}</h2><p>${definition.description}</p></div></div><div class="notification-detail-action"><span>Suggest Action</span><strong>${definition.action}</strong></div><div class="notification-detail-table-card">${rows.length ? renderDetailTable(type, rows) : '<div class="notification-center-empty">Tidak ada data.</div>'}</div>`
 }
 
@@ -93,6 +104,7 @@ function renderDetailTable(type, rows) {
 function bindDetailBack() {
   document.getElementById('notification-detail-back')?.addEventListener('click', () => {
     selectedType = ''
+    selectedRowsOverride = null
     renderNotificationContent()
   })
 }
