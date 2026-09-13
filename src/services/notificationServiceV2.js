@@ -64,9 +64,9 @@ export async function buildTodayTodos() {
   const today = startOfDay(new Date())
   const result = []
   const orders = await getAllOrders()
-  const counts = new Map()
+  const types = new Set()
 
-  const add = type => counts.set(type, (counts.get(type) || 0) + 1)
+  const add = type => types.add(type)
 
   for (const order of orders) {
     const detail = await getOrderDetail(order.id)
@@ -118,8 +118,8 @@ export async function buildTodayTodos() {
     }
   }
 
-  for (const [type, count] of counts.entries()) {
-    result.push({ type, count, ...NOTIFICATION_DEFINITIONS[type] })
+  for (const type of types) {
+    result.push({ type, count: 1, ...NOTIFICATION_DEFINITIONS[type] })
   }
 
   return result
