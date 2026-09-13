@@ -120,7 +120,11 @@ function initWODetailNavigation() {
   document.addEventListener('back-to-notification-center', () => renderPage('notification-center'))
   document.addEventListener('work-order-deleted', () => renderPage('all-order'))
   document.addEventListener('open-notification-center', event => {
-    renderPage('notification-center', { type: event.detail?.type || '', sa: event.detail?.sa || '', todayOnly: true })
+    renderPage('notification-center', {
+      type: event.detail?.type || '',
+      sa: event.detail?.sa || '',
+      todayOnly: Boolean(event.detail?.todayOnly)
+    })
   })
   document.addEventListener('open-monitoring-sa', event => {
     renderPage('monitoring-sa', { sa: event.detail?.sa || '' })
