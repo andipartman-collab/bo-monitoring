@@ -99,8 +99,7 @@ export async function buildTodayTodos() {
       }
 
       if (etaDate && orderDate && dateDiff(orderDate, etaDate) > 14) {
-        const latestHistoryDate = part.etaHistoryLatestUpdatedAt
-        if (latestHistoryDate && sameDate(latestHistoryDate, today)) {
+        if (part.etaHistoryLatestUpdatedAt && sameDate(part.etaHistoryLatestUpdatedAt, today)) {
           add('eta-long-lead-time')
         }
       }
@@ -120,11 +119,7 @@ export async function buildTodayTodos() {
   }
 
   for (const [type, count] of counts.entries()) {
-    result.push({
-      type,
-      count,
-      ...NOTIFICATION_DEFINITIONS[type]
-    })
+    result.push({ type, count, ...NOTIFICATION_DEFINITIONS[type] })
   }
 
   return result
@@ -200,6 +195,7 @@ async function getAllOrders() {
 
 function parseISO(value) {
   if (!value) return null
+  if (value instanceof Date) return startOfDay(value)
   const match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (!match) return null
   const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
