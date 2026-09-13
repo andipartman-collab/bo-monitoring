@@ -16,8 +16,7 @@ export function renderATAUpdate() {
 
       <section class="ata-update-card">
         <div class="ata-update-card-header">
-          <h3>1. Upload File Excel Logistic</h3>
-          <p>Data yang digunakan: Cust. Order No., Part No., dan Shipped Qty.</p>
+          <h3>1. Upload File Excel TPOS Packing List</h3>
         </div>
 
         <div class="ata-update-upload-body">
