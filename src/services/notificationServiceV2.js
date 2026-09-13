@@ -112,7 +112,7 @@ export async function buildTodayTodoNotifications() {
       }
 
       if (statusInfo.status === 'PART ARRIVAL' && statusInfo.fullArrivalDate && sameDate(addCalendarDays(parseISO(statusInfo.fullArrivalDate), 30), today)) {
-        data['potential-deadstock'].push({ ...row, partArrivalDate: statusInfo.fullArrivalDate })
+        data['potential-deadstock'].push(row)
       }
     }
   }
@@ -124,7 +124,7 @@ export async function buildTodayTodos() {
   const data = await buildTodayTodoNotifications()
   return Object.entries(data)
     .filter(([, rows]) => rows.length > 0)
-    .map(([type, rows]) => ({ type, count: 1, ...NOTIFICATION_DEFINITIONS[type] }))
+    .map(([type, rows]) => ({ type, count: rows.length, ...NOTIFICATION_DEFINITIONS[type] }))
 }
 
 async function enrichParts(orderId, parts) {
