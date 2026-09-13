@@ -14,8 +14,13 @@ export function renderNotificationCenter() {
   return `<div class="notification-center-page"><div class="notification-center-summary" id="notification-center-summary">${renderSummarySkeleton()}</div><div class="notification-center-tabs"><button type="button" class="notification-center-tab active" data-notification-group="WO">WO</button><button type="button" class="notification-center-tab" data-notification-group="PART">PART</button></div><div id="notification-center-content"><div class="notification-center-loading">Memuat Notification Center...</div></div></div>`
 }
 
-export async function initNotificationCenter() {
+export async function initNotificationCenter(params = {}) {
+  activeGroup = PART_TYPES.includes(params.type) ? 'PART' : 'WO'
+  selectedType = params.type || ''
+  notificationData = null
   bindGroupTabs()
+  syncGroupTabState()
+
   try {
     notificationData = await buildNotifications()
     renderNotificationContent()
@@ -30,9 +35,15 @@ function bindGroupTabs() {
   document.querySelectorAll('[data-notification-group]').forEach(button => button.addEventListener('click', () => {
     activeGroup = button.dataset.notificationGroup || 'WO'
     selectedType = ''
-    document.querySelectorAll('[data-notification-group]').forEach(item => item.classList.toggle('active', item.dataset.notificationGroup === activeGroup))
+    syncGroupTabState()
     renderNotificationContent()
   }))
+}
+
+function syncGroupTabState() {
+  document.querySelectorAll('[data-notification-group]').forEach(item => {
+    item.classList.toggle('active', item.dataset.notificationGroup === activeGroup)
+  })
 }
 
 function renderNotificationContent() {
