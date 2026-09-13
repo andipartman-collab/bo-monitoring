@@ -15,8 +15,8 @@ export const NOTIFICATION_DEFINITIONS = {
   'part-arrival-today': { group: 'WO', title: 'Part Arrival Today', description: 'Status WO menjadi PART ARRIVAL hari ini.', action: 'Follow Up Pelanggan', icon: '✓' },
   'eta-not-found': { group: 'PART', title: 'ETA Not Found', description: 'Sudah H+2 hari kerja sejak order tetapi ETA masih kosong.', action: 'Follow Up Depo', icon: '?' },
   'eta-long-lead-time': { group: 'PART', title: 'ETA Long Lead Time', description: 'ETA lebih dari 14 hari sejak tanggal order.', action: 'Follow Up Depo', icon: '↗' },
-  'potential-deadstock': { group: 'PART', title: 'Potential Deadstock', description: 'WO sudah PART ARRIVAL minimal 30 hari.', action: 'Follow Up Pelanggan', icon: '!' },
-  'eta-changed': { group: 'PART', title: 'ETA Changed', description: 'Perubahan ETA terakhir berdasarkan history ke-1 dan ke-2.', action: 'Follow Up Pelanggan & Depo', icon: '↔' },
+  'potential-deadstock': { group: 'PART', title: 'Potential Deadstock', description: 'Part sudah arrival minimal 30 hari dan WO masih PART ARRIVAL.', action: 'Follow Up Pelanggan', icon: '!' },
+  'eta-changed': { group: 'PART', title: 'ETA Changed', description: 'Perubahan ETA terakhir berdasarkan dua history ETA terakhir.', action: 'Follow Up Pelanggan & Depo', icon: '↔' },
   'eta-overdue': { group: 'PART', title: 'ETA Overdue', description: 'ETA sudah lewat tetapi supply belum lengkap.', action: 'Follow Up Depo', icon: '⚠' }
 }
 
@@ -36,11 +36,16 @@ export async function buildNotifications() {
       data['part-arrival-today'].push(woRow(order))
     }
 
-    const parts = await Promise.all((detail.parts || []).map(async part => ({
-      ...part,
-      totalSupply: await getTotalSupply(order.id, part.id),
-      etaChange: await latestEtaChange(order.id, part.id)
-    })))
+    const statusParts = statusInfo.parts || []
+    const parts = await Promise.all((detail.parts || []).map(async part => {
+      const statusPart = statusParts.find(item => item.id === part.id) || {}
+      return {
+        ...part,
+        totalSupply: Number(statusPart.totalSupply || 0),
+        arrivalDate: statusPart.arrivalDate || '',
+        etaChange: await latestEtaChange(order.id, part.id)
+      }
+    }))
 
     for (const part of parts) {
       const qty = Number(part.qtyOrder || 0)
@@ -49,14 +54,15 @@ export async function buildNotifications() {
       const row = partRow(order, part, supply, sisa)
       const orderDate = parseISO(part.tglOrder)
       const etaDate = parseISO(part.eta)
+      const arrivalDate = parseISO(part.arrivalDate)
 
       if (!part.eta && orderDate && workingDaysBetween(orderDate, today) >= 2) data['eta-not-found'].push(row)
       if (etaDate && orderDate && dateDiff(orderDate, etaDate) > 14) data['eta-long-lead-time'].push(row)
       if (etaDate && etaDate < today && sisa > 0) data['eta-overdue'].push(row)
       if (part.etaChange) data['eta-changed'].push({ ...row, etaOld: part.etaChange.oldEta, etaNew: part.etaChange.newEta })
 
-      if (statusInfo.status === 'PART ARRIVAL' && statusInfo.fullArrivalDate && dateDiff(parseISO(statusInfo.fullArrivalDate), today) >= 30) {
-        data['potential-deadstock'].push({ ...row, partArrivalDate: statusInfo.fullArrivalDate })
+      if (statusInfo.status === 'PART ARRIVAL' && arrivalDate && dateDiff(arrivalDate, today) >= 30) {
+        data['potential-deadstock'].push({ ...row, partArrivalDate: part.arrivalDate })
       }
     }
   }
@@ -64,19 +70,15 @@ export async function buildNotifications() {
   return data
 }
 
-async function getTotalSupply(orderId, partId) {
-  const ref = collection(db, 'orders', orderId, 'parts', partId, 'supplies')
-  const snapshot = await getDocs(ref)
-  return snapshot.docs.reduce((sum, doc) => sum + Number(doc.data().qtySupply || 0), 0)
-}
-
 async function latestEtaChange(orderId, partId) {
   const ref = collection(db, 'orders', orderId, 'parts', partId, 'etaHistory')
   const snapshot = await getDocs(query(ref, orderBy('updatedAt', 'desc'), limit(2)))
   if (snapshot.docs.length < 2) return null
+
   const latest = snapshot.docs[0].data().eta || ''
   const previous = snapshot.docs[1].data().eta || ''
   if (!latest || !previous || latest === previous) return null
+
   return { oldEta: previous, newEta: latest }
 }
 
@@ -84,6 +86,7 @@ function addBooking(data, order, status, today) {
   if (status !== 'BOOKING') return
   const booking = parseISO(order.tanggalBooking)
   if (!booking) return
+
   const diff = dateDiff(today, booking)
   const row = woRow(order)
   if (diff < 0) data['booking-no-show'].push(row)
