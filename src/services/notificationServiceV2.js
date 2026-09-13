@@ -60,13 +60,10 @@ export async function buildNotifications() {
   return data
 }
 
-export async function buildTodayTodos() {
+export async function buildTodayTodoNotifications() {
   const today = startOfDay(new Date())
-  const result = []
+  const data = Object.fromEntries(Object.keys(NOTIFICATION_DEFINITIONS).map(key => [key, []]))
   const orders = await getAllOrders()
-  const types = new Set()
-
-  const add = type => types.add(type)
 
   for (const order of orders) {
     const detail = await getOrderDetail(order.id)
@@ -76,15 +73,16 @@ export async function buildTodayTodos() {
     const booking = parseISO(order.tanggalBooking)
     if (statusInfo.status === 'BOOKING' && booking) {
       const diff = dateDiff(today, booking)
-      if (diff < 0 && sameDate(addCalendarDays(booking, 1), today)) add('booking-no-show')
-      if (diff === 0) add('booking-today')
-      if (diff === 1) add('booking-h1')
-      if (diff === 2) add('booking-h2')
-      if (diff === 3) add('booking-h3')
+      const row = woRow(order)
+      if (diff < 0 && sameDate(addCalendarDays(booking, 1), today)) data['booking-no-show'].push(row)
+      if (diff === 0) data['booking-today'].push(row)
+      if (diff === 1) data['booking-h1'].push(row)
+      if (diff === 2) data['booking-h2'].push(row)
+      if (diff === 3) data['booking-h3'].push(row)
     }
 
     if (statusInfo.status === 'PART ARRIVAL' && sameDate(statusInfo.fullArrivalDate, today)) {
-      add('part-arrival-today')
+      data['part-arrival-today'].push(woRow(order))
     }
 
     const parts = await enrichParts(order.id, detail.parts || [])
@@ -93,36 +91,40 @@ export async function buildTodayTodos() {
       const orderDate = parseISO(part.tglOrder)
       const etaDate = parseISO(part.eta)
       const sisa = Math.max(Number(part.qtyOrder || 0) - Number(part.totalSupply || 0), 0)
+      const row = partRow(order, part, Number(part.totalSupply || 0), sisa)
 
       if (!part.eta && orderDate && sameDate(addWorkingDays(orderDate, 2), today)) {
-        add('eta-not-found')
+        data['eta-not-found'].push(row)
       }
 
       if (etaDate && orderDate && dateDiff(orderDate, etaDate) > 14) {
         if (part.etaHistoryLatestUpdatedAt && sameDate(part.etaHistoryLatestUpdatedAt, today)) {
-          add('eta-long-lead-time')
+          data['eta-long-lead-time'].push(row)
         }
       }
 
       if (etaDate && sisa > 0 && sameDate(addCalendarDays(etaDate, 1), today)) {
-        add('eta-overdue')
+        data['eta-overdue'].push(row)
       }
 
       if (part.etaChange && part.etaChange.updatedAt && sameDate(part.etaChange.updatedAt, today)) {
-        add('eta-changed')
+        data['eta-changed'].push({ ...row, etaOld: part.etaChange.oldEta, etaNew: part.etaChange.newEta })
       }
 
       if (statusInfo.status === 'PART ARRIVAL' && statusInfo.fullArrivalDate && sameDate(addCalendarDays(parseISO(statusInfo.fullArrivalDate), 30), today)) {
-        add('potential-deadstock')
+        data['potential-deadstock'].push({ ...row, partArrivalDate: statusInfo.fullArrivalDate })
       }
     }
   }
 
-  for (const type of types) {
-    result.push({ type, count: 1, ...NOTIFICATION_DEFINITIONS[type] })
-  }
+  return data
+}
 
-  return result
+export async function buildTodayTodos() {
+  const data = await buildTodayTodoNotifications()
+  return Object.entries(data)
+    .filter(([, rows]) => rows.length > 0)
+    .map(([type, rows]) => ({ type, count: 1, ...NOTIFICATION_DEFINITIONS[type] }))
 }
 
 async function enrichParts(orderId, parts) {
