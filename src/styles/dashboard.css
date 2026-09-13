@@ -115,24 +115,25 @@
 .dashboard-todo-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
 }
 
 .dashboard-todo-card {
-  min-height: 150px;
-  padding: 16px;
+  padding: 18px;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border-left: 5px solid #2563eb;
+  border-radius: 12px;
   background: #ffffff;
   text-align: left;
   font: inherit;
   cursor: pointer;
+  box-shadow: none;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .dashboard-todo-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 14px rgba(15, 39, 71, 0.08);
+  box-shadow: 0 8px 20px rgba(15, 39, 71, 0.08);
   border-color: #cbd5e1;
 }
 
@@ -144,72 +145,48 @@
 .dashboard-todo-card-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .dashboard-todo-icon {
-  display: inline-flex;
   width: 28px;
   height: 28px;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: #f1f5f9;
+  background: #eef2f7;
   color: #0b1f3a;
   font-size: 13px;
   font-weight: 800;
+  flex-shrink: 0;
 }
 
 .dashboard-todo-card-top strong {
   flex: 1;
-  color: #111827;
-  font-size: 14px;
+  color: #0b1f3a;
+  font-size: 15px;
   font-weight: 800;
 }
 
 .dashboard-todo-count {
-  min-width: 28px;
-  padding: 4px 7px;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 9px;
   border-radius: 999px;
-  background: #f1f5f9;
-  color: #374151;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.dashboard-todo-card p {
-  margin: 10px 0 16px;
-  color: #6b7280;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.dashboard-todo-action {
+  background: #f3f4f6;
+  color: #0b1f3a;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding-top: 10px;
-  border-top: 1px solid #edf0f4;
-}
-
-.dashboard-todo-action span:first-child {
-  color: #6b7280;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.dashboard-todo-action strong {
-  color: #0b1f3a;
-  font-size: 11px;
-}
-
-.dashboard-todo-arrow {
-  margin-left: auto;
-  color: #64748b;
-  font-size: 14px;
+  justify-content: center;
+  font-size: 12px;
   font-weight: 800;
+  flex-shrink: 0;
+}
+
+.dashboard-todo-card p,
+.dashboard-todo-action {
+  display: none;
 }
 
 .dashboard-todo-empty {
@@ -222,17 +199,17 @@
   font-size: 12px;
 }
 
-.dashboard-todo-booking-no-show { border-top: 4px solid #dc2626; }
+.dashboard-todo-booking-no-show,
+.dashboard-todo-eta-overdue { border-left-color: #dc2626; }
 .dashboard-todo-booking-today,
 .dashboard-todo-booking-h1,
 .dashboard-todo-booking-h2,
-.dashboard-todo-booking-h3 { border-top: 4px solid #16a34a; }
-.dashboard-todo-part-arrival-today { border-top: 4px solid #2563eb; }
+.dashboard-todo-booking-h3,
+.dashboard-todo-part-arrival-today { border-left-color: #16a34a; }
 .dashboard-todo-eta-not-found,
-.dashboard-todo-eta-long-lead-time { border-top: 4px solid #f59e0b; }
-.dashboard-todo-potential-deadstock { border-top: 4px solid #8b5cf6; }
-.dashboard-todo-eta-changed { border-top: 4px solid #0ea5e9; }
-.dashboard-todo-eta-overdue { border-top: 4px solid #dc2626; }
+.dashboard-todo-eta-long-lead-time { border-left-color: #f59e0b; }
+.dashboard-todo-potential-deadstock { border-left-color: #8b5cf6; }
+.dashboard-todo-eta-changed { border-left-color: #0ea5e9; }
 
 @media (max-width: 1200px) {
   .dashboard-summary-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
