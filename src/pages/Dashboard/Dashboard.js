@@ -18,7 +18,6 @@ export function renderDashboard() {
         <div class="dashboard-todo-header">
           <div>
             <h3>TO DO LIST TODAY</h3>
-            <p>Notification yang baru terjadi hari ini dan perlu diperhatikan.</p>
           </div>
           <span id="dashboard-todo-date" class="dashboard-todo-date"></span>
         </div>
@@ -114,19 +113,13 @@ function renderTodayTodos(todos) {
     return
   }
 
-  message.textContent = `${todos.length} jenis To Do baru hari ini.`
+  message.textContent = ''
   list.innerHTML = todos.map(todo => `
     <button type="button" class="dashboard-todo-card dashboard-todo-${safeClass(todo.type)}" data-todo-type="${todo.type}">
       <div class="dashboard-todo-card-top">
         <span class="dashboard-todo-icon">${todo.icon}</span>
         <strong>${escapeHTML(todo.title)}</strong>
         <span class="dashboard-todo-count">${todo.count}</span>
-      </div>
-      <p>${escapeHTML(todo.description)}</p>
-      <div class="dashboard-todo-action">
-        <span>Suggest Action</span>
-        <strong>${escapeHTML(todo.action)}</strong>
-        <span class="dashboard-todo-arrow">→</span>
       </div>
     </button>
   `).join('')
