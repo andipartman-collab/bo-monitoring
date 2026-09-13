@@ -72,7 +72,10 @@ function renderPage(page, params = {}) {
   if (page === 'notification-center') {
     topbarContainer.innerHTML = renderTopbar('Notification Center', 'Kondisi Work Order dan Part yang membutuhkan perhatian.')
     pageContent.innerHTML = renderNotificationCenter()
-    initNotificationCenter({ type: params.type || '' })
+    initNotificationCenter({
+      type: params.type || '',
+      todayOnly: Boolean(params.todayOnly)
+    })
     return
   }
 
@@ -90,7 +93,7 @@ function renderPage(page, params = {}) {
     return
   }
 
-  topbarContainer.innerHTML = renderTopbar('New Order', 'Buat Work Order baru dan tambahkan part yang akan dipesan.')
+  topbarContainer.innerHTML = renderTopbar('New Order', 'Buat Work Order baru dan tambahkan part yang dipesan.')
   pageContent.innerHTML = renderNewOrder()
   initNewOrder()
 }
@@ -126,7 +129,8 @@ function initWODetailNavigation() {
 
   document.addEventListener('open-notification-center', event => {
     renderPage('notification-center', {
-      type: event.detail?.type || ''
+      type: event.detail?.type || '',
+      todayOnly: true
     })
   })
 }
