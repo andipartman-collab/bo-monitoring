@@ -80,14 +80,14 @@ function renderPage(page, params = {}) {
   }
 
   if (page === 'eta-update') {
-    topbarContainer.innerHTML = renderTopbar('Update ETA', 'Update ETA Part secara otomatis dari file excel TPOS')
+    topbarContainer.innerHTML = renderTopbar('Update ETA', '')
     pageContent.innerHTML = renderETAUpdate()
     initETAUpdate()
     return
   }
 
   if (page === 'ata-update') {
-    topbarContainer.innerHTML = renderTopbar('Update ATA', 'Update Supply Part secara otomatis dari file excel Logistic')
+    topbarContainer.innerHTML = renderTopbar('Update ATA', '')
     pageContent.innerHTML = renderATAUpdate()
     initATAUpdate()
     return
