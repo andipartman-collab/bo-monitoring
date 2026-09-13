@@ -72,7 +72,7 @@ function renderPage(page, params = {}) {
   if (page === 'notification-center') {
     topbarContainer.innerHTML = renderTopbar('Notification Center', 'Kondisi Work Order dan Part yang membutuhkan perhatian.')
     pageContent.innerHTML = renderNotificationCenter()
-    initNotificationCenter()
+    initNotificationCenter({ type: params.type || '' })
     return
   }
 
@@ -124,8 +124,10 @@ function initWODetailNavigation() {
   document.addEventListener('back-to-notification-center', () => renderPage('notification-center'))
   document.addEventListener('work-order-deleted', () => renderPage('all-order'))
 
-  document.addEventListener('open-notification-center', () => {
-    renderPage('notification-center')
+  document.addEventListener('open-notification-center', event => {
+    renderPage('notification-center', {
+      type: event.detail?.type || ''
+    })
   })
 }
 
