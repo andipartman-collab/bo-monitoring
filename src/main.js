@@ -11,7 +11,6 @@ import './styles/notification-center.css'
 import { testFirestore } from './services/firestoreTest.js'
 import { renderSidebar } from './components/Sidebar.js'
 import { renderTopbar } from './components/Topbar.js'
-
 import { renderNewOrder, initNewOrder } from './pages/NewOrder/NewOrder.js'
 import { renderAllOrder, initAllOrder, initAllOrderPage } from './pages/AllOrder/AllOrder.js'
 import { renderDashboard, initDashboard } from './pages/Dashboard/Dashboard.js'
@@ -65,35 +64,26 @@ function renderPage(page, params = {}) {
   if (page === 'monitoring-sa') {
     topbarContainer.innerHTML = renderTopbar('Monitoring by SA', 'Monitoring Work Order berdasarkan SA.')
     pageContent.innerHTML = renderMonitoringSA()
-    initMonitoringSA()
+    initMonitoringSA({ sa: params.sa || '' })
     return
   }
 
   if (page === 'notification-center') {
     topbarContainer.innerHTML = renderTopbar('Notification Center', 'Kondisi Work Order dan Part yang membutuhkan perhatian.')
     pageContent.innerHTML = renderNotificationCenter()
-    initNotificationCenter({
-      type: params.type || '',
-      todayOnly: Boolean(params.todayOnly)
-    })
+    initNotificationCenter({ type: params.type || '', sa: params.sa || '', todayOnly: Boolean(params.todayOnly) })
     return
   }
 
   if (page === 'eta-update') {
-    topbarContainer.innerHTML = renderTopbar(
-      'Update ETA',
-      'Update Estimate Time Arrival Part Secara Otomatis Menggunakan Data TPOS'
-    )
+    topbarContainer.innerHTML = renderTopbar('Update ETA', 'Update Estimate Time Arrival Part Secara Otomatis Menggunakan Data TPOS')
     pageContent.innerHTML = renderETAUpdate()
     initETAUpdate()
     return
   }
 
   if (page === 'ata-update') {
-    topbarContainer.innerHTML = renderTopbar(
-      'Update ATA',
-      'Update Actual Time Arrival Part Secara Otomatis Menggunakan Data TPOS'
-    )
+    topbarContainer.innerHTML = renderTopbar('Update ATA', 'Update Actual Time Arrival Part Secara Otomatis Menggunakan Data TPOS')
     pageContent.innerHTML = renderATAUpdate()
     initATAUpdate()
     return
@@ -117,27 +107,23 @@ function initWODetailNavigation() {
     const orderId = event.detail?.orderId
     if (orderId) renderPage('wo-detail', { orderId })
   })
-
   document.addEventListener('open-monitoring-sa-wo-detail', event => {
     const orderId = event.detail?.orderId
     if (orderId) renderPage('wo-detail', { orderId, readOnly: true, backEvent: 'back-to-monitoring-sa' })
   })
-
   document.addEventListener('open-notification-wo-detail', event => {
     const orderId = event.detail?.orderId
     if (orderId) renderPage('wo-detail', { orderId, readOnly: true, backEvent: 'back-to-notification-center' })
   })
-
   document.addEventListener('back-to-all-order', () => renderPage('all-order'))
   document.addEventListener('back-to-monitoring-sa', () => renderPage('monitoring-sa'))
   document.addEventListener('back-to-notification-center', () => renderPage('notification-center'))
   document.addEventListener('work-order-deleted', () => renderPage('all-order'))
-
   document.addEventListener('open-notification-center', event => {
-    renderPage('notification-center', {
-      type: event.detail?.type || '',
-      todayOnly: true
-    })
+    renderPage('notification-center', { type: event.detail?.type || '', sa: event.detail?.sa || '', todayOnly: true })
+  })
+  document.addEventListener('open-monitoring-sa', event => {
+    renderPage('monitoring-sa', { sa: event.detail?.sa || '' })
   })
 }
 
