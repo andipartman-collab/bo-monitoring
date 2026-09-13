@@ -80,14 +80,20 @@ function renderPage(page, params = {}) {
   }
 
   if (page === 'eta-update') {
-    topbarContainer.innerHTML = renderTopbar('Update ETA', '')
+    topbarContainer.innerHTML = renderTopbar(
+      'Update ETA',
+      'Update Estimate Time Arrival Part Secara Otomatis Menggunakan Data TPOS'
+    )
     pageContent.innerHTML = renderETAUpdate()
     initETAUpdate()
     return
   }
 
   if (page === 'ata-update') {
-    topbarContainer.innerHTML = renderTopbar('Update ATA', '')
+    topbarContainer.innerHTML = renderTopbar(
+      'Update ATA',
+      'Update Actual Time Arrival Part Secara Otomatis Menggunakan Data TPOS'
+    )
     pageContent.innerHTML = renderATAUpdate()
     initATAUpdate()
     return
