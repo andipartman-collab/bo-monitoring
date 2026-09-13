@@ -92,7 +92,7 @@ function renderNotificationCard(type) {
 function renderNotificationDetail(type) {
   const definition = NOTIFICATION_DEFINITIONS[type]
   const rows = selectedRowsOverride || notificationData[type] || []
-  return `<div class="notification-detail-header"><button type="button" class="notification-detail-back" id="notification-detail-back">← Kembali</button><div><h2>${definition.title}</h2><p>${definition.description}</p></div></div><div class="notification-detail-action"><span>Suggest Action</span><strong>${definition.action}</strong></div><div class="notification-detail-table-card">${rows.length ? renderDetailTable(type, rows) : '<div class="notification-center-empty">Tidak ada data.</div>'}</div>`
+  return `<div class="notification-detail-header"><button type="button" class="notification-detail-back" id="notification-detail-back">← Kembali</button><div><h2>${definition.title}</h2></div></div><div class="notification-detail-action"><span>Suggest Action</span><strong>${definition.action}</strong></div><div class="notification-detail-table-card">${rows.length ? renderDetailTable(type, rows) : '<div class="notification-center-empty">Tidak ada data.</div>'}</div>`
 }
 
 function renderDetailTable(type, rows) {
