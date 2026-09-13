@@ -17,8 +17,7 @@ export function renderETAUpdate() {
 
       <section class="eta-update-card">
         <div class="eta-update-card-header">
-          <h3>1. Upload File Excel Logistic</h3>
-          <p>Data yang digunakan: Order No, Process Pno, dan Latest ETD. ETA baru = Latest ETD + 1 hari.</p>
+          <h3>1. Upload File Excel TPOS BO ETD Inquiry</h3>
         </div>
 
         <div class="eta-update-upload-body">
