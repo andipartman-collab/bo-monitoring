@@ -64,7 +64,7 @@ function renderSummary() {
 function renderNotificationCard(type) {
   const definition = NOTIFICATION_DEFINITIONS[type]
   const count = notificationData[type]?.length || 0
-  return `<button type="button" class="notification-card notification-card-${safeClass(type)}" data-notification-type="${type}"><div class="notification-card-top"><span class="notification-card-icon">${definition.icon}</span><strong>${definition.title}</strong><span class="notification-card-count">${count}</span></div><p>${definition.description}</p><div class="notification-card-action"><span>Suggest Action</span><strong>${definition.action}</strong><span class="notification-card-arrow">→</span></div></button>`
+  return `<button type="button" class="notification-card notification-card-${safeClass(type)}" data-notification-type="${type}"><div class="notification-card-top"><span class="notification-card-icon">${definition.icon}</span><strong>${definition.title}</strong><span class="notification-card-count">${count}</span></div></button>`
 }
 
 function renderNotificationDetail(type) {
