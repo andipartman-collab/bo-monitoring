@@ -15,8 +15,8 @@ export const NOTIFICATION_DEFINITIONS = {
   'part-arrival-today': { group: 'WO', title: 'Part Arrival Today', description: 'Status WO menjadi PART ARRIVAL hari ini.', action: 'Follow Up Pelanggan', icon: '✓' },
   'eta-not-found': { group: 'PART', title: 'ETA Not Found', description: 'Sudah H+2 hari kerja sejak order tetapi ETA masih kosong.', action: 'Follow Up Depo', icon: '?' },
   'eta-long-lead-time': { group: 'PART', title: 'ETA Long Lead Time', description: 'ETA lebih dari 14 hari sejak tanggal order.', action: 'Follow Up Depo', icon: '↗' },
-  'potential-deadstock': { group: 'PART', title: 'Potential Deadstock', description: 'Part sudah arrival minimal 30 hari dan WO masih PART ARRIVAL.', action: 'Follow Up Pelanggan', icon: '!' },
-  'eta-changed': { group: 'PART', title: 'ETA Changed', description: 'Perubahan ETA terakhir berdasarkan dua history ETA terakhir.', action: 'Follow Up Pelanggan & Depo', icon: '↔' },
+  'potential-deadstock': { group: 'PART', title: 'Potential Deadstock', description: 'WO sudah PART ARRIVAL minimal 30 hari.', action: 'Follow Up Pelanggan', icon: '!' },
+  'eta-changed': { group: 'PART', title: 'ETA Changed', description: 'Perubahan ETA terakhir berdasarkan history ke-1 dan ke-2.', action: 'Follow Up Pelanggan & Depo', icon: '↔' },
   'eta-overdue': { group: 'PART', title: 'ETA Overdue', description: 'ETA sudah lewat tetapi supply belum lengkap.', action: 'Follow Up Depo', icon: '⚠' }
 }
 
@@ -36,16 +36,7 @@ export async function buildNotifications() {
       data['part-arrival-today'].push(woRow(order))
     }
 
-    const statusParts = statusInfo.parts || []
-    const parts = await Promise.all((detail.parts || []).map(async part => {
-      const statusPart = statusParts.find(item => item.id === part.id) || {}
-      return {
-        ...part,
-        totalSupply: Number(statusPart.totalSupply || 0),
-        arrivalDate: statusPart.arrivalDate || '',
-        etaChange: await latestEtaChange(order.id, part.id)
-      }
-    }))
+    const parts = await enrichParts(order.id, detail.parts || [])
 
     for (const part of parts) {
       const qty = Number(part.qtyOrder || 0)
@@ -54,15 +45,14 @@ export async function buildNotifications() {
       const row = partRow(order, part, supply, sisa)
       const orderDate = parseISO(part.tglOrder)
       const etaDate = parseISO(part.eta)
-      const arrivalDate = parseISO(part.arrivalDate)
 
       if (!part.eta && orderDate && workingDaysBetween(orderDate, today) >= 2) data['eta-not-found'].push(row)
       if (etaDate && orderDate && dateDiff(orderDate, etaDate) > 14) data['eta-long-lead-time'].push(row)
       if (etaDate && etaDate < today && sisa > 0) data['eta-overdue'].push(row)
       if (part.etaChange) data['eta-changed'].push({ ...row, etaOld: part.etaChange.oldEta, etaNew: part.etaChange.newEta })
 
-      if (statusInfo.status === 'PART ARRIVAL' && arrivalDate && dateDiff(arrivalDate, today) >= 30) {
-        data['potential-deadstock'].push({ ...row, partArrivalDate: part.arrivalDate })
+      if (statusInfo.status === 'PART ARRIVAL' && statusInfo.fullArrivalDate && dateDiff(parseISO(statusInfo.fullArrivalDate), today) >= 30) {
+        data['potential-deadstock'].push({ ...row, partArrivalDate: statusInfo.fullArrivalDate })
       }
     }
   }
@@ -70,23 +60,115 @@ export async function buildNotifications() {
   return data
 }
 
+export async function buildTodayTodos() {
+  const today = startOfDay(new Date())
+  const result = []
+  const orders = await getAllOrders()
+  const counts = new Map()
+
+  const add = type => counts.set(type, (counts.get(type) || 0) + 1)
+
+  for (const order of orders) {
+    const detail = await getOrderDetail(order.id)
+    const statusInfo = await getOrderStatus(order.id, detail.order, detail.parts)
+    if (statusInfo.status === 'COMPLETED') continue
+
+    const booking = parseISO(order.tanggalBooking)
+    if (statusInfo.status === 'BOOKING' && booking) {
+      const diff = dateDiff(today, booking)
+      if (diff < 0 && sameDate(addCalendarDays(booking, 1), today)) add('booking-no-show')
+      if (diff === 0) add('booking-today')
+      if (diff === 1) add('booking-h1')
+      if (diff === 2) add('booking-h2')
+      if (diff === 3) add('booking-h3')
+    }
+
+    if (statusInfo.status === 'PART ARRIVAL' && sameDate(statusInfo.fullArrivalDate, today)) {
+      add('part-arrival-today')
+    }
+
+    const parts = await enrichParts(order.id, detail.parts || [])
+
+    for (const part of parts) {
+      const orderDate = parseISO(part.tglOrder)
+      const etaDate = parseISO(part.eta)
+      const sisa = Math.max(Number(part.qtyOrder || 0) - Number(part.totalSupply || 0), 0)
+
+      if (!part.eta && orderDate && sameDate(addWorkingDays(orderDate, 2), today)) {
+        add('eta-not-found')
+      }
+
+      if (etaDate && orderDate && dateDiff(orderDate, etaDate) > 14) {
+        const latestHistoryDate = part.etaHistoryLatestUpdatedAt
+        if (latestHistoryDate && sameDate(latestHistoryDate, today)) {
+          add('eta-long-lead-time')
+        }
+      }
+
+      if (etaDate && sisa > 0 && sameDate(addCalendarDays(etaDate, 1), today)) {
+        add('eta-overdue')
+      }
+
+      if (part.etaChange && part.etaChange.updatedAt && sameDate(part.etaChange.updatedAt, today)) {
+        add('eta-changed')
+      }
+
+      if (statusInfo.status === 'PART ARRIVAL' && statusInfo.fullArrivalDate && sameDate(addCalendarDays(parseISO(statusInfo.fullArrivalDate), 30), today)) {
+        add('potential-deadstock')
+      }
+    }
+  }
+
+  for (const [type, count] of counts.entries()) {
+    result.push({
+      type,
+      count,
+      ...NOTIFICATION_DEFINITIONS[type]
+    })
+  }
+
+  return result
+}
+
+async function enrichParts(orderId, parts) {
+  return Promise.all(parts.map(async part => ({
+    ...part,
+    totalSupply: await getTotalSupply(orderId, part.id),
+    etaChange: await latestEtaChange(orderId, part.id),
+    etaHistoryLatestUpdatedAt: await latestEtaHistoryUpdatedAt(orderId, part.id)
+  })))
+}
+
+async function getTotalSupply(orderId, partId) {
+  const ref = collection(db, 'orders', orderId, 'parts', partId, 'supplies')
+  const snapshot = await getDocs(ref)
+  return snapshot.docs.reduce((sum, doc) => sum + Number(doc.data().qtySupply || 0), 0)
+}
+
 async function latestEtaChange(orderId, partId) {
-  const ref = collection(db, 'orders', orderId, 'parts', partId, 'etaHistory')
-  const snapshot = await getDocs(query(ref, orderBy('updatedAt', 'desc'), limit(2)))
+  const historyRef = collection(db, 'orders', orderId, 'parts', partId, 'etaHistory')
+  const snapshot = await getDocs(query(historyRef, orderBy('updatedAt', 'desc'), limit(2)))
   if (snapshot.docs.length < 2) return null
+  const latestData = snapshot.docs[0].data()
+  const previousData = snapshot.docs[1].data()
+  const newEta = latestData.eta || ''
+  const oldEta = previousData.eta || ''
+  const updatedAt = toDateOnly(latestData.updatedAt)
+  if (!oldEta || !newEta || oldEta === newEta) return null
+  return { oldEta, newEta, updatedAt }
+}
 
-  const latest = snapshot.docs[0].data().eta || ''
-  const previous = snapshot.docs[1].data().eta || ''
-  if (!latest || !previous || latest === previous) return null
-
-  return { oldEta: previous, newEta: latest }
+async function latestEtaHistoryUpdatedAt(orderId, partId) {
+  const historyRef = collection(db, 'orders', orderId, 'parts', partId, 'etaHistory')
+  const snapshot = await getDocs(query(historyRef, orderBy('updatedAt', 'desc'), limit(1)))
+  if (!snapshot.docs.length) return null
+  return toDateOnly(snapshot.docs[0].data().updatedAt)
 }
 
 function addBooking(data, order, status, today) {
   if (status !== 'BOOKING') return
   const booking = parseISO(order.tanggalBooking)
   if (!booking) return
-
   const diff = dateDiff(today, booking)
   const row = woRow(order)
   if (diff < 0) data['booking-no-show'].push(row)
@@ -132,7 +214,7 @@ function startOfDay(value) {
 
 function sameDate(a, b) {
   const date = parseISO(a)
-  return Boolean(date && date.getTime() === b.getTime())
+  return Boolean(date && date.getTime() === startOfDay(b).getTime())
 }
 
 function dateDiff(from, to) {
@@ -142,14 +224,39 @@ function dateDiff(from, to) {
 function workingDaysBetween(from, to) {
   const start = startOfDay(from)
   const end = startOfDay(to)
+  if (end <= start) return 0
+
   let count = 0
   const cursor = new Date(start)
   cursor.setDate(cursor.getDate() + 1)
   while (cursor <= end) {
-    if (cursor.getDay() !== 0) count++
+    if (cursor.getDay() !== 0) count += 1
     cursor.setDate(cursor.getDate() + 1)
   }
   return count
+}
+
+function addWorkingDays(from, count) {
+  const date = startOfDay(from)
+  let added = 0
+  while (added < count) {
+    date.setDate(date.getDate() + 1)
+    if (date.getDay() !== 0) added += 1
+  }
+  return date
+}
+
+function addCalendarDays(from, count) {
+  const date = startOfDay(from)
+  date.setDate(date.getDate() + count)
+  return date
+}
+
+function toDateOnly(value) {
+  if (!value) return null
+  if (typeof value?.toDate === 'function') return startOfDay(value.toDate())
+  if (value instanceof Date) return startOfDay(value)
+  return parseISO(value)
 }
 
 export function formatDate(value) {
