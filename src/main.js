@@ -123,6 +123,10 @@ function initWODetailNavigation() {
   document.addEventListener('back-to-monitoring-sa', () => renderPage('monitoring-sa'))
   document.addEventListener('back-to-notification-center', () => renderPage('notification-center'))
   document.addEventListener('work-order-deleted', () => renderPage('all-order'))
+
+  document.addEventListener('open-notification-center', () => {
+    renderPage('notification-center')
+  })
 }
 
 function initDashboardNavigation() {
