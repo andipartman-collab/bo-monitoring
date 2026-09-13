@@ -126,7 +126,10 @@ function renderTodayTodos(todos) {
 
   document.querySelectorAll('[data-todo-type]').forEach(card => {
     card.addEventListener('click', () => {
-      document.dispatchEvent(new CustomEvent('open-notification-center'))
+      const type = card.dataset.todoType || ''
+      document.dispatchEvent(new CustomEvent('open-notification-center', {
+        detail: { type }
+      }))
     })
   })
 }
