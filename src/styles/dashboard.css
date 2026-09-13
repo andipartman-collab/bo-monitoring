@@ -27,10 +27,7 @@
 
 .dashboard-summary-card-clickable {
   cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    border-color 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .dashboard-summary-card-clickable:hover {
@@ -54,65 +51,199 @@
   line-height: 1;
 }
 
-.dashboard-summary-total {
-  border-top: 4px solid #0b1f3a;
-}
-
+.dashboard-summary-total { border-top: 4px solid #0b1f3a; }
 .dashboard-summary-total .dashboard-summary-label,
-.dashboard-summary-total .dashboard-summary-value {
-  color: #0b1f3a;
-}
-
-.dashboard-summary-on-order {
-  border-top: 4px solid #f59e0b;
-}
-
+.dashboard-summary-total .dashboard-summary-value { color: #0b1f3a; }
+.dashboard-summary-on-order { border-top: 4px solid #f59e0b; }
 .dashboard-summary-on-order .dashboard-summary-label,
-.dashboard-summary-on-order .dashboard-summary-value {
-  color: #b45309;
-}
-
-.dashboard-summary-part-arrival {
-  border-top: 4px solid #2563eb;
-}
-
+.dashboard-summary-on-order .dashboard-summary-value { color: #b45309; }
+.dashboard-summary-part-arrival { border-top: 4px solid #2563eb; }
 .dashboard-summary-part-arrival .dashboard-summary-label,
-.dashboard-summary-part-arrival .dashboard-summary-value {
-  color: #1d4ed8;
-}
-
-.dashboard-summary-booking {
-  border-top: 4px solid #16a34a;
-}
-
+.dashboard-summary-part-arrival .dashboard-summary-value { color: #1d4ed8; }
+.dashboard-summary-booking { border-top: 4px solid #16a34a; }
 .dashboard-summary-booking .dashboard-summary-label,
-.dashboard-summary-booking .dashboard-summary-value {
-  color: #15803d;
-}
-
-.dashboard-summary-no-show {
-  border-top: 4px solid #dc2626;
-}
-
+.dashboard-summary-booking .dashboard-summary-value { color: #15803d; }
+.dashboard-summary-no-show { border-top: 4px solid #dc2626; }
 .dashboard-summary-no-show .dashboard-summary-label,
-.dashboard-summary-no-show .dashboard-summary-value {
-  color: #b91c1c;
+.dashboard-summary-no-show .dashboard-summary-value { color: #b91c1c; }
+
+.dashboard-todo-section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 20px;
 }
+
+.dashboard-todo-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.dashboard-todo-header h3 {
+  margin: 0;
+  color: #0b1f3a;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.dashboard-todo-header p {
+  margin: 5px 0 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.dashboard-todo-date {
+  flex-shrink: 0;
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  color: #374151;
+  background: #f8fafc;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dashboard-todo-message {
+  margin-bottom: 12px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.dashboard-todo-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboard-todo-card {
+  min-height: 150px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.dashboard-todo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(15, 39, 71, 0.08);
+  border-color: #cbd5e1;
+}
+
+.dashboard-todo-card:focus-visible {
+  outline: 2px solid #0b1f3a;
+  outline-offset: 2px;
+}
+
+.dashboard-todo-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard-todo-icon {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #0b1f3a;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.dashboard-todo-card-top strong {
+  flex: 1;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.dashboard-todo-count {
+  min-width: 28px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #374151;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dashboard-todo-card p {
+  margin: 10px 0 16px;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.dashboard-todo-action {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding-top: 10px;
+  border-top: 1px solid #edf0f4;
+}
+
+.dashboard-todo-action span:first-child {
+  color: #6b7280;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.dashboard-todo-action strong {
+  color: #0b1f3a;
+  font-size: 11px;
+}
+
+.dashboard-todo-arrow {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.dashboard-todo-empty {
+  padding: 26px 18px;
+  border: 1px dashed #d1d5db;
+  border-radius: 8px;
+  background: #fafafa;
+  color: #6b7280;
+  text-align: center;
+  font-size: 12px;
+}
+
+.dashboard-todo-booking-no-show { border-top: 4px solid #dc2626; }
+.dashboard-todo-booking-today,
+.dashboard-todo-booking-h1,
+.dashboard-todo-booking-h2,
+.dashboard-todo-booking-h3 { border-top: 4px solid #16a34a; }
+.dashboard-todo-part-arrival-today { border-top: 4px solid #2563eb; }
+.dashboard-todo-eta-not-found,
+.dashboard-todo-eta-long-lead-time { border-top: 4px solid #f59e0b; }
+.dashboard-todo-potential-deadstock { border-top: 4px solid #8b5cf6; }
+.dashboard-todo-eta-changed { border-top: 4px solid #0ea5e9; }
+.dashboard-todo-eta-overdue { border-top: 4px solid #dc2626; }
 
 @media (max-width: 1200px) {
-  .dashboard-summary-cards {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+  .dashboard-summary-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
-  .dashboard-summary-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .dashboard-summary-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-todo-list { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
-  .dashboard-summary-cards {
-    grid-template-columns: 1fr;
-  }
+  .dashboard-summary-cards { grid-template-columns: 1fr; }
+  .dashboard-todo-header { flex-direction: column; }
 }
