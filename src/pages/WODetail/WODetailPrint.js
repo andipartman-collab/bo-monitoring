@@ -5,7 +5,8 @@ import {
 
 import {
   getOrders,
-  getOrderDetail
+  getOrderDetail,
+  getPartsWithSupply
 } from '../../services/orderService.js'
 
 const LOGO_PATH = '/nasmoco-slamet-riyadi-logo.png'
@@ -152,9 +153,11 @@ async function handleBatchPrint() {
       }
 
       const detail = await getOrderDetail(orderId)
+      const parts = await getPartsWithSupply(orderId)
+
       selectedOrders.push({
         order: detail.order,
-        parts: await getOrderPartsWithSupply(orderId, detail.parts)
+        parts
       })
     }
 
@@ -169,16 +172,6 @@ async function handleBatchPrint() {
       printButton.disabled = false
       printButton.textContent = '🖨 Cetak'
     }
-  }
-}
-
-async function getOrderPartsWithSupply(orderId, fallbackParts) {
-  try {
-    const details = await getOrderDetail(orderId)
-    return details.parts || fallbackParts || []
-  }
-  catch (error) {
-    return fallbackParts || []
   }
 }
 
