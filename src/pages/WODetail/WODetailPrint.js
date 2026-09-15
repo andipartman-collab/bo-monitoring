@@ -3,8 +3,8 @@ import {
   formatDate
 } from './WODetailUtils.js'
 
-const LOGO_PATH = '/nasmoco-slamet-riyadi-logo.png'
-const PRINT_CSS_PATH = '/wo-print-v2.css'
+const LOGO_PATH = new URL('/nasmoco-slamet-riyadi-logo.svg', window.location.origin).href
+const PRINT_CSS_PATH = new URL('/wo-print-v2.css', window.location.origin).href
 
 export function initWODetailPrint(order, parts) {
   const button = document.getElementById('wo-print-button')
@@ -58,7 +58,7 @@ function renderPrintDocument(order, parts) {
     <html lang="id">
       <head>
         <meta charset="UTF-8" />
-        <title>Special Order Part</title>
+        <title></title>
         <link rel="stylesheet" href="${PRINT_CSS_PATH}" />
       </head>
       <body>
