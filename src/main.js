@@ -1,4 +1,5 @@
 import './styles/style.css'
+import './styles/fixed-layout.css'
 import './styles/dashboard.css'
 import './styles/monitoring-sa.css'
 import './styles/wo-detail-edit.css'
