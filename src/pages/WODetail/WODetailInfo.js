@@ -28,6 +28,14 @@ export function renderWODetailInfo(
         </div>
 
         <div class="wo-detail-card-header-actions">
+          <button
+            type="button"
+            id="wo-print-button"
+            class="wo-detail-print-button"
+          >
+            🖨 Cetak WO
+          </button>
+
           ${showFinishButton ? `
             <button
               type="button"
