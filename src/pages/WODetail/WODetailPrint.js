@@ -3,7 +3,7 @@ import {
   formatDate
 } from './WODetailUtils.js'
 
-const LOGO_PATH = new URL('/nasmoco-slamet-riyadi-logo.svg', window.location.origin).href
+const LOGO_PATH = new URL('/nasmoco-slamet-riyadi-logo.png', window.location.origin).href
 const PRINT_CSS_PATH = new URL('/wo-print-v2.css', window.location.origin).href
 
 export function initWODetailPrint(order, parts) {
