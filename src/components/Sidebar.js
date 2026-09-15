@@ -3,10 +3,14 @@ export function renderSidebar() {
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
-          <img src="/nasmoco-slamet-riyadi-logo.png" alt="Nasmoco Slamet Riyadi" />
+          <img
+            src="https://brand.toyota.com/content/dam/brandhub/guidelines/logo/four-column/BHUB_Logo_ColorVariations_SingleColor_02.svg"
+            alt="Toyota"
+          />
         </div>
         <div class="sidebar-title">
-          <strong>SOP Monitoring</strong>
+          <strong>SOP</strong>
+          <strong>MONITORING</strong>
           <span>Nasmoco Slamet Riyadi</span>
         </div>
       </div>
@@ -22,8 +26,8 @@ export function renderSidebar() {
       </nav>
 
       <div class="sidebar-footer">
-        <span>BO Monitoring</span>
-        <small>v1.0.0</small>
+        <span>SOP Monitoring v1.0.0</span>
+        <small>Developed by :<br />Thoyi Lukman Hakim</small>
       </div>
     </aside>
   `
