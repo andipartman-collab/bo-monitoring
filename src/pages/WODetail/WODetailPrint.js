@@ -58,7 +58,7 @@ function renderPrintDocument(order, parts) {
       <head>
         <meta charset="UTF-8" />
         <title>Special Order Part - ${escapeHTML(order.noWo || '')}</title>
-        <link rel="stylesheet" href="/src/styles/wo-print.css" />
+        <link rel="stylesheet" href="/wo-print.css" />
       </head>
       <body>
         <main class="print-page">
