@@ -57,7 +57,7 @@ function renderPrintDocument(order, parts) {
     <html lang="id">
       <head>
         <meta charset="UTF-8" />
-        <title>Special Order Part - ${escapeHTML(order.noWo || '')}</title>
+        <title></title>
         <link rel="stylesheet" href="/wo-print.css" />
       </head>
       <body>
@@ -70,7 +70,6 @@ function renderPrintDocument(order, parts) {
               <h1>SPECIAL ORDER PART</h1>
               <h2>Nasmoco Slamet Riyadi</h2>
             </div>
-            <div class="print-created-date">${formatCreatedDate(order.createdAt)}</div>
           </header>
 
           <section class="print-section">
@@ -133,12 +132,6 @@ function renderInfoRow(label, value) {
       <strong>${escapeHTML(value || '-')}</strong>
     </div>
   `
-}
-
-function formatCreatedDate(timestamp) {
-  if (!timestamp || typeof timestamp.toDate !== 'function') return '-'
-  const date = timestamp.toDate()
-  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`
 }
 
 function getPartAta(part) {
