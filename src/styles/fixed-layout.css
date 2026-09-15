@@ -23,16 +23,16 @@
 }
 
 .sidebar-header {
-  height: 114px;
-  padding: 14px 14px 14px 16px;
+  height: 106px;
+  padding: 10px 10px 10px 12px;
   align-items: center;
 }
 
 .sidebar-logo {
-  width: 100px;
-  height: 82px;
-  margin-right: 10px;
-  padding-right: 10px;
+  width: 92px;
+  height: 78px;
+  margin-right: 8px;
+  padding-right: 8px;
   border-right: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 0;
   background: transparent;
@@ -46,10 +46,12 @@
 
 .sidebar-logo img {
   display: block;
-  width: 98px;
-  height: 82px;
+  width: 96px;
+  height: 76px;
   object-fit: contain;
   object-position: center;
+  transform: scale(1.45);
+  transform-origin: center center;
 }
 
 .sidebar-title {
@@ -74,7 +76,7 @@
   line-height: 1.08;
   font-weight: 600;
   opacity: 0.78;
-  max-width: 128px;
+  max-width: 132px;
 }
 
 .sidebar-footer {
@@ -145,6 +147,7 @@
   .sidebar-logo img {
     width: 50px;
     height: 42px;
+    transform: none;
   }
 
   .main-content {
