@@ -4,7 +4,7 @@ export function renderSidebar() {
       <div class="sidebar-header">
         <div class="sidebar-logo">
           <img
-            src="/toyota-white-sidebar.svg"
+            src="/logo%20toyota.png"
             alt="Toyota"
           />
         </div>
