@@ -10,6 +10,7 @@ import {
 } from '../../services/orderService.js'
 
 const LOGO_PATH = '/nasmoco-slamet-riyadi-logo.png'
+const PRINT_CSS_PATH = '/wo-print-v2.css'
 
 let currentOrder = null
 let currentParts = []
@@ -43,17 +44,10 @@ async function openPrintSelector() {
 }
 
 function mergeCurrentOrder(orders) {
-  if (!currentOrder?.id) {
-    return orders
-  }
+  if (!currentOrder?.id) return orders
 
   const exists = orders.some(order => order.id === currentOrder.id)
-
-  if (exists) {
-    return orders
-  }
-
-  return [currentOrder, ...orders]
+  return exists ? orders : [currentOrder, ...orders]
 }
 
 function showSelectorLoading() {
@@ -65,7 +59,7 @@ function showSelectorLoading() {
       <div class="wo-print-selector-header">
         <div>
           <h3>Pilih Work Order untuk Dicetak</h3>
-          <p>WO yang dipilih akan disusun otomatis seefisien mungkin dalam A4.</p>
+          <p>WO akan disusun otomatis seefisien mungkin dalam A4.</p>
         </div>
         <button type="button" id="wo-print-selector-close">×</button>
       </div>
@@ -79,9 +73,7 @@ function showSelectorLoading() {
     ?.addEventListener('click', removePrintSelector)
 
   overlay.addEventListener('click', event => {
-    if (event.target === overlay) {
-      removePrintSelector()
-    }
+    if (event.target === overlay) removePrintSelector()
   })
 }
 
@@ -214,7 +206,7 @@ function renderPrintDocument(workOrders) {
       <head>
         <meta charset="UTF-8" />
         <title>Special Order Part</title>
-        <link rel="stylesheet" href="/wo-print.css" />
+        <link rel="stylesheet" href="${PRINT_CSS_PATH}" />
       </head>
       <body>
         <main class="print-page">
