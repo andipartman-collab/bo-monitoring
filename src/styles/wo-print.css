@@ -1,0 +1,249 @@
+* { box-sizing: border-box; }
+
+@page {
+  size: A4 portrait;
+  margin: 9mm;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #111827;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  font-size: 10px;
+}
+
+.print-page {
+  width: 100%;
+  max-width: 192mm;
+  margin: 0 auto;
+}
+
+.print-header {
+  display: grid;
+  grid-template-columns: 42mm 1fr 28mm;
+  align-items: center;
+  gap: 6mm;
+  padding-bottom: 4mm;
+  border-bottom: 1.2px solid #17365d;
+}
+
+.print-logo-wrap img {
+  display: block;
+  width: 40mm;
+  max-height: 18mm;
+  height: auto;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.print-title-wrap {
+  text-align: center;
+}
+
+.print-title-wrap h1 {
+  margin: 0;
+  color: #17365d;
+  font-size: 18px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: .3px;
+}
+
+.print-title-wrap h2 {
+  margin: 1.5mm 0 0;
+  color: #17365d;
+  font-size: 12px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.print-created-date {
+  align-self: start;
+  padding-top: 1mm;
+  text-align: right;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.print-section {
+  margin-top: 5mm;
+  border: .6px solid #9ca3af;
+}
+
+.print-section-title {
+  padding: 2mm 3mm;
+  background: #e7eef6;
+  color: #17365d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+
+.print-wo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.print-wo-column {
+  padding: 2.5mm 4mm;
+}
+
+.print-wo-column + .print-wo-column {
+  border-left: .6px solid #9ca3af;
+}
+
+.print-info-row {
+  display: grid;
+  grid-template-columns: 24mm 4mm 1fr;
+  line-height: 1.55;
+}
+
+.print-info-row span {
+  font-weight: 500;
+}
+
+.print-info-row span::after {
+  content: ':';
+  float: right;
+}
+
+.print-info-row strong {
+  grid-column: 3;
+  font-weight: 700;
+}
+
+.print-parts-section {
+  margin-top: 4mm;
+}
+
+.print-parts-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.print-parts-table th,
+.print-parts-table td {
+  border: .5px solid #aab0b7;
+  padding: 1.8mm 1.2mm;
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+.print-parts-table th {
+  background: #e7eef6;
+  color: #17365d;
+  font-size: 8.2px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.print-parts-table td {
+  font-size: 7.9px;
+  line-height: 1.25;
+}
+
+.print-parts-table .center {
+  text-align: center;
+}
+
+.print-parts-table th:nth-child(1),
+.print-parts-table td:nth-child(1) { width: 7%; }
+
+.print-parts-table th:nth-child(2),
+.print-parts-table td:nth-child(2) { width: 14%; }
+
+.print-parts-table th:nth-child(3),
+.print-parts-table td:nth-child(3) { width: 27%; }
+
+.print-parts-table th:nth-child(4),
+.print-parts-table td:nth-child(4) { width: 12%; }
+
+.print-parts-table th:nth-child(5),
+.print-parts-table td:nth-child(5) { width: 12%; }
+
+.print-parts-table th:nth-child(6),
+.print-parts-table td:nth-child(6) { width: 7%; }
+
+.print-parts-table th:nth-child(7),
+.print-parts-table td:nth-child(7) { width: 10.5%; }
+
+.print-parts-table th:nth-child(8),
+.print-parts-table td:nth-child(8) { width: 10.5%; }
+
+.empty-row {
+  text-align: center;
+  padding: 5mm !important;
+}
+
+.print-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10mm;
+  margin-top: 9mm;
+}
+
+.print-signature-box {
+  height: 31mm;
+  border: .7px solid #17365d;
+}
+
+.print-signature-title {
+  padding: 2mm;
+  background: #e7eef6;
+  color: #17365d;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.print-signature-space {
+  height: 16mm;
+}
+
+.print-signature-line {
+  width: 70%;
+  margin: 0 auto 1.5mm;
+  border-bottom: .6px solid #374151;
+}
+
+.print-signature-name {
+  padding: 0 3mm 2mm;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.print-footer {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  justify-content: center;
+  margin-top: 6mm;
+  color: #17365d;
+  font-size: 9px;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.print-footer::before,
+.print-footer::after {
+  content: '';
+  height: .6px;
+  flex: 1;
+  background: #17365d;
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
