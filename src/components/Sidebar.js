@@ -3,7 +3,7 @@ export function renderSidebar() {
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
-          <img src="/nasmoco-slamet-riyadi-logo.svg" alt="Nasmoco Slamet Riyadi" />
+          <img src="/nasmoco-slamet-riyadi-logo.png" alt="Nasmoco Slamet Riyadi" />
         </div>
         <div class="sidebar-title">
           <strong>SOP Monitoring</strong>
