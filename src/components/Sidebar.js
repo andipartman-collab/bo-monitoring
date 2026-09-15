@@ -2,7 +2,9 @@ export function renderSidebar() {
   return `
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-logo">SR</div>
+        <div class="sidebar-logo">
+          <img src="/nasmoco-slamet-riyadi-logo.svg" alt="Nasmoco Slamet Riyadi" />
+        </div>
         <div class="sidebar-title">
           <strong>SOP Monitoring</strong>
           <span>Nasmoco Slamet Riyadi</span>
