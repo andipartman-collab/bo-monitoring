@@ -12,6 +12,10 @@ import {
 } from './WODetailInfo.js'
 
 import {
+  initWODetailPrint
+} from './WODetailPrint.js'
+
+import {
   renderWODetailEditModal,
   initWODetailEdit
 } from './WODetailEdit.js'
@@ -126,6 +130,11 @@ async function renderDetail(
 
     ${renderWODetailParts(parts)}
   `
+
+  initWODetailPrint(
+    order,
+    parts
+  )
 
   if (currentReadOnly) {
     initReadOnlyHistory(orderId)
