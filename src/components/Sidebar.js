@@ -4,7 +4,7 @@ export function renderSidebar() {
       <div class="sidebar-header">
         <div class="sidebar-logo">
           <img
-            src="https://brand.toyota.com/content/dam/brandhub/guidelines/logo/four-column/BHUB_Logo_ColorVariations_SingleColor_02.svg"
+            src="https://brand.toyota.com/content/dam/brandhub/guidelines/logo/two-column/BHUB_Logo_ColorVariations_Full-Color_02.svg"
             alt="Toyota"
           />
         </div>
