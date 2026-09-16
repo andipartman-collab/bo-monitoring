@@ -269,7 +269,7 @@ export async function applyATAUpdate(previewRows) {
   const changes = (Array.isArray(previewRows) ? previewRows : [])
     .filter(row => {
       return (
-        row.status === 'MATCH' &&
+        (row.status === 'MATCH' || row.status === 'OVER_SUPPLY') &&
         row.partRefPath &&
         row.qtySupply > 0
       )
