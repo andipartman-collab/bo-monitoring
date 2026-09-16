@@ -2,9 +2,11 @@ import {
   collection,
   collectionGroup,
   doc,
+  getDoc,
   getDocs,
   query,
   serverTimestamp,
+  setDoc,
   writeBatch
 } from 'firebase/firestore'
 
@@ -31,6 +33,7 @@ import {
 */
 
 const BATCH_SIZE = 150
+const ETA_META_REF = doc(db, 'systemMeta', 'etaUpdate')
 
 
 function normalizeKey(value) {
@@ -85,6 +88,17 @@ export function normalizeETA(value) {
   }
 
   return ''
+}
+
+
+export async function getLastETAUpdate() {
+  const snapshot = await getDoc(ETA_META_REF)
+
+  if (!snapshot.exists()) {
+    return null
+  }
+
+  return snapshot.data()?.updatedAt || null
 }
 
 
@@ -402,6 +416,17 @@ export async function applyETAUpdate(previewRows) {
 
     await batch.commit()
     updated += chunk.length
+  }
+
+  if (updated > 0) {
+    await setDoc(
+      ETA_META_REF,
+      {
+        updatedAt: serverTimestamp(),
+        updatedCount: updated
+      },
+      { merge: true }
+    )
   }
 
   return {
