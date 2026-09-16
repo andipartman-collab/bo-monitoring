@@ -3,7 +3,8 @@ import * as XLSX from 'xlsx'
 import {
   applyETAUpdate,
   previewETAUpdate,
-  normalizeETA
+  normalizeETA,
+  getLastETAUpdate
 } from '../../services/etaUpdateService.js'
 
 
@@ -16,8 +17,11 @@ export function renderETAUpdate() {
     <div class="eta-update-page">
 
       <section class="eta-update-card">
-        <div class="eta-update-card-header">
+        <div class="eta-update-card-header" style="display:flex;align-items:center;gap:16px;">
           <h3>1. Upload File Excel TPOS BO ETD Inquiry</h3>
+          <span id="eta-last-update" style="margin-left:auto;font-size:13px;font-weight:600;color:#64748b;white-space:nowrap;">
+            Last Update: -
+          </span>
         </div>
 
         <div class="eta-update-upload-body">
@@ -104,6 +108,8 @@ export function initETAUpdate() {
 
   currentPreview = []
   currentSummary = null
+
+  loadLastETAUpdate()
 
   fileInput.onchange = () => {
     const file = fileInput.files?.[0]
@@ -202,6 +208,7 @@ export function initETAUpdate() {
       const result = await applyETAUpdate(currentPreview)
 
       showUpdateSuccess(result.updated)
+      await loadLastETAUpdate()
 
       currentPreview = []
       currentSummary = null
@@ -220,6 +227,45 @@ export function initETAUpdate() {
       }
     }
   }
+}
+
+
+async function loadLastETAUpdate() {
+  const element = document.getElementById('eta-last-update')
+
+  if (!element) return
+
+  try {
+    const timestamp = await getLastETAUpdate()
+
+    element.textContent = timestamp
+      ? `Last Update: ${formatLastUpdate(timestamp)}`
+      : 'Last Update: -'
+  }
+  catch (error) {
+    console.error('GAGAL MEMBACA LAST UPDATE ETA:', error)
+    element.textContent = 'Last Update: -'
+  }
+}
+
+
+function formatLastUpdate(timestamp) {
+  const date = typeof timestamp?.toDate === 'function'
+    ? timestamp.toDate()
+    : new Date(timestamp)
+
+  if (Number.isNaN(date.getTime())) {
+    return '-'
+  }
+
+  return date.toLocaleString('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
 }
 
 
@@ -268,7 +314,6 @@ function showUpdateSuccess(updatedCount) {
   const summaryNote = document.getElementById('eta-update-summary-note')
   const actions = document.getElementById('eta-update-actions')
   const tbody = document.getElementById('eta-update-table-body')
-  const message = document.getElementById('eta-update-message')
 
   if (summaryCard) {
     summaryCard.style.display = 'block'
