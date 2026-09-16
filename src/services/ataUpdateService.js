@@ -4,6 +4,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -47,11 +49,21 @@ function normalizeKey(value) {
 export async function getLastATAUpdate() {
   const snapshot = await getDoc(ATA_META_REF)
 
-  if (!snapshot.exists()) {
-    return null
+  if (snapshot.exists()) {
+    return snapshot.data()?.updatedAt || null
   }
 
-  return snapshot.data()?.updatedAt || null
+  const supplySnapshot = await getDocs(
+    query(
+      collectionGroup(db, 'supplies'),
+      orderBy('createdAt', 'desc'),
+      limit(1)
+    )
+  )
+
+  return supplySnapshot.empty
+    ? null
+    : supplySnapshot.docs[0].data()?.createdAt || null
 }
 
 
