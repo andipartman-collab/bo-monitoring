@@ -178,7 +178,11 @@ export function initATAUpdate() {
   }
 
   applyButton.onclick = async () => {
-    if (!currentPreview.length || !currentSummary?.matched) {
+    const writableCount =
+      Number(currentSummary?.matched || 0) +
+      Number(currentSummary?.overSupply || 0)
+
+    if (!currentPreview.length || writableCount === 0) {
       showMessage(
         'Tidak ada data supply yang bisa diupdate.',
         'error'
@@ -187,7 +191,7 @@ export function initATAUpdate() {
     }
 
     const confirmed = window.confirm(
-      `Tambahkan supply untuk ${currentSummary.matched} part sekarang?`
+      `Tambahkan supply untuk ${writableCount} part sekarang?`
     )
 
     if (!confirmed) {
@@ -227,13 +231,16 @@ function renderSummary(summary) {
   const container = document.getElementById('ata-update-summary')
   const applyButton = document.getElementById('ata-update-apply-button')
   const note = document.getElementById('ata-update-summary-note')
+  const writableCount =
+    Number(summary.matched || 0) +
+    Number(summary.overSupply || 0)
 
   if (!container) return
 
-  if (summary.matched > 0) {
+  if (writableCount > 0) {
     container.innerHTML = `
       <div class="ata-update-summary-message matched">
-        Terdapat <strong>${summary.matched} supply part baru</strong>
+        Terdapat <strong>${writableCount} supply part baru</strong>
       </div>
     `
   }
@@ -251,7 +258,7 @@ function renderSummary(summary) {
   }
 
   if (applyButton) {
-    applyButton.disabled = summary.matched === 0
+    applyButton.disabled = writableCount === 0
   }
 }
 
