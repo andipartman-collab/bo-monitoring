@@ -4,6 +4,8 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -94,11 +96,21 @@ export function normalizeETA(value) {
 export async function getLastETAUpdate() {
   const snapshot = await getDoc(ETA_META_REF)
 
-  if (!snapshot.exists()) {
-    return null
+  if (snapshot.exists()) {
+    return snapshot.data()?.updatedAt || null
   }
 
-  return snapshot.data()?.updatedAt || null
+  const historySnapshot = await getDocs(
+    query(
+      collectionGroup(db, 'etaHistory'),
+      orderBy('updatedAt', 'desc'),
+      limit(1)
+    )
+  )
+
+  return historySnapshot.empty
+    ? null
+    : historySnapshot.docs[0].data()?.updatedAt || null
 }
 
 
