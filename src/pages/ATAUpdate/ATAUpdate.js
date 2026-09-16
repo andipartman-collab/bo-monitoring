@@ -2,7 +2,8 @@ import * as XLSX from 'xlsx'
 
 import {
   applyATAUpdate,
-  previewATAUpdate
+  previewATAUpdate,
+  getLastATAUpdate
 } from '../../services/ataUpdateService.js'
 
 
@@ -15,8 +16,11 @@ export function renderATAUpdate() {
     <div class="ata-update-page">
 
       <section class="ata-update-card">
-        <div class="ata-update-card-header">
+        <div class="ata-update-card-header" style="display:flex;align-items:center;gap:16px;">
           <h3>1. Upload File Excel TPOS Packing List</h3>
+          <span id="ata-last-update" style="margin-left:auto;font-size:13px;font-weight:600;color:#64748b;white-space:nowrap;">
+            Last Update: -
+          </span>
         </div>
 
         <div class="ata-update-upload-body">
@@ -104,6 +108,8 @@ export function initATAUpdate() {
 
   currentPreview = []
   currentSummary = null
+
+  loadLastATAUpdate()
 
   fileInput.onchange = () => {
     const file = fileInput.files?.[0]
@@ -206,6 +212,7 @@ export function initATAUpdate() {
       const result = await applyATAUpdate(currentPreview)
 
       showUpdateSuccess(result.updated)
+      await loadLastATAUpdate()
 
       currentPreview = []
       currentSummary = null
@@ -224,6 +231,45 @@ export function initATAUpdate() {
       }
     }
   }
+}
+
+
+async function loadLastATAUpdate() {
+  const element = document.getElementById('ata-last-update')
+
+  if (!element) return
+
+  try {
+    const timestamp = await getLastATAUpdate()
+
+    element.textContent = timestamp
+      ? `Last Update: ${formatLastUpdate(timestamp)}`
+      : 'Last Update: -'
+  }
+  catch (error) {
+    console.error('GAGAL MEMBACA LAST UPDATE ATA:', error)
+    element.textContent = 'Last Update: -'
+  }
+}
+
+
+function formatLastUpdate(timestamp) {
+  const date = typeof timestamp?.toDate === 'function'
+    ? timestamp.toDate()
+    : new Date(timestamp)
+
+  if (Number.isNaN(date.getTime())) {
+    return '-'
+  }
+
+  return date.toLocaleString('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  })
 }
 
 
