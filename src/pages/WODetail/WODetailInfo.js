@@ -15,7 +15,8 @@ export function renderWODetailInfo(
     Boolean(options.readOnly)
 
   const showFinishButton =
-    status === 'BOOKING' && !readOnly
+    !readOnly &&
+    ['BOOKING', 'PART ARRIVAL'].includes(status)
 
   return `
     <section class="wo-detail-card">
