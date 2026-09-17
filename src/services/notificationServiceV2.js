@@ -46,7 +46,7 @@ export async function buildNotifications() {
       const orderDate = parseISO(part.tglOrder)
       const etaDate = parseISO(part.eta)
 
-      if (!part.eta && orderDate && workingDaysBetween(orderDate, today) >= 2) data['eta-not-found'].push(row)
+      if (!part.eta && sisa > 0 && orderDate && workingDaysBetween(orderDate, today) >= 2) data['eta-not-found'].push(row)
       if (etaDate && orderDate && dateDiff(orderDate, etaDate) > 14) data['eta-long-lead-time'].push(row)
       if (etaDate && etaDate < today && sisa > 0) data['eta-overdue'].push(row)
       if (part.etaChange) data['eta-changed'].push({ ...row, etaOld: part.etaChange.oldEta, etaNew: part.etaChange.newEta })
@@ -93,7 +93,7 @@ export async function buildTodayTodoNotifications() {
       const sisa = Math.max(Number(part.qtyOrder || 0) - Number(part.totalSupply || 0), 0)
       const row = partRow(order, part, Number(part.totalSupply || 0), sisa)
 
-      if (!part.eta && orderDate && sameDate(addWorkingDays(orderDate, 2), today)) {
+      if (!part.eta && sisa > 0 && orderDate && sameDate(addWorkingDays(orderDate, 2), today)) {
         data['eta-not-found'].push(row)
       }
 
@@ -132,7 +132,7 @@ async function enrichParts(orderId, parts) {
     ...part,
     totalSupply: await getTotalSupply(orderId, part.id),
     etaChange: await latestEtaChange(orderId, part.id),
-    etaHistoryLatestUpdatedAt: await latestEtaHistoryUpdatedAt(orderId, part.id)
+    etaHistoryLatestUpdatedAt: await latestEtaHistoryLatestUpdatedAt(orderId, part.id)
   })))
 }
 
