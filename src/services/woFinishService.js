@@ -9,11 +9,24 @@ import {
 } from './firebase.js'
 
 
+const FINISHABLE_STATUSES = [
+  'BOOKING',
+  'PART ARRIVAL'
+]
+
+
 export async function finishWorkOrder(
-  orderId
+  orderId,
+  currentStatus
 ) {
   if (!orderId) {
     throw new Error('Order ID tidak tersedia.')
+  }
+
+  if (!FINISHABLE_STATUSES.includes(currentStatus)) {
+    throw new Error(
+      'Work Order belum dapat di-Finish. Status harus BOOKING atau PART ARRIVAL.'
+    )
   }
 
   const orderRef = doc(
@@ -38,12 +51,6 @@ export async function finishWorkOrder(
       if (order.completedAt) {
         throw new Error(
           'Work Order ini sudah berstatus Completed.'
-        )
-      }
-
-      if (!order.tanggalBooking) {
-        throw new Error(
-          'Work Order belum memiliki tanggal booking.'
         )
       }
 
