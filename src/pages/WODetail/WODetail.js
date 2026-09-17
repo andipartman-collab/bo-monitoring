@@ -236,7 +236,10 @@ function initFinishButton(orderId, statusInfo) {
     button.textContent = 'Menyelesaikan...'
 
     try {
-      await finishWorkOrder(orderId)
+      await finishWorkOrder(
+        orderId,
+        statusInfo?.status
+      )
       await refreshDetail(orderId)
     }
     catch (error) {
