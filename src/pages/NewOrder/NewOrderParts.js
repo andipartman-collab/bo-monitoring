@@ -6,6 +6,8 @@ let partCounter = 0
 
 export function renderNewOrderParts() {
 
+  partCounter = 0
+
   return `
     <section class="new-order-section">
 
@@ -94,11 +96,17 @@ export function initNewOrderParts() {
       'add-part-button'
     )
 
+  const tbody =
+    document.getElementById(
+      'parts-table-body'
+    )
 
-  if (!addButton) {
+  if (!addButton || !tbody) {
     return
   }
 
+  partCounter =
+    tbody.querySelectorAll('.part-row').length
 
   addButton.addEventListener(
     'click',
@@ -467,6 +475,7 @@ function showEmptyRowIfNeeded() {
     return
   }
 
+  partCounter = 0
 
   tbody.innerHTML = `
 
