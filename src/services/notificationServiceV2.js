@@ -132,7 +132,7 @@ async function enrichParts(orderId, parts) {
     ...part,
     totalSupply: await getTotalSupply(orderId, part.id),
     etaChange: await latestEtaChange(orderId, part.id),
-    etaHistoryLatestUpdatedAt: await latestEtaHistoryLatestUpdatedAt(orderId, part.id)
+    etaHistoryLatestUpdatedAt: await latestEtaHistoryUpdatedAt(orderId, part.id)
   })))
 }
 
