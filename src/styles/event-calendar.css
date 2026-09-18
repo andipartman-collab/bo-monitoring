@@ -413,3 +413,70 @@
 }
 
 /* Event Calendar */
+
+/* ==================================================
+   EVENT CALENDAR — TWO COLUMN LAYOUT
+================================================== */
+
+@media (min-width: 951px) {
+  .event-calendar-page {
+    display: grid;
+    grid-template-columns: minmax(0, 1.85fr) minmax(320px, 1fr);
+    align-items: stretch;
+    column-gap: 16px;
+    row-gap: 14px;
+  }
+
+  .event-calendar-toolbar {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+  }
+
+  .event-calendar-card {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .event-calendar-events-card {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    height: 100%;
+    max-height: 650px;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .event-calendar-events-header {
+    flex: 0 0 auto;
+  }
+
+  #event-calendar-events-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 570px;
+    overflow-y: auto;
+  }
+
+  .event-calendar-day {
+    min-height: 82px;
+    padding: 8px;
+  }
+
+  .event-calendar-day-flags {
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .event-calendar-flag {
+    min-height: 17px;
+    padding: 2px 4px;
+  }
+}
+
+@media (max-width: 950px) {
+  .event-calendar-events-card {
+    margin-top: 14px;
+  }
+}
