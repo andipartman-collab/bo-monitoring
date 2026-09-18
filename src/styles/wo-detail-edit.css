@@ -329,3 +329,25 @@ body.wo-edit-modal-open {
     width: 100%;
   }
 }
+
+
+/* ==================================================
+   ADD PART BUTTON
+================================================== */
+
+.wo-add-part-button {
+  border: 1px solid #0b1f3a;
+  background: #0b1f3a;
+  color: #ffffff;
+  border-radius: 7px;
+  padding: 8px 13px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.wo-add-part-button:hover {
+  background: #16365f;
+  border-color: #16365f;
+}
