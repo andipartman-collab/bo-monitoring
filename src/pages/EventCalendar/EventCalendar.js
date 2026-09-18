@@ -441,9 +441,9 @@ function renderEventFlag(type, dateEvents) {
     <span
       class="event-calendar-flag ${getEventTypeClass(type)}"
       title="${getEventTypeLabel(type)}: ${count}"
+      aria-label="${getEventTypeLabel(type)}: ${count}"
     >
-      <i></i>
-      ${count > 1 ? `<b>${count}</b>` : ''}
+      ${count}
     </span>
   `
 }
