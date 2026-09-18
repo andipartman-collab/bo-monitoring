@@ -485,3 +485,79 @@
     margin-top: 14px;
   }
 }
+
+/* ==================================================
+   EVENT FLAG & DATE NUMBER REFINEMENT
+================================================== */
+
+.event-calendar-day-number {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
+  border-radius: 8px;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.event-calendar-day-flags {
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.event-calendar-flag {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+@media (min-width: 951px) {
+  .event-calendar-day-number {
+    min-width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .event-calendar-flag {
+    width: 34px;
+    height: 34px;
+    min-height: 34px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  .event-calendar-flag {
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
+    font-size: 11px;
+  }
+
+  .event-calendar-day-number {
+    min-width: 30px;
+    height: 30px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 700px) {
+  .event-calendar-day-number {
+    min-width: 27px;
+    height: 27px;
+    font-size: 13px;
+  }
+
+  .event-calendar-flag {
+    width: 25px;
+    height: 25px;
+    min-height: 25px;
+    font-size: 10px;
+  }
+}
