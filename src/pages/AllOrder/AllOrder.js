@@ -381,7 +381,7 @@ function renderTable(orders) {
         </thead>
 
         <tbody>
-          ${orders.map((order, index) => {
+          ${orders.map(order => {
             return `
               <tr>
                 <td>
