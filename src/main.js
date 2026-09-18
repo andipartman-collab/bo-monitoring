@@ -8,6 +8,7 @@ import './styles/eta-update.css'
 import './styles/ata-update.css'
 import './styles/all-order.css'
 import './styles/notification-center.css'
+import './styles/completed-order.css'
 
 import { testFirestore } from './services/firestoreTest.js'
 import { renderSidebar } from './components/Sidebar.js'
@@ -20,6 +21,7 @@ import { renderWODetail, initWODetail } from './pages/WODetail/WODetail.js'
 import { renderETAUpdate, initETAUpdate } from './pages/ETAUpdate/ETAUpdate.js'
 import { renderATAUpdate, initATAUpdate } from './pages/ATAUpdate/ATAUpdate.js'
 import { renderNotificationCenter, initNotificationCenter } from './pages/NotificationCenter/NotificationCenter.js'
+import { renderCompletedOrder, initCompletedOrder } from './pages/CompletedOrder/CompletedOrder.js'
 
 const app = document.querySelector('#app')
 let currentPage = 'dashboard'
@@ -50,7 +52,7 @@ function renderPage(page, params = {}) {
 
   if (page === 'wo-detail') {
     topbarContainer.innerHTML = renderTopbar(params.readOnly ? 'WO Detail — Read Only' : 'WO Detail', params.readOnly ? 'Detail Work Order berdasarkan Monitoring SA. Akses hanya baca.' : 'Detail Work Order dan daftar part yang dipesan.')
-    pageContent.innerHTML = renderWODetail({ readOnly: Boolean(params.readOnly) })
+    pageContent.innerHTML = renderWODetail({ readOnly: Boolean(params.readOnly), backLabel: params.backLabel || '' })
     initWODetail(params.orderId, { readOnly: Boolean(params.readOnly), backEvent: params.backEvent || 'back-to-all-order' })
     return
   }
@@ -66,6 +68,13 @@ function renderPage(page, params = {}) {
     topbarContainer.innerHTML = renderTopbar('Monitoring by SA', 'Monitoring Work Order berdasarkan SA.')
     pageContent.innerHTML = renderMonitoringSA()
     initMonitoringSA({ sa: params.sa || '' })
+    return
+  }
+
+  if (page === 'completed-order') {
+    topbarContainer.innerHTML = renderTopbar('Completed Order', 'Arsip Work Order yang sudah di-Finish dan maintenance data lama.')
+    pageContent.innerHTML = renderCompletedOrder()
+    initCompletedOrder()
     return
   }
 
@@ -112,11 +121,21 @@ function initWODetailNavigation() {
     const orderId = event.detail?.orderId
     if (orderId) renderPage('wo-detail', { orderId, readOnly: true, backEvent: 'back-to-monitoring-sa' })
   })
+  document.addEventListener('open-completed-order-detail', event => {
+    const orderId = event.detail?.orderId
+    if (orderId) renderPage('wo-detail', {
+      orderId,
+      readOnly: true,
+      backEvent: 'back-to-completed-order',
+      backLabel: '← Kembali ke Completed Order'
+    })
+  })
   document.addEventListener('open-notification-wo-detail', event => {
     const orderId = event.detail?.orderId
     if (orderId) renderPage('wo-detail', { orderId, readOnly: true, backEvent: 'back-to-notification-center' })
   })
   document.addEventListener('back-to-all-order', () => renderPage('all-order'))
+  document.addEventListener('back-to-completed-order', () => renderPage('completed-order'))
   document.addEventListener('back-to-monitoring-sa', () => renderPage('monitoring-sa'))
   document.addEventListener('back-to-notification-center', () => renderPage('notification-center'))
   document.addEventListener('work-order-deleted', () => renderPage('all-order'))
