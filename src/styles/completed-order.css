@@ -170,6 +170,33 @@
   background: #16345c;
 }
 
+.completed-order-action-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.completed-order-row-delete-button {
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 7px 12px;
+  background: #ffffff;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.completed-order-row-delete-button:hover:not(:disabled) {
+  background: #fff1f2;
+}
+
+.completed-order-row-delete-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+
 .completed-order-table-footer {
   padding: 14px 18px;
   border-top: 1px solid #e5e7eb;
