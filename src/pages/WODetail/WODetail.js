@@ -36,6 +36,11 @@ import {
 } from './WODetailParts.js'
 
 import {
+  renderWODetailPartAddModal,
+  initWODetailPartAdd
+} from './WODetailPartAdd.js'
+
+import {
   finishWorkOrder
 } from '../../services/woFinishService.js'
 
@@ -131,7 +136,11 @@ async function renderDetail(
       { readOnly: currentReadOnly }
     )}
 
-    ${renderWODetailParts(parts)}
+    ${renderWODetailParts(parts, {
+      readOnly: currentReadOnly
+    })}
+
+    ${currentReadOnly ? '': renderWODetailPartAddModal()}
   `
 
   initWODetailPrint(
@@ -155,6 +164,13 @@ async function renderDetail(
   initWODetailPartEdit(
     orderId,
     parts,
+    async () => {
+      await refreshDetail(orderId)
+    }
+  )
+
+  initWODetailPartAdd(
+    orderId,
     async () => {
       await refreshDetail(orderId)
     }
