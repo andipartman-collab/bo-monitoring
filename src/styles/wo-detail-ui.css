@@ -194,3 +194,45 @@
   .wo-delete-actions { flex-direction: column-reverse; }
   .wo-delete-cancel-button, .wo-delete-confirm-button { width: 100%; }
 }
+
+
+/* ==================================================
+   PART ORDER HEADER
+================================================== */
+
+.wo-detail-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.wo-detail-section-header > div:first-child {
+  min-width: 0;
+}
+
+.wo-detail-section-header h2 {
+  margin: 0;
+}
+
+.wo-detail-section-header span {
+  display: block;
+  margin-top: 6px;
+}
+
+.wo-add-part-button {
+  align-self: flex-start;
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .wo-detail-section-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .wo-add-part-button {
+    align-self: flex-start;
+  }
+}
