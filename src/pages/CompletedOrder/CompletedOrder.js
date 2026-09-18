@@ -468,67 +468,6 @@ Seluruh data WO, part, supply, ETA history, dan registry akan dihapus permanen.`
 }
 
 
-function initRowDeleteButtons() {
-  document
-    .querySelectorAll('.completed-order-row-delete-button')
-    .forEach(button => {
-      button.addEventListener('click', async () => {
-        const orderId = button.dataset.orderId
-        const noWo = button.dataset.noWo || '-'
-        const customer = button.dataset.customer || '-'
-
-        if (!orderId) {
-          return
-        }
-
-        const confirmed = window.confirm(
-          `Hapus Completed Order?
-
-No WO: ${noWo}
-Customer: ${customer}
-
-Seluruh data WO, part, supply, ETA history, dan registry akan dihapus permanen.`
-        )
-
-        if (!confirmed) {
-          return
-        }
-
-        button.disabled = true
-        button.textContent = 'Menghapus...'
-
-        try {
-          const { deleteWorkOrder } =
-            await import('../../services/woDeleteService.js')
-
-          await deleteWorkOrder(orderId)
-
-          showMessage(
-            `Completed Order ${noWo} berhasil dihapus.`,
-            'success'
-          )
-
-          await loadCompletedOrders()
-        }
-        catch (error) {
-          console.error(
-            'GAGAL MENGHAPUS COMPLETED ORDER:',
-            error
-          )
-
-          button.disabled = false
-          button.textContent = 'Hapus'
-
-          showMessage(
-            error.message ||
-            'Gagal menghapus Completed Order.',
-            'error'
-          )
-        }
-      })
-    })
-}
-
 
 function initMaintenanceActions() {
   document
