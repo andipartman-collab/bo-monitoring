@@ -352,3 +352,80 @@
   .monitoring-sa-grid,
   .monitoring-sa-summary { grid-template-columns: 1fr; }
 }
+
+
+/* ==================================================
+   MONITORING SA TABLE - ALL ORDER FORMAT
+================================================== */
+
+.monitoring-sa-table {
+  width: 100%;
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+.monitoring-sa-table th:nth-child(1),
+.monitoring-sa-table td:nth-child(1) {
+  width: 90px;
+}
+
+.monitoring-sa-table th:nth-child(2),
+.monitoring-sa-table td:nth-child(2) {
+  width: 190px;
+}
+
+.monitoring-sa-table th:nth-child(3),
+.monitoring-sa-table td:nth-child(3) {
+  width: 105px;
+}
+
+.monitoring-sa-table th:nth-child(4),
+.monitoring-sa-table td:nth-child(4) {
+  width: 125px;
+}
+
+.monitoring-sa-table th:nth-child(5),
+.monitoring-sa-table td:nth-child(5) {
+  width: 95px;
+}
+
+.monitoring-sa-table th:nth-child(6),
+.monitoring-sa-table td:nth-child(6) {
+  width: 105px;
+}
+
+.monitoring-sa-table th:nth-child(7),
+.monitoring-sa-table td:nth-child(7) {
+  width: 190px;
+}
+
+.monitoring-sa-table th:nth-child(8),
+.monitoring-sa-table td:nth-child(8) {
+  width: 180px;
+}
+
+.monitoring-sa-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monitoring-sa-note-cell {
+  width: 190px;
+  max-width: 190px;
+}
+
+.monitoring-sa-note {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.monitoring-sa-table td:nth-child(1),
+.monitoring-sa-table td:nth-child(3),
+.monitoring-sa-table td:nth-child(5),
+.monitoring-sa-table td:nth-child(6),
+.monitoring-sa-table td:nth-child(8) {
+  white-space: nowrap;
+}
