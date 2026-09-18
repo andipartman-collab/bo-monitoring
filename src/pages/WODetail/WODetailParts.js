@@ -26,8 +26,10 @@ let currentOnSaved = null
 
 
 export function renderWODetailParts(
-  parts
+  parts,
+  options = {}
 ) {
+  const readOnly = Boolean(options.readOnly)
 
   if (!parts || !parts.length) {
 
@@ -37,9 +39,21 @@ export function renderWODetailParts(
 
         <div class="wo-detail-section-header">
 
-          <h2>
-            Part Order
-          </h2>
+          <div>
+            <h2>
+              Part Order
+            </h2>
+          </div>
+
+          ${readOnly ? '' : `
+            <button
+              type="button"
+              id="wo-add-part-button"
+              class="wo-add-part-button"
+            >
+              + Tambah Part
+            </button>
+          `}
 
         </div>
 
@@ -240,13 +254,25 @@ export function renderWODetailParts(
 
       <div class="wo-detail-section-header">
 
-        <h2>
-          Part Order
-        </h2>
+        <div>
+          <h2>
+            Part Order
+          </h2>
 
-        <span>
-          ${parts.length} Part
-        </span>
+          <span>
+            ${parts.length} Part
+          </span>
+        </div>
+
+        ${readOnly ? '' : `
+          <button
+            type="button"
+            id="wo-add-part-button"
+            class="wo-add-part-button"
+          >
+            + Tambah Part
+          </button>
+        `}
 
       </div>
 
