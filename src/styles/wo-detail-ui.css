@@ -236,3 +236,42 @@
     align-self: flex-start;
   }
 }
+
+
+.wo-detail-supply-qty-button {
+  border: none;
+  background: transparent;
+  color: #294b91;
+  padding: 0;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.wo-detail-supply-qty-button:hover {
+  opacity: 0.75;
+}
+
+.wo-detail-part-delete-button {
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #b42318;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wo-detail-part-delete-button:hover {
+  background: #fff1f2;
+  border-color: #fca5a5;
+}
+
+.wo-detail-part-delete-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
