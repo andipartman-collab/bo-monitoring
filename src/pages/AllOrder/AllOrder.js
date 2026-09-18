@@ -368,7 +368,6 @@ function renderTable(orders) {
       <table class="all-order-table">
         <thead>
           <tr>
-            <th>No</th>
             <th>No WO</th>
             <th>SA</th>
             <th>Customer</th>
@@ -376,18 +375,15 @@ function renderTable(orders) {
             <th>Model</th>
             <th>Tgl Booking</th>
             <th>Status WO</th>
+            <th>Note</th>
             <th>Aksi</th>
           </tr>
         </thead>
 
         <tbody>
           ${orders.map((order, index) => {
-            const number = index + 1
-
             return `
               <tr>
-                <td>${number}</td>
-
                 <td>
                   <strong>
                     ${escapeHTML(order.noWo || '-')}
@@ -408,6 +404,15 @@ function renderTable(orders) {
                   <div class="all-order-status-loading">
                     Memuat...
                   </div>
+                </td>
+
+                <td class="all-order-note-cell">
+                  <span
+                    class="all-order-note"
+                    title="${escapeHTML(order.note || 'Tidak ada note')}"
+                  >
+                    ${escapeHTML(order.note || '-')}
+                  </span>
                 </td>
 
                 <td>
