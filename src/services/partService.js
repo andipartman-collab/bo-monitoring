@@ -219,3 +219,125 @@ export async function updatePart(
     totalSupply
   }
 }
+
+
+/*
+  ==================================================
+  ADD PART TO WORK ORDER
+  ==================================================
+*/
+
+export async function addPartToWorkOrder(
+  orderId,
+  partData
+) {
+  if (!orderId) {
+    throw new Error('Order ID tidak tersedia.')
+  }
+
+  if (!partData) {
+    throw new Error('Data part tidak tersedia.')
+  }
+
+  const pno =
+    partData.pno?.trim().toUpperCase() || ''
+
+  const namaPart =
+    partData.namaPart?.trim().toUpperCase() || ''
+
+  const noOrder =
+    partData.noOrder?.trim().toUpperCase() || ''
+
+  const tglOrder =
+    partData.tglOrder || ''
+
+  const qtyOrder =
+    Number(partData.qtyOrder)
+
+  const eta =
+    partData.eta || ''
+
+  if (!pno) {
+    throw new Error('PNO wajib diisi.')
+  }
+
+  if (!namaPart) {
+    throw new Error('Nama Part wajib diisi.')
+  }
+
+  if (!noOrder) {
+    throw new Error('No Order wajib diisi.')
+  }
+
+  if (!tglOrder) {
+    throw new Error('Tgl Order wajib diisi.')
+  }
+
+  if (!Number.isInteger(qtyOrder) || qtyOrder <= 0) {
+    throw new Error(
+      'Qty Order harus berupa angka bulat lebih dari 0.'
+    )
+  }
+
+  const orderRef =
+    doc(db, 'orders', orderId)
+
+  const partsRef =
+    collection(orderRef, 'parts')
+
+  const partRef =
+    doc(partsRef)
+
+  await runTransaction(
+    db,
+    async transaction => {
+      const orderSnapshot =
+        await transaction.get(orderRef)
+
+      if (!orderSnapshot.exists()) {
+        throw new Error(
+          'Data Work Order tidak ditemukan.'
+        )
+      }
+
+      const order =
+        orderSnapshot.data()
+
+      if (order.completedAt) {
+        throw new Error(
+          'Work Order yang sudah Completed tidak dapat ditambah part.'
+        )
+      }
+
+      transaction.set(
+        partRef,
+        {
+          pno,
+          namaPart,
+          noOrder,
+          tglOrder,
+          qtyOrder,
+          eta
+        }
+      )
+
+      transaction.update(
+        orderRef,
+        {
+          updatedAt:
+            serverTimestamp()
+        }
+      )
+    }
+  )
+
+  return {
+    partId: partRef.id,
+    pno,
+    namaPart,
+    noOrder,
+    tglOrder,
+    qtyOrder,
+    eta
+  }
+}
