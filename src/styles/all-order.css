@@ -128,3 +128,30 @@
     width: 100%;
   }
 }
+
+
+/* ==================================================
+   ALL ORDER NOTE
+================================================== */
+
+.all-order-note-cell {
+  width: 190px;
+  max-width: 190px;
+}
+
+.all-order-note {
+  display: block;
+  width: 190px;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .all-order-note-cell,
+  .all-order-note {
+    width: 150px;
+    max-width: 150px;
+  }
+}
