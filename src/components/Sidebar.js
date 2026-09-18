@@ -23,6 +23,7 @@ export function renderSidebar() {
         <a href="#" class="menu-item" data-page="ata-update"><span class="menu-icon">⇩</span><span>Update ATA</span></a>
         <a href="#" class="menu-item" data-page="monitoring-sa"><span class="menu-icon">👥</span><span>Monitoring by SA</span></a>
         <a href="#" class="menu-item" data-page="notification-center"><span class="menu-icon">🔔</span><span>Notification Center</span></a>
+        <a href="#" class="menu-item" data-page="event-calendar"><span class="menu-icon">▦</span><span>Event Calendar</span></a>
         <a href="#" class="menu-item" data-page="completed-order"><span class="menu-icon">✓</span><span>Completed Order</span></a>
       </nav>
 
