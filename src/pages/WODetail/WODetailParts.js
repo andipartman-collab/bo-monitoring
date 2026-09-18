@@ -10,6 +10,10 @@ import {
   formatTimestamp
 } from './WODetailUtils.js'
 
+import {
+  deletePart
+} from '../../services/partService.js'
+
 
 import {
   renderETAHistoryModal,
@@ -181,7 +185,19 @@ export function renderWODetailParts(
 
 
             <td class="text-center">
-              ${totalSupply}
+              ${totalSupply > 0
+                ? `
+                  <button
+                    type="button"
+                    class="wo-detail-supply-qty-button"
+                    data-part-id="${escapeHTML(part.id || '')}"
+                    data-pno="${escapeHTML(part.pno || '')}"
+                    data-nama-part="${escapeHTML(part.namaPart || '')}"
+                  >
+                    ${totalSupply}
+                  </button>
+                `
+                : '0'}
             </td>
 
 
@@ -199,41 +215,46 @@ export function renderWODetailParts(
 
               <div class="wo-detail-action-buttons">
 
-                <button
-                  type="button"
-                  class="wo-detail-supply-button"
-                  data-part-id="${escapeHTML(
-                    part.id || ''
-                  )}"
-                  data-pno="${escapeHTML(
-                    part.pno || ''
-                  )}"
-                  data-nama-part="${escapeHTML(
-                    part.namaPart || ''
-                  )}"
-                  data-qty-order="${qtyOrder}"
-                  data-total-supply="${totalSupply}"
-                  data-sisa="${sisa}"
-                >
-                  + Supply
-                </button>
+                ${readOnly ? '' : `
+                  <button
+                    type="button"
+                    class="wo-detail-supply-button"
+                    data-part-id="${escapeHTML(
+                      part.id || ''
+                    )}"
+                    data-pno="${escapeHTML(
+                      part.pno || ''
+                    )}"
+                    data-nama-part="${escapeHTML(
+                      part.namaPart || ''
+                    )}"
+                    data-qty-order="${qtyOrder}"
+                    data-total-supply="${totalSupply}"
+                    data-sisa="${sisa}"
+                  >
+                    + Supply
+                  </button>
+                `}
 
 
-                <button
-                  type="button"
-                  class="wo-detail-history-button"
-                  data-part-id="${escapeHTML(
-                    part.id || ''
-                  )}"
-                  data-pno="${escapeHTML(
-                    part.pno || ''
-                  )}"
-                  data-nama-part="${escapeHTML(
-                    part.namaPart || ''
-                  )}"
-                >
-                  History
-                </button>
+                ${readOnly ? '' : `
+                  <button
+                    type="button"
+                    class="wo-detail-part-delete-button"
+                    data-part-id="${escapeHTML(
+                      part.id || ''
+                    )}"
+                    data-pno="${escapeHTML(
+                      part.pno || ''
+                    )}"
+                    data-nama-part="${escapeHTML(
+                      part.namaPart || ''
+                    )}"
+                    data-total-supply="${totalSupply}"
+                  >
+                    Hapus
+                  </button>
+                `}
 
               </div>
 
@@ -306,7 +327,7 @@ export function renderWODetailParts(
               </th>
 
               <th>
-                Qty Order
+                Order
               </th>
 
               <th>
@@ -632,7 +653,8 @@ export function initWODetailSupply(
   initSupplyModalButtons()
 
 
-  initSupplyHistoryButtons()
+  initSupplyQuantityHistoryButtons()
+  initPartDeleteButtons()
 
 
   initHistoryModalButtons()
@@ -1139,11 +1161,11 @@ function showSupplyError(
 
 
 
-function initSupplyHistoryButtons() {
+function initSupplyQuantityHistoryButtons() {
 
   const buttons =
     document.querySelectorAll(
-      '.wo-detail-history-button'
+      '.wo-detail-supply-qty-button'
     )
 
 
@@ -1449,6 +1471,107 @@ function renderSupplyHistoryTable(
 
 }
 
+
+
+
+function initPartDeleteButtons() {
+
+  const buttons =
+    document.querySelectorAll(
+      '.wo-detail-part-delete-button'
+    )
+
+  buttons.forEach(
+    button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const partId =
+            button.dataset.partId || ''
+
+          const pno =
+            button.dataset.pno || ''
+
+          const namaPart =
+            button.dataset.namaPart || ''
+
+          const totalSupply =
+            Number(
+              button.dataset.totalSupply || 0
+            )
+
+          if (!partId) {
+            return
+          }
+
+          const warning =
+            totalSupply > 0
+              ? `
+
+Part ini sudah memiliki Supply:
+${totalSupply}.
+
+Supply dan history terkait juga akan ikut terhapus.`
+              : ''
+
+          const confirmed =
+            window.confirm(
+              `Hapus part ini?
+
+PNO: ${pno || '-'}
+Nama Part: ${namaPart || '-'}
+${warning}
+
+Data part akan dihapus permanen.`
+            )
+
+          if (!confirmed) {
+            return
+          }
+
+          button.disabled = true
+          button.textContent = 'Menghapus...'
+
+          try {
+
+            await deletePart(
+              currentOrderId,
+              partId
+            )
+
+            if (
+              typeof currentOnSaved ===
+              'function'
+            ) {
+              await currentOnSaved()
+            }
+
+          }
+          catch (error) {
+
+            console.error(
+              'GAGAL HAPUS PART:',
+              error
+            )
+
+            button.disabled = false
+            button.textContent = 'Hapus'
+
+            window.alert(
+              error.message ||
+              'Gagal menghapus part.'
+            )
+
+          }
+
+        }
+      )
+
+    }
+  )
+}
 
 
 function initHistoryModalButtons() {
