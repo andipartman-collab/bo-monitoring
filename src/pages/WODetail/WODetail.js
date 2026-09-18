@@ -41,8 +41,10 @@ import {
 
 let currentReadOnly = false
 let currentBackEvent = 'back-to-all-order'
+let currentBackLabel = '← Kembali ke All Order'
 
-export function renderWODetail({ readOnly = false } = {}) {
+export function renderWODetail({ readOnly = false, backLabel = '' } = {}) {
+  currentBackLabel = backLabel || (readOnly ? '← Kembali ke Monitoring SA' : '← Kembali ke All Order')
   currentReadOnly = readOnly
 
   return `
@@ -53,7 +55,7 @@ export function renderWODetail({ readOnly = false } = {}) {
           id="wo-detail-back"
           class="wo-detail-back-button"
         >
-          ${readOnly ? '← Kembali ke Monitoring SA' : '← Kembali ke All Order'}
+          ${escapeHTML(currentBackLabel)}
         </button>
       </div>
 
@@ -84,6 +86,7 @@ export async function initWODetail(
 ) {
   currentReadOnly = Boolean(options.readOnly)
   currentBackEvent = options.backEvent || 'back-to-all-order'
+  currentBackLabel = options.backLabel || (currentReadOnly ? '← Kembali ke Monitoring SA' : '← Kembali ke All Order')
 
   initBackButton()
 
