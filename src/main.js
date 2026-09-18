@@ -53,7 +53,11 @@ function renderPage(page, params = {}) {
   if (page === 'wo-detail') {
     topbarContainer.innerHTML = renderTopbar(params.readOnly ? 'WO Detail — Read Only' : 'WO Detail', params.readOnly ? 'Detail Work Order berdasarkan Monitoring SA. Akses hanya baca.' : 'Detail Work Order dan daftar part yang dipesan.')
     pageContent.innerHTML = renderWODetail({ readOnly: Boolean(params.readOnly), backLabel: params.backLabel || '' })
-    initWODetail(params.orderId, { readOnly: Boolean(params.readOnly), backEvent: params.backEvent || 'back-to-all-order' })
+    initWODetail(params.orderId, {
+      readOnly: Boolean(params.readOnly),
+      backEvent: params.backEvent || 'back-to-all-order',
+      backLabel: params.backLabel || ''
+    })
     return
   }
 
