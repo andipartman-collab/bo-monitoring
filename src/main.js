@@ -8,6 +8,7 @@ import './styles/eta-update.css'
 import './styles/ata-update.css'
 import './styles/all-order.css'
 import './styles/notification-center.css'
+import './styles/event-calendar.css'
 import './styles/completed-order.css'
 
 import { testFirestore } from './services/firestoreTest.js'
@@ -21,6 +22,7 @@ import { renderWODetail, initWODetail } from './pages/WODetail/WODetail.js'
 import { renderETAUpdate, initETAUpdate } from './pages/ETAUpdate/ETAUpdate.js'
 import { renderATAUpdate, initATAUpdate } from './pages/ATAUpdate/ATAUpdate.js'
 import { renderNotificationCenter, initNotificationCenter } from './pages/NotificationCenter/NotificationCenter.js'
+import { renderEventCalendar, initEventCalendar } from './pages/EventCalendar/EventCalendar.js'
 import { renderCompletedOrder, initCompletedOrder } from './pages/CompletedOrder/CompletedOrder.js'
 
 const app = document.querySelector('#app')
@@ -72,6 +74,13 @@ function renderPage(page, params = {}) {
     topbarContainer.innerHTML = renderTopbar('Monitoring by SA', 'Monitoring Work Order berdasarkan SA.')
     pageContent.innerHTML = renderMonitoringSA()
     initMonitoringSA({ sa: params.sa || '' })
+    return
+  }
+
+  if (page === 'event-calendar') {
+    topbarContainer.innerHTML = renderTopbar('Event Calendar', 'Kalender ETA, Part Arrival, dan Booking Work Order.')
+    pageContent.innerHTML = renderEventCalendar()
+    initEventCalendar()
     return
   }
 
@@ -138,10 +147,20 @@ function initWODetailNavigation() {
     const orderId = event.detail?.orderId
     if (orderId) renderPage('wo-detail', { orderId, readOnly: true, backEvent: 'back-to-notification-center' })
   })
+  document.addEventListener('open-event-calendar-wo-detail', event => {
+    const orderId = event.detail?.orderId
+    if (orderId) renderPage('wo-detail', {
+      orderId,
+      readOnly: true,
+      backEvent: 'back-to-event-calendar',
+      backLabel: '← Kembali ke Event Calendar'
+    })
+  })
   document.addEventListener('back-to-all-order', () => renderPage('all-order'))
   document.addEventListener('back-to-completed-order', () => renderPage('completed-order'))
   document.addEventListener('back-to-monitoring-sa', () => renderPage('monitoring-sa'))
   document.addEventListener('back-to-notification-center', () => renderPage('notification-center'))
+  document.addEventListener('back-to-event-calendar', () => renderPage('event-calendar'))
   document.addEventListener('work-order-deleted', () => renderPage('all-order'))
   document.addEventListener('open-notification-center', event => {
     renderPage('notification-center', {
