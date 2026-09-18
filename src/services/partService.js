@@ -3,7 +3,8 @@ import {
   doc,
   getDocs,
   runTransaction,
-  serverTimestamp
+  serverTimestamp,
+  writeBatch
 } from 'firebase/firestore'
 
 import {
@@ -339,5 +340,139 @@ export async function addPartToWorkOrder(
     tglOrder,
     qtyOrder,
     eta
+  }
+}
+
+
+/*
+  ==================================================
+  DELETE PART
+  ==================================================
+
+  Menghapus part beserta:
+  - supplies
+  - etaHistory
+
+  Work Order utama tetap dipertahankan.
+*/
+
+export async function deletePart(
+  orderId,
+  partId
+) {
+  if (!orderId) {
+    throw new Error(
+      'Order ID tidak tersedia.'
+    )
+  }
+
+  if (!partId) {
+    throw new Error(
+      'Part ID tidak tersedia.'
+    )
+  }
+
+  const orderRef =
+    doc(
+      db,
+      'orders',
+      orderId
+    )
+
+  const partRef =
+    doc(
+      db,
+      'orders',
+      orderId,
+      'parts',
+      partId
+    )
+
+  const orderSnapshot =
+    await getDoc(
+      orderRef
+    )
+
+  if (!orderSnapshot.exists()) {
+    throw new Error(
+      'Data Work Order tidak ditemukan.'
+    )
+  }
+
+  const order =
+    orderSnapshot.data()
+
+  if (order.completedAt) {
+    throw new Error(
+      'Work Order yang sudah Completed tidak dapat diubah.'
+    )
+  }
+
+  const partSnapshot =
+    await getDoc(
+      partRef
+    )
+
+  if (!partSnapshot.exists()) {
+    throw new Error(
+      'Data part tidak ditemukan.'
+    )
+  }
+
+  const suppliesSnapshot =
+    await getDocs(
+      collection(
+        partRef,
+        'supplies'
+      )
+    )
+
+  const etaHistorySnapshot =
+    await getDocs(
+      collection(
+        partRef,
+        'etaHistory'
+      )
+    )
+
+  const refs = [
+    ...suppliesSnapshot.docs.map(
+      document => document.ref
+    ),
+    ...etaHistorySnapshot.docs.map(
+      document => document.ref
+    ),
+    partRef
+  ]
+
+  for (
+    let start = 0;
+    start < refs.length;
+    start += 450
+  ) {
+    const batch =
+      writeBatch(db)
+
+    refs
+      .slice(start, start + 450)
+      .forEach(reference => {
+        batch.delete(reference)
+      })
+
+    batch.update(
+      orderRef,
+      {
+        updatedAt:
+          serverTimestamp()
+      }
+    )
+
+    await batch.commit()
+  }
+
+  return {
+    orderId,
+    partId,
+    deletedItems: refs.length
   }
 }
